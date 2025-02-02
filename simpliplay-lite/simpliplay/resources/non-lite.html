@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!--<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="lib/dash.js"></script>
+  <script src="lib/hls.js"></script>
+  <title>SimpliPlay</title>
+  <style>
+@font-face {
+font-family: "Inter";
+src: url("fonts/inter.ttf") format("truetype");
+}
+    body {
+      font-family: "Inter", Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      background: linear-gradient(135deg, #083358, #1a73e8);
+      color: white;
+    }
+
+    #saveSettingsBtn {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #1a73e8;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .dialog-overlay,
+    .subtitles-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 9999;
+    }
+
+    .dialog,
+    .subtitles-dialog {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffffff;
+      color: #333;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .dialog input[type="url"],
+    .subtitles-dialog input[type="url"] {
+      width: 80%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+
+    .dialog button,
+    .subtitles-dialog button {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #1a73e8;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .dialog button:hover,
+    .subtitles-dialog button:hover {
+      background: #0c63d9;
+    }
+
+    #customControls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 10px;
+      gap: 10px;
+    }
+
+    #customControls button,
+    input[type="range"] {
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #customControls button {
+      background: #1a73e8;
+      color: white;
+    }
+
+    #customControls button:hover {
+      background: #0c63d9;
+    }
+
+    #showDialogBtn:hover {
+      background: #0c63d9;
+    }
+
+    input[type="range"] {
+      flex-grow: 1;
+      background: transparent;
+      outline: none;
+      cursor: pointer;
+    }
+
+    video, iframe {
+      display: flex;
+      margin: 20px auto;
+      background: black;
+      width: 80vw;
+      height: 80vh;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    iframe {
+      border: none;
+    }
+
+    .gap-box {
+      height: 20px;
+    }
+
+    #showDialogBtn {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #1a73e8;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #settingsBtn {
+      background: #1a73e8;
+      font-size: 18px;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    #settingsBtn:hover {
+      background: #0c63d9;
+    }
+
+    #settingsPanel {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffffff;
+      color: black;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      z-index: 10000;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>SimpliPlay</h1>
+  <div class="dialog-overlay" id="dialogOverlay">
+    <div class="dialog">
+      <p>Select how you want to load media:</p>
+      <button id="chooseFileBtn">Choose a File</button>
+      <button id="enterUrlBtn">Enter a URL</button>
+      <button id="hideDialogBtn">Go back</button>
+      <input type="file" id="fileInput" accept="video/*,audio/*" style="display: none;">
+    </div>
+  </div>
+
+  <div class="dialog-overlay" id="urlDialogOverlay">
+    <div class="dialog">
+      <p>Enter the media URL:</p>
+      <input type="url" id="urlInput" placeholder="Enter URL here">
+      <button id="submitUrlBtn">Submit</button>
+      <button id="cancelUrlBtn">Cancel</button>
+    </div>
+  </div>
+
+  <div class="subtitles-overlay" id="subtitlesOverlay">
+    <div class="subtitles-dialog">
+      <p>Enter subtitle URL:</p>
+      <input type="url" id="subtitlesInput" placeholder="Enter subtitle URL here">
+      <button id="submitSubtitlesBtn">Submit</button>
+      <button id="cancelSubtitlesBtn">Cancel</button>
+    </div>
+  </div>
+
+  <video id="mediaPlayer" autoplay controls></video>
+
+  <div id="customControls">
+    <button id="playPauseBtn">Pause</button>
+    <input type="range" id="seekBar" min="0" value="0" step="0.1">
+    <span id="timeDisplay">00:00 / 00:00</span>
+    <button id="volumeBtn">🔊</button>
+    <input type="range" id="volumeBar" min="0" max="1" step="0.1" value="1">
+    <button id="fullscreenBtn">⛶</button>
+    <button id="ccBtn">Add CC</button> <!-- CC button -->
+  </div>
+
+  <div class="gap-box"></div>
+  <button id="showDialogBtn">Play more media</button>
+
+  <!-- Settings gear button -->
+  <button id="settingsBtn">⚙️</button>
+
+  <!-- Settings panel -->
+  <div class="dialog-overlay" id="settingsDialogOverlay">
+  <div id="settingsPanel">
+    <label for="autoplayCheckbox">Autoplay:</label>
+    <input type="checkbox" id="autoplayCheckbox" checked><br>
+    <label for="loopCheckbox">Loop:</label>
+    <input type="checkbox" id="loopCheckbox"><br>
+    <button id="saveSettingsBtn">Save Settings</button>
+  </div>
+  </div>
+
+  <script>
+    const dialogOverlay = document.getElementById('dialogOverlay');
+    const chooseFileBtn = document.getElementById('chooseFileBtn');
+    const enterUrlBtn = document.getElementById('enterUrlBtn');
+    const fileInput = document.getElementById('fileInput');
+    const mediaPlayer = document.getElementById('mediaPlayer');
+    const showDialogBtn = document.getElementById('showDialogBtn');
+    const hideDialogBtn = document.getElementById('hideDialogBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const seekBar = document.getElementById('seekBar');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const volumeBar = document.getElementById('volumeBar');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const autoplayCheckbox = document.getElementById('autoplayCheckbox');
+    const loopCheckbox = document.getElementById('loopCheckbox');
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const urlDialogOverlay = document.getElementById('urlDialogOverlay');
+    const settingsDialogOverlay = document.getElementById('settingsDialogOverlay');
+    const urlInput = document.getElementById('urlInput');
+    const submitUrlBtn = document.getElementById('submitUrlBtn');
+    const cancelUrlBtn = document.getElementById('cancelUrlBtn');
+    const ccBtn = document.getElementById('ccBtn'); // CC button
+    const subtitlesOverlay = document.getElementById('subtitlesOverlay');
+    const subtitlesInput = document.getElementById('subtitlesInput');
+    const submitSubtitlesBtn = document.getElementById('submitSubtitlesBtn');
+    const cancelSubtitlesBtn = document.getElementById('cancelSubtitlesBtn');
+    const customControls = document.getElementById('customControls');
+
+// Handle submit subtitle URL
+submitSubtitlesBtn.addEventListener('click', () => {
+      const subtitleUrl = subtitlesInput.value;
+      if (subtitleUrl) {
+        const track = document.createElement('track');
+        track.kind = 'subtitles';
+        track.label = 'English';
+        track.srclang = 'en';
+        track.src = subtitleUrl;
+        mediaPlayer.appendChild(track);
+        subtitlesOverlay.style.display = 'none';
+        subtitlesInput.value = '';
+      }
+    });
+
+
+// Function to add subtitles dynamically (e.g., after URL input)
+function addSubtitles(url) {
+  subtitleTrack.src = url;
+  subtitleTrack.track.mode = 'showing'; // Enable subtitles by default
+  subtitleBtn.textContent = 'Subtitles On'; // Set button text to indicate subtitles are on
+}
+
+
+    let autoplayEnabled = true;
+    let loopEnabled = false;
+
+    // Handle submit URL button in custom dialog
+submitUrlBtn.addEventListener('click', () => {
+  let url = urlInput.value;
+
+  // Check if URL is a valid URL and doesn't contain "http" or "https"
+  if (url && !url.startsWith('http') && !url.startsWith('https')) {
+    // Assuming it's a URL and needs the protocol added
+    url = 'http://' + url;  // You can also choose 'https://' if preferred
+  }
+
+  if (url) {
+    if (url.includes('.m3u8')) {
+      // HLS stream
+      if (Hls.isSupported()) {
+        mediaPlayer.style.display = 'flex'; // Hide the native video player
+        const hls = new Hls();
+        mediaPlayer.pause();
+        hls.loadSource(url);
+        hls.attachMedia(mediaPlayer);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          mediaPlayer.play();
+          urlInput.value = "";
+          customControls.style.display = 'flex';
+        });
+      } else {
+        alert('HLS not supported on your browser.');
+        customControls.style.display = 'flex';
+        urlInput.value = "";
+      }
+    } else if (url.includes('.mpd')) {
+      mediaPlayer.style.display = 'flex'; // Hide the native video player
+      mediaPlayer.pause();
+      const player = dashjs.MediaPlayer().create();
+      // MPEG-DASH stream
+      player.initialize(mediaPlayer, url, true);
+      customControls.style.display = 'flex';
+      urlInput.value = "";
+    } else {
+      mediaPlayer.style.display = 'flex'; // Hide the native video player
+      mediaPlayer.pause();
+      mediaPlayer.src = url;
+      customControls.style.display = 'flex';
+      urlInput.value = "";
+      mediaPlayer.play();
+    }
+    urlDialogOverlay.style.display = 'none';
+    dialogOverlay.style.display = 'none';
+  }
+});
+
+    // Handle CC button to show subtitle modal
+    ccBtn.addEventListener('click', () => {
+      subtitlesOverlay.style.display = 'block';
+    });
+
+    // Handle cancel subtitle modal
+    cancelSubtitlesBtn.addEventListener('click', () => {
+      subtitlesOverlay.style.display = 'none';
+    });
+
+    // Show the dialog on page load
+    window.onload = function () {
+      dialogOverlay.style.display = 'block';
+    };
+
+    // Handle "Choose a File" button
+    chooseFileBtn.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    // Handle file input
+    fileInput.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const fileURL = URL.createObjectURL(file);
+        mediaPlayer.src = fileURL;
+        dialogOverlay.style.display = 'none';
+      }
+    });
+
+    // Handle "Enter a URL" button
+    enterUrlBtn.addEventListener('click', () => {
+      urlDialogOverlay.style.display = 'block';
+    });
+
+    // Handle cancel button in URL dialog
+    cancelUrlBtn.addEventListener('click', () => {
+      urlDialogOverlay.style.display = 'none';
+    });
+
+    // Handle custom play/pause button
+    playPauseBtn.addEventListener('click', () => {
+      if (mediaPlayer.paused) {
+        mediaPlayer.play();
+        playPauseBtn.textContent = 'Pause';
+      } else {
+        mediaPlayer.pause();
+        playPauseBtn.textContent = 'Play';
+      }
+    });
+
+// Volume button toggling mute/unmute
+volumeBtn.addEventListener('click', () => {
+  if (mediaPlayer.muted) {
+    mediaPlayer.muted = false;
+    volumeBtn.textContent = '🔊'; // Unmute icon
+  } else {
+    mediaPlayer.muted = true;
+    volumeBtn.textContent = '🔇'; // Mute icon
+  }
+});
+
+// Handle URL input on Enter key
+urlInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    submitUrlBtn.click();
+  }
+});
+
+// Handle Subtitles input on Enter key
+subtitlesInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    submitSubtitlesBtn.click();
+  }
+});
+
+// Handle URL submission
+
+// YouTube ID extractor
+function getYouTubeID(url) {
+  const match = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+// Vimeo ID extractor
+function getVimeoID(url) {
+  const match = url.match(/vimeo.com\/(\d+)/);
+  return match ? match[1] : null;
+}
+
+    // Update seek bar and time display
+    mediaPlayer.addEventListener('timeupdate', () => {
+      seekBar.max = mediaPlayer.duration || 0;
+      seekBar.value = mediaPlayer.currentTime;
+      const current = formatTime(mediaPlayer.currentTime);
+      const total = formatTime(mediaPlayer.duration);
+      timeDisplay.textContent = `${current} / ${total}`;
+    });
+
+    // Seek media
+    seekBar.addEventListener('input', () => {
+      mediaPlayer.currentTime = seekBar.value;
+    });
+
+    // Handle volume
+    volumeBar.addEventListener('input', () => {
+      mediaPlayer.volume = volumeBar.value;
+    });
+
+    // Show settings panel
+    settingsBtn.addEventListener('click', () => {
+      settingsDialogOverlay.style.display = 'block';
+      settingsPanel.style.display = 'block';
+    });
+
+    // Save settings
+    saveSettingsBtn.addEventListener('click', () => {
+      autoplayEnabled = autoplayCheckbox.checked;
+      loopEnabled = loopCheckbox.checked;
+      mediaPlayer.autoplay = autoplayEnabled;
+      mediaPlayer.loop = loopEnabled;
+      settingsPanel.style.display = 'none';
+      settingsDialogOverlay.style.display = 'none';
+    });
+
+    // Format time
+    function formatTime(time) {
+      const minutes = Math.floor(time / 60) || 0;
+      const seconds = Math.floor(time % 60) || 0;
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Show dialog
+    showDialogBtn.addEventListener('click', () => {
+      dialogOverlay.style.display = 'block';
+    });
+
+    // Hide dialog
+    hideDialogBtn.addEventListener('click', () => {
+      dialogOverlay.style.display = 'none';
+    });
+
+    // Fullscreen functionality
+    fullscreenBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        mediaPlayer.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    });
+  </script>
+</body>
+
+</html>
