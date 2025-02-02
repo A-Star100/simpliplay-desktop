@@ -2,20 +2,28 @@
 <html lang="en">
 
 <head>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!--<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">-->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="lib/dash.js"></script>
   <script src="lib/hls.js"></script>
   <title>SimpliPlay</title>
   <style>
+@font-face {
+font-family: "Inter";
+src: url("fonts/inter.ttf") format("truetype");
+}
     body {
-      font-family: "Inter", sans-serif;
+      font-family: "Inter", Arial, sans-serif;
       text-align: center;
       padding: 20px;
       margin: 0;
       background: linear-gradient(135deg, #083358, #1a73e8);
       color: white;
+    }
+
+    #saveSettingsBtn:hover {
+      background: #0c63d9;
     }
 
     #saveSettingsBtn {
@@ -110,6 +118,10 @@
       background: #0c63d9;
     }
 
+    #showDialogBtn:hover {
+      background: #0c63d9;
+    }
+
     input[type="range"] {
       flex-grow: 1;
       background: transparent;
@@ -117,7 +129,7 @@
       cursor: pointer;
     }
 
-    video {
+    video, iframe {
       display: flex;
       margin: 20px auto;
       background: black;
@@ -125,6 +137,10 @@
       height: 80vh;
       border-radius: 10px;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    iframe {
+      border: none;
     }
 
     .gap-box {
@@ -179,7 +195,7 @@
     <div class="dialog">
       <p>Select how you want to load media:</p>
       <button id="chooseFileBtn">Choose a File</button>
-      <button id="enterUrlBtn">Enter a URL <small>(Supports MPEG-DASH and HLS)</small></button>
+      <button id="enterUrlBtn">Enter a URL</button>
       <button id="hideDialogBtn">Go back</button>
       <input type="file" id="fileInput" accept="video/*,audio/*" style="display: none;">
     </div>
@@ -222,12 +238,14 @@
   <button id="settingsBtn">⚙️</button>
 
   <!-- Settings panel -->
+  <div class="dialog-overlay" id="settingsDialogOverlay">
   <div id="settingsPanel">
     <label for="autoplayCheckbox">Autoplay:</label>
     <input type="checkbox" id="autoplayCheckbox" checked><br>
     <label for="loopCheckbox">Loop:</label>
     <input type="checkbox" id="loopCheckbox"><br>
     <button id="saveSettingsBtn">Save Settings</button>
+  </div>
   </div>
 
   <script>
@@ -249,6 +267,7 @@
     const saveSettingsBtn = document.getElementById('saveSettingsBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
     const urlDialogOverlay = document.getElementById('urlDialogOverlay');
+    const settingsDialogOverlay = document.getElementById('settingsDialogOverlay');
     const urlInput = document.getElementById('urlInput');
     const submitUrlBtn = document.getElementById('submitUrlBtn');
     const cancelUrlBtn = document.getElementById('cancelUrlBtn');
@@ -257,6 +276,7 @@
     const subtitlesInput = document.getElementById('subtitlesInput');
     const submitSubtitlesBtn = document.getElementById('submitSubtitlesBtn');
     const cancelSubtitlesBtn = document.getElementById('cancelSubtitlesBtn');
+    const customControls = document.getElementById('customControls');
 
 // Handle submit subtitle URL
 submitSubtitlesBtn.addEventListener('click', () => {
@@ -269,6 +289,7 @@ submitSubtitlesBtn.addEventListener('click', () => {
         track.src = subtitleUrl;
         mediaPlayer.appendChild(track);
         subtitlesOverlay.style.display = 'none';
+        subtitlesInput.value = '';
       }
     });
 
@@ -285,33 +306,54 @@ function addSubtitles(url) {
     let loopEnabled = false;
 
     // Handle submit URL button in custom dialog
-    submitUrlBtn.addEventListener('click', () => {
-      const url = urlInput.value;
-      if (url) {
-        if (url.includes('.m3u8')) {
-          // HLS stream
-          if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(url);
-            hls.attachMedia(mediaPlayer);
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-              mediaPlayer.play();
-            });
-          } else {
-            alert('HLS not supported on your browser.');
-          }
-        } else if (url.includes('.mpd')) {
-          // MPEG-DASH stream
-          const player = dashjs.MediaPlayer().create();
-          player.initialize(mediaPlayer, url, true);
-        } else {
-          mediaPlayer.src = url;
+submitUrlBtn.addEventListener('click', () => {
+  let url = urlInput.value;
+
+  // Check if URL is a valid URL and doesn't contain "http" or "https"
+  if (url && !url.startsWith('http') && !url.startsWith('https')) {
+    // Assuming it's a URL and needs the protocol added
+    url = 'http://' + url;  // You can also choose 'https://' if preferred
+  }
+
+  if (url) {
+    if (url.includes('.m3u8')) {
+      // HLS stream
+      if (Hls.isSupported()) {
+        mediaPlayer.style.display = 'flex'; // Hide the native video player
+        const hls = new Hls();
+        mediaPlayer.pause();
+        hls.loadSource(url);
+        hls.attachMedia(mediaPlayer);
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
           mediaPlayer.play();
-        }
-        urlDialogOverlay.style.display = 'none';
-        dialogOverlay.style.display = 'none';
+          urlInput.value = "";
+          customControls.style.display = 'flex';
+        });
+      } else {
+        alert('HLS not supported on your browser.');
+        customControls.style.display = 'flex';
+        urlInput.value = "";
       }
-    });
+    } else if (url.includes('.mpd')) {
+      mediaPlayer.style.display = 'flex'; // Hide the native video player
+      mediaPlayer.pause();
+      const player = dashjs.MediaPlayer().create();
+      // MPEG-DASH stream
+      player.initialize(mediaPlayer, url, true);
+      customControls.style.display = 'flex';
+      urlInput.value = "";
+    } else {
+      mediaPlayer.style.display = 'flex'; // Hide the native video player
+      mediaPlayer.pause();
+      mediaPlayer.src = url;
+      customControls.style.display = 'flex';
+      urlInput.value = "";
+      mediaPlayer.play();
+    }
+    urlDialogOverlay.style.display = 'none';
+    dialogOverlay.style.display = 'none';
+  }
+});
 
     // Handle CC button to show subtitle modal
     ccBtn.addEventListener('click', () => {
@@ -364,6 +406,45 @@ function addSubtitles(url) {
       }
     });
 
+// Volume button toggling mute/unmute
+volumeBtn.addEventListener('click', () => {
+  if (mediaPlayer.muted) {
+    mediaPlayer.muted = false;
+    volumeBtn.textContent = '🔊'; // Unmute icon
+  } else {
+    mediaPlayer.muted = true;
+    volumeBtn.textContent = '🔇'; // Mute icon
+  }
+});
+
+// Handle URL input on Enter key
+urlInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    submitUrlBtn.click();
+  }
+});
+
+// Handle Subtitles input on Enter key
+subtitlesInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    submitSubtitlesBtn.click();
+  }
+});
+
+// Handle URL submission
+
+// YouTube ID extractor
+function getYouTubeID(url) {
+  const match = url.match(/[?&]v=([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+// Vimeo ID extractor
+function getVimeoID(url) {
+  const match = url.match(/vimeo.com\/(\d+)/);
+  return match ? match[1] : null;
+}
+
     // Update seek bar and time display
     mediaPlayer.addEventListener('timeupdate', () => {
       seekBar.max = mediaPlayer.duration || 0;
@@ -385,6 +466,7 @@ function addSubtitles(url) {
 
     // Show settings panel
     settingsBtn.addEventListener('click', () => {
+      settingsDialogOverlay.style.display = 'block';
       settingsPanel.style.display = 'block';
     });
 
@@ -395,6 +477,7 @@ function addSubtitles(url) {
       mediaPlayer.autoplay = autoplayEnabled;
       mediaPlayer.loop = loopEnabled;
       settingsPanel.style.display = 'none';
+      settingsDialogOverlay.style.display = 'none';
     });
 
     // Format time
