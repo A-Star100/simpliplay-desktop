@@ -8,6 +8,7 @@
     "start": "electron-forge start",
     "package": "electron-builder --dir",
     "make": "electron-builder"
+    "build": "electron-builder"
   },
   "author": "Anirudh Sevugan",
   "build": {
