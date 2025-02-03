@@ -24,7 +24,7 @@
       "icon": "icon.icns"
     },
     "win": {
-      "target": "nsis",
+      "target": "msi",
       "icon": "icon.ico"
     },
     "linux": {
