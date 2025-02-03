@@ -12,6 +12,7 @@
   },
   "author": "Anirudh Sevugan",
   "build": {
+    "asar": true,
     "appId": "com.anirudhsevugan.simpliPlay",
     "productName": "SimpliPlay",
     "directories": {
