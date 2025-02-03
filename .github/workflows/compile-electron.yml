@@ -11,37 +11,16 @@ on:
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        node-version: [22]  # Node.js version 22, required for Electron 35
-        include:
-          - os: ubuntu-latest
-            arch: x64
-          - os: ubuntu-latest
-            arch: arm64
-          - os: macos-latest
-            arch: universal  # Separate matrix entry for macOS universal
-          - os: macos-latest
-            arch: x64 
-          - os: macos-latest
-            arch: arm64
-          - os: windows-latest
-            arch: x64
-          - os: windows-latest
-            arch: arm64
-
-    runs-on: ${{ matrix.os }}
+    runs-on: macos-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
@@ -53,55 +32,29 @@ jobs:
 
       - name: Package Electron app
         run: |
-          npx electron-builder --win --macos --linux --x64 --arm64 --projectDir ./simpliplay
+          # Build for macOS (universal, x64, arm64)
+          npx electron-builder --mac --arch universal --projectDir ./simpliplay
+          npx electron-builder --mac --arch x64 --projectDir ./simpliplay
+          npx electron-builder --mac --arch arm64 --projectDir ./simpliplay
+          
+          # Build for Windows (x64 and arm64)
+          npx electron-builder --win --arch x64 --projectDir ./simpliplay
+          npx electron-builder --win --arch arm64 --projectDir ./simpliplay
+          
+          # Build for Linux (x64 and arm64)
+          npx electron-builder --linux --arch x64 --projectDir ./simpliplay
+          npx electron-builder --linux --arch arm64 --projectDir ./simpliplay
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: simpliplay-${{ matrix.os }}-${{ matrix.arch }}
+          name: simpliplay-artifacts
           path: |
             simpliplay/dist/*.AppImage
             simpliplay/dist/*.dmg
             simpliplay/dist/*.zip
             simpliplay/dist/*.exe
             simpliplay/dist/*.msi
-          if-no-files-found: error
-
-  build-macos-universal:
-    needs: build
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        node-version: [22]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install dependencies
-        run: npm install
-        working-directory: ./simpliplay
-
-      - name: Build Electron app
-        run: npm run build
-        working-directory: ./simpliplay
-
-      - name: Package Electron app for macOS Universal
-        run: |
-          npx electron-builder --mac --arch universal --projectDir ./simpliplay
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload macOS Universal artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: simpliplay-macos-universal
-          path: simpliplay/dist/*.dmg
           if-no-files-found: error
