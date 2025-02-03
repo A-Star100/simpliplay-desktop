@@ -7,7 +7,7 @@
     "test": "echo Hello World!!!",
     "start": "electron-forge start",
     "package": "electron-builder --dir",
-    "make": "electron-builder"
+    "make": "electron-builder",
     "build": "electron-builder"
   },
   "author": "Anirudh Sevugan",
