@@ -30,8 +30,11 @@ jobs:
             target: nsis
             arch: x64
           - os: windows-latest
-            target: nsis
-            arch: arm64
+            target: msi
+            arch: x64
+          - os: windows-latest
+            target: msi
+            arch: arm64  # Replaces zip with MSI for ARM64
 
     runs-on: ${{ matrix.os }}
 
@@ -46,24 +49,26 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: ./simpliplay  # Install dependencies in the correct directory
 
       - name: Build Electron app
         run: npm run build
+        working-directory: ./simpliplay  # Build the app from the correct directory
 
       - name: Package Electron app
         run: |
-          npx electron-builder --${{ matrix.target }} --arch ${{ matrix.arch }}
+          npx electron-builder --${{ matrix.target }} --arch ${{ matrix.arch }} --projectDir ./simpliplay
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: simpliplay-${{ matrix.os }}-${{ matrix.arch }}
+          name: Electron-App-${{ matrix.os }}-${{ matrix.arch }}
           path: |
-            dist/*.AppImage
-            dist/*.dmg
-            dist/*.zip
-            dist/*.exe
-            dist/*.msi
+            simpliplay/dist/*.AppImage
+            simpliplay/dist/*.dmg
+            simpliplay/dist/*.zip
+            simpliplay/dist/*.exe
+            simpliplay/dist/*.msi
           if-no-files-found: error
