@@ -23,6 +23,10 @@ jobs:
             arch: arm64
           - os: macos-latest
             arch: universal  # Separate matrix entry for macOS universal
+          - os: macos-latest
+            arch: x64 
+          - os: macos-latest
+            arch: arm64
           - os: windows-latest
             arch: x64
           - os: windows-latest
@@ -49,7 +53,7 @@ jobs:
 
       - name: Package Electron app
         run: |
-          npx electron-builder --${{ matrix.os }} --arch ${{ matrix.arch }} --projectDir ./simpliplay
+          npx electron-builder --win --macos --linux --x64 --arm64 --projectDir ./simpliplay
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
