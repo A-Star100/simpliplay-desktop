@@ -1,0 +1,38 @@
+{
+  "name": "SimpliPlay",
+  "version": "1.0.1",
+  "description": "The mission to make media playback accessible on every device, anywhere, anytime.",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo Hello World!!!",
+    "start": "electron-forge start",
+    "package": "electron-builder --dir",
+    "make": "electron-builder"
+  },
+  "author": "Anirudh Sevugan",
+  "build": {
+    "appId": "com.anirudhsevugan.simpliPlay",
+    "productName": "SimpliPlay",
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "icon": "icon.icns"
+    },
+    "win": {
+      "target": "msi",
+      "icon": "icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "icon.png"
+    }
+  },
+  "devDependencies": {
+    "electron": "^34.0.1",
+    "electron-builder": "^25.1.8"
+  }
+}
