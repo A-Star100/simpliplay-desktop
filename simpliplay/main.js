@@ -1,13 +1,24 @@
-const { app, BrowserWindow, Menu, MenuItem, shell, dialog } = require('electron');
+const { app, BrowserWindow, Menu, MenuItem, shell, dialog, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
 let mainWindow;
-let pipItem; // Define pipItem
-let isPip = false; // Track PiP status
 
-// Create the main window
+const takeSnapshot = () => {
+  mainWindow.webContents.capturePage().then(image => {
+    const png = image.toPNG();
+    const snapshotsDir = path.join(os.homedir(), 'simpliplay-snapshots');
+    fs.mkdirSync(snapshotsDir, { recursive: true });
+    const filePath = path.join(snapshotsDir, `snapshot-${Date.now()}.png`);
+    fs.writeFileSync(filePath, png);
+    shell.openPath(path.dirname(filePath));
+  }).catch(error => {
+    console.error("Error capturing snapshot:", error);
+    dialog.showErrorBox("Snapshot Error", "Failed to capture snapshot: " + error.message);
+  });
+};
+
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 1920,
@@ -20,79 +31,90 @@ const createWindow = () => {
 
   mainWindow.loadFile('index.html');
 
+  // Register global shortcuts
+  globalShortcut.register('CommandOrControl+Shift+S', takeSnapshot);
+  globalShortcut.register('CommandOrControl+Shift+I', () => {
+    mainWindow.webContents.openDevTools();
+  });
+
+  // Modify the default menu
+  const menu = Menu.getApplicationMenu();
+  if (menu) {
+    // Add "Take a Snapshot" to File menu
+    const fileMenu = menu.items.find(item => item.label === 'File');
+    if (fileMenu) {
+      const snapshotItemExists = fileMenu.submenu.items.some(item => item.label === 'Take a Snapshot');
+      if (!snapshotItemExists) {
+        fileMenu.submenu.append(new MenuItem({
+          label: 'Take a Snapshot',
+          accelerator: 'CommandOrControl+Shift+S',
+          click: takeSnapshot
+        }));
+      }
+    }
+
+    // Add new items to Help menu without removing existing ones
+    const helpMenu = menu.items.find(item => item.label === 'Help');
+    if (helpMenu) {
+      const existingLabels = helpMenu.submenu.items.map(item => item.label);
+      
+      if (!existingLabels.includes('Source Code')) {
+        helpMenu.submenu.append(new MenuItem({
+          label: 'Source Code',
+          click: () => {
+            shell.openExternal('https://github.com/A-Star100/simpliplay-desktop');
+          }
+        }));
+      }
+
+      if (!existingLabels.includes('Website')) {
+        helpMenu.submenu.append(new MenuItem({
+          label: 'Website',
+          click: () => {
+            shell.openExternal('https://simpliplay.netlify.app');
+          }
+        }));
+      }
+
+      if (!existingLabels.includes('Help Center')) {
+        helpMenu.submenu.append(new MenuItem({
+          label: 'Help Center',
+          click: () => {
+            shell.openExternal('https://simpliplay.netlify.app/help');
+          }
+        }));
+      }
+
+      if (!existingLabels.includes('Quit')) {
+        helpMenu.submenu.append(new MenuItem({ type: 'separator' }));
+        helpMenu.submenu.append(new MenuItem({
+          label: 'Quit',
+          click: () => {
+            app.quit();
+          }
+        }));
+      }
+    }
+  }
+
   // Create context menu
   const contextMenu = new Menu();
 
-  // Snapshot functionality
-  contextMenu.append(new MenuItem({
-    label: 'Take a snapshot',
-    click: () => {
-      mainWindow.webContents.capturePage().then(image => {
-        const png = image.toPNG();
+  const inspectItemExists = contextMenu.items.some(item => item.label === 'Inspect');
+  if (!inspectItemExists) {
+    contextMenu.append(new MenuItem({ type: 'separator' }));
+    contextMenu.append(new MenuItem({
+      label: 'Inspect',
+      click: () => {
+        mainWindow.webContents.openDevTools();
+      }
+    }));
+  }
 
-        const snapshotsDir = path.join(os.homedir(), 'simpliplay-snapshots');
-        fs.mkdirSync(snapshotsDir, { recursive: true });
-
-        const filePath = path.join(snapshotsDir, `snapshot-${Date.now()}.png`);
-        fs.writeFileSync(filePath, png);
-        shell.openPath(path.dirname(filePath));
-      }).catch(error => {
-        console.error("Error capturing snapshot:", error);
-        dialog.showErrorBox("Snapshot Error", "Failed to capture snapshot: " + error.message);
-      });
-    }
-  }));
-
-  contextMenu.append(new MenuItem({ type: 'separator' }));
-
-  contextMenu.append(new MenuItem({
-    label: 'Inspect',
-    click: () => {
-      mainWindow.webContents.openDevTools();
-    }
-  }));
-
-  // Set the context menu when right-click is detected
   mainWindow.webContents.on('context-menu', (event, params) => {
     event.preventDefault();
     contextMenu.popup({ window: mainWindow });
   });
-
-  // Modify the default menu (this includes File, Edit, etc.)
-  const menu = Menu.getApplicationMenu();
-
-  if (menu) {
-    // Find the Help menu and add custom items to it
-    const helpMenu = menu.items.find(item => item.label === 'Help');
-
-    if (helpMenu) {
-      // Add your custom items
-      helpMenu.submenu.append(new MenuItem({
-        label: 'Source code',
-        click: () => {
-          shell.openExternal('https://github.com/A-Star100/simpliplay-desktop'); // Replace with your actual documentation URL
-        }
-      }));
-
-      helpMenu.submenu.append(new MenuItem({
-        label: 'Website',
-        click: () => {
-          shell.openExternal('https://simpliplay.netlify.app'); // Replace with your actual documentation URL
-        }
-      }));
-
-
-      // Add a separator before the quit option (optional)
-      helpMenu.submenu.append(new MenuItem({ type: 'separator' }));
-
-      helpMenu.submenu.append(new MenuItem({
-        label: 'Quit',
-        click: () => {
-          app.quit();
-        }
-      }));
-    }
-  }
 
   // Set the updated application menu
   Menu.setApplicationMenu(menu);
@@ -101,7 +123,6 @@ const createWindow = () => {
 // Handle window events and app lifecycle
 app.whenReady().then(() => {
   createWindow();
-
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
