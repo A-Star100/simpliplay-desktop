@@ -12,7 +12,17 @@ const takeSnapshot = () => {
     fs.mkdirSync(snapshotsDir, { recursive: true });
     const filePath = path.join(snapshotsDir, `snapshot-${Date.now()}.png`);
     fs.writeFileSync(filePath, png);
-    shell.openPath(path.dirname(filePath));
+     // ✅ Show message after saving
+     async function messageDialog(input) {
+      await dialog.showMessageBox({
+        type: 'info',
+        title: 'Snapshot Saved',
+        message: `${input}`,
+        buttons: ['OK']
+      });
+     }
+
+     messageDialog(`Snapshot saved to ${filePath}`)
   }).catch(error => {
     console.error("Error capturing snapshot:", error);
     dialog.showErrorBox("Snapshot Error", "Failed to capture snapshot: " + error.message);
