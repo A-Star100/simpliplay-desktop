@@ -154,17 +154,32 @@ submitUrlBtn.addEventListener('click', () => {
     });
 
 
-    //  Handle file input
+   
+    let previousObjectURL = null; // Store the last Object URL
+
     fileInput.addEventListener('change', (event) => {
-      const file = event.target.files[0];
-      if (file) {
-        clearSubtitles();
+        const file = event.target.files[0];
+        if (!file) return;
+    
+        clearSubtitles(); // Remove any previously loaded subtitles
+    
+        // Revoke the previous Object URL if it exists
+        if (previousObjectURL) {
+            URL.revokeObjectURL(previousObjectURL);
+        }
+    
+        // Create a new Object URL for the selected file
         const fileURL = URL.createObjectURL(file);
         mediaPlayer.src = fileURL;
+        mediaPlayer.play();
+    
+        // Store the new Object URL for future cleanup
+        previousObjectURL = fileURL;
+    
+        // Hide dialog after selecting a file
         dialogOverlay.style.display = 'none';
-      }
     });
-
+    
 
     // Handle "Enter a URL" button
     enterUrlBtn.addEventListener('click', () => {
