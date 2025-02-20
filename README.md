@@ -5,7 +5,7 @@ The desktop version of SimpliPlay
 [Electron](https://electronjs.org) version of SimpliPlay for Windows, macOS, and Linux (x64 and ARM64).
 
 ## simpliplay-lite
-[Neutralinojs](https://neutralino.js.org) version of SimpliPlay (significantly smaller filesize) for Windows (x64 only), macOS (x64 and ARM64), and Linux (also x64 and ARM64)
+[Neutralinojs](https://neutralino.js.org) version of SimpliPlay (significantly smaller filesize) for Windows (x64 only), macOS, and Linux (both x64 and ARM64).
 
 ## simpliplay-nwjs
 [NW.js](https://nwjs.io) version of SimpliPlay for Windows, macOS, and Linux (x64 and ARM64).
