@@ -1,6 +1,6 @@
 {
   "name": "SimpliPlay",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "The mission to make media playback accessible on every device, anywhere, anytime.",
   "main": "main.js",
   "scripts": {
@@ -29,7 +29,50 @@
     "linux": {
       "target": "AppImage",
       "icon": "icon.png"
-    }
+    },
+    "fileAssociations": [
+  {
+    "ext": "mp4",
+    "name": "MP4 Video",
+    "role": "Viewer"
+  },
+  {
+    "ext": "webm",
+    "name": "WebM Video",
+    "role": "Viewer"
+  },
+  {
+    "ext": "ogv",
+    "name": "OGV Video",
+    "role": "Viewer"
+  },
+  {
+    "ext": "mp3",
+    "name": "MP3 Audio",
+    "role": "Viewer"
+  },
+  {
+    "ext": "aac",
+    "name": "AAC Audio",
+    "role": "Viewer"
+  },
+  {
+    "ext": "wav",
+    "name": "WAV Audio",
+    "role": "Viewer"
+  },
+  {
+    "ext": "ogg",
+    "name": "OGG Audio",
+    "role": "Viewer"
+  },
+  {
+    "ext": "mkv",
+    "name": "MKV Video",
+    "role": "Viewer"
+  }
+]
+
   },
   "devDependencies": {
     "electron": "^34.0.1",
