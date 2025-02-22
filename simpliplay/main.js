@@ -162,5 +162,7 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
+ app.quit();
+ /* once bug fixed replace above with:
+ if (process.platform !== 'darwin') app.quit() */
 });
