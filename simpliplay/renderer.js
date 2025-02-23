@@ -3,15 +3,18 @@ window.electron.receive("play-media", (filePath) => {
   loadMedia(filePath);
 });
 
-// Function to load and play media file
 function loadMedia(filePath) {
   dialogOverlay.style.display = 'none';
   const mediaElement = document.getElementById("mediaPlayer");
   if (mediaElement) {
-    mediaElement.src = `file://${filePath}`; // ✅ Convert file path to a valid URL
+    // Encode special characters in the file path
+    const encodedFilePath = encodeURI(`file://${filePath}`);
+
+    mediaElement.src = encodedFilePath; // ✅ Use encoded file path
     if (autoplayCheckbox && autoplayCheckbox.checked) {
       mediaElement.play();
     }
   }
 }
+
 
