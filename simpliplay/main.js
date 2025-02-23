@@ -2,6 +2,7 @@ const { app, BrowserWindow, Menu, MenuItem, shell, dialog, globalShortcut } = re
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const { pathToFileURL } = require("url");
 
 let mainWindow;
 
@@ -14,16 +15,19 @@ app.on('open-file', (event, filePath) => {
 const openFile = (filePath) => {
   app.whenReady().then(() => {
     if (mainWindow) {
+      const fileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
       if (mainWindow.webContents.isLoading()) {
         mainWindow.webContents.once("did-finish-load", () => {
-          mainWindow.webContents.send("play-media", filePath);
+          mainWindow.webContents.send("play-media", fileURL);
         });
       } else {
-        mainWindow.webContents.send("play-media", filePath);
+        const fileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
+        mainWindow.webContents.send("play-media", fileURL);
       }
     } else {
       createWindow(() => {
-        mainWindow.webContents.send("play-media", filePath);
+        const fileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
+        mainWindow.webContents.send("play-media", fileURL);
       });
     }
   });
@@ -68,6 +72,8 @@ const createWindow = (onReadyCallback) => {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
+      enableRemoteModule: false,
+      nodeIntegration: false, // Keep this false for security
     },
   });
 
