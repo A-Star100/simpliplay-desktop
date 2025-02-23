@@ -1,20 +1,16 @@
-// Listen for media file path from main process
-window.electron.receive("play-media", (filePath) => {
-  loadMedia(filePath);
+// Listen for media file URL from main process
+window.electron.receive("play-media", (fileURL) => {
+  loadMedia(fileURL);
 });
 
-function loadMedia(filePath) {
+function loadMedia(fileURL) {
   dialogOverlay.style.display = 'none';
   const mediaElement = document.getElementById("mediaPlayer");
-  if (mediaElement) {
-    // Encode special characters in the file path
-    const encodedFilePath = encodeURI(`file://${filePath}`);
 
-    mediaElement.src = encodedFilePath; // ✅ Use encoded file path
+  if (mediaElement) {
+    mediaElement.src = fileURL; // ✅ Safe, properly encoded URL
     if (autoplayCheckbox && autoplayCheckbox.checked) {
       mediaElement.play();
     }
   }
 }
-
-
