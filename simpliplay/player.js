@@ -5,8 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const enterUrlBtn = document.getElementById('enterUrlBtn');
     const fileInput = document.getElementById('fileInput');
     const mediaPlayer = document.getElementById('mediaPlayer');
-    const showDialogBtn = document.getElementById('showDialogBtn');
-    const hideDialogBtn = document.getElementById('hideDialogBtn');
     const playPauseBtn = document.getElementById('playPauseBtn');
     const seekBar = document.getElementById('seekBar');
     const timeDisplay = document.getElementById('timeDisplay');
@@ -16,18 +14,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const autoplayCheckbox = document.getElementById('autoplayCheckbox');
     const loopCheckbox = document.getElementById('loopCheckbox');
     const saveSettingsBtn = document.getElementById('saveSettingsBtn');
-    const fullscreenBtn = document.getElementById('fullscreenBtn');
     const urlDialogOverlay = document.getElementById('urlDialogOverlay');
     const settingsDialogOverlay = document.getElementById('settingsDialogOverlay');
     const urlInput = document.getElementById('urlInput');
     const submitUrlBtn = document.getElementById('submitUrlBtn');
     const cancelUrlBtn = document.getElementById('cancelUrlBtn');
     const ccBtn = document.getElementById('ccBtn'); // CC button
+    const volumeBtn = document.getElementById("volumeBtn")
     const subtitlesOverlay = document.getElementById('subtitlesOverlay');
     const subtitlesInput = document.getElementById('subtitlesInput');
     const submitSubtitlesBtn = document.getElementById('submitSubtitlesBtn');
     const cancelSubtitlesBtn = document.getElementById('cancelSubtitlesBtn');
     const customControls = document.getElementById('customControls');
+
+    // Update media volume when the slider is moved
+  volumeBar.addEventListener("input", function () {
+    mediaPlayer.volume = volumeSlider.value;
+  });
+
+  // Sync slider with media volume (in case it's changed programmatically)
+  mediaPlayer.addEventListener("volumechange", function () {
+    volumeBar.value = mediaPlayer.volume;
+    if (mediaPlayer.muted || mediaPlayer.volume === 0) {
+      volumeBtn.textContent = "🔇";
+    } else {
+      volumeBtn.textContent = "🔊";
+    }
+  });
 
 // Function to add subtitles dynamically (e.g., after URL input)
 function addSubtitles(url) {
@@ -90,13 +103,15 @@ submitUrlBtn.addEventListener('click', () => {
     if (url.includes('.m3u8')) {
       // HLS stream
       if (Hls.isSupported()) {
-        mediaPlayer.style.display = 'flex'; // Hide the native video player
+        mediaPlayer.style.display = 'flex'; // Hide the native video playerz
         const hls = new Hls();
         mediaPlayer.pause();
         hls.loadSource(url);
         hls.attachMedia(mediaPlayer);
         hls.on(Hls.Events.MANIFEST_PARSED, function() {
-          mediaPlayer.play();
+          if (autoplayCheckbox.checked) {
+            mediaPlayer.play();
+          }
           urlInput.value = "";
           customControls.style.display = 'flex';
         });
@@ -113,13 +128,18 @@ submitUrlBtn.addEventListener('click', () => {
       player.initialize(mediaPlayer, url, true);
       customControls.style.display = 'flex';
       urlInput.value = "";
+      if (autoplayCheckbox.checked) {
+        mediaPlayer.play();
+      }
     } else {
       mediaPlayer.style.display = 'flex'; // Hide the native video player
       mediaPlayer.pause();
       mediaPlayer.src = url;
       customControls.style.display = 'flex';
       urlInput.value = "";
-      mediaPlayer.play();
+      if (autoplayCheckbox.checked) {
+        mediaPlayer.play();
+      }
     }
     urlDialogOverlay.style.display = 'none';
     dialogOverlay.style.display = 'none';
@@ -153,6 +173,15 @@ submitUrlBtn.addEventListener('click', () => {
       fileInput.click();
     });
 
+    mediaPlayer.addEventListener("volumechange", function () {
+      if (mediaPlayer.muted) {
+        volumeBtn.textContent = "🔇"
+      } else if (mediaPlayer.volume === 0) {
+        volumeBtn.textContent = "🔊"
+      }
+    });
+    
+
 
    
     let previousObjectURL = null; // Store the last Object URL
@@ -171,7 +200,9 @@ submitUrlBtn.addEventListener('click', () => {
         // Create a new Object URL for the selected file
         const fileURL = URL.createObjectURL(file);
         mediaPlayer.src = fileURL;
+        if (autoplayCheckbox.checked) {
         mediaPlayer.play();
+        }
     
         // Store the new Object URL for future cleanup
         previousObjectURL = fileURL;
@@ -214,7 +245,7 @@ mediaPlayer.addEventListener('play', () => {
 
 // Volume button toggling mute/unmute
 volumeBtn.addEventListener('click', () => {
-  if (mediaPlayer.muted) {
+  if (mediaPlayer.muted || mediaPlayer.volume == 0) {
     mediaPlayer.muted = false;
     volumeBtn.textContent = '🔊'; // Unmute icon
   } else {
@@ -222,6 +253,7 @@ volumeBtn.addEventListener('click', () => {
     volumeBtn.textContent = '🔇'; // Mute icon
   }
 });
+
 
 // Handle URL input on Enter key
 urlInput.addEventListener('keydown', (e) => {
@@ -257,6 +289,11 @@ subtitlesInput.addEventListener('keydown', (e) => {
     // Handle volume
     volumeBar.addEventListener('input', () => {
       mediaPlayer.volume = volumeBar.value;
+      if (volumeBar.value == 0 || mediaPlayer.volume == 0) {
+        volumeBtn.textContent = "🔇";
+      } else {
+        volumeBtn.textContent = "🔊";
+      }
     });
 
     // Show settings panel
@@ -275,7 +312,8 @@ subtitlesInput.addEventListener('keydown', (e) => {
       settingsDialogOverlay.style.display = 'none';
     });
 
-  });
+
+// End of first event listener for DOM content loaded
 
     // Format time
     function formatTime(time) {
@@ -284,7 +322,9 @@ subtitlesInput.addEventListener('keydown', (e) => {
       return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    const showDialogBtn = document.getElementById('showDialogBtn');
+    const hideDialogBtn = document.getElementById('hideDialogBtn');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
 
     // Show dialog
     showDialogBtn.addEventListener('click', () => {
@@ -305,6 +345,7 @@ subtitlesInput.addEventListener('keydown', (e) => {
       }
     });
 
-  });
 
+// End of code and second event listener for DOM content loaded
 
+});
