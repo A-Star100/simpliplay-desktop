@@ -149,7 +149,15 @@ const setupShortcuts = () => {
     });
   });
 
-  globalShortcut.register('CommandOrControl+Shift+S', takeSnapshot);
+  globalShortcut.register('CommandOrControl+S', () => {
+    const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the currently focused window
+
+    if (!focusedWindow) return; // Do nothing if no window is focused
+
+    takeSnapshot
+  });
+
+  // globalShortcut.register('CommandOrControl+Shift+S', takeSnapshot);
 };
 
 // App lifecycle management
