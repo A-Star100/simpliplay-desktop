@@ -132,20 +132,21 @@ const setupMenu = () => {
   Menu.setApplicationMenu(menu);
 };
 
-// Quit Confirmation on CommandOrControl+Q
 const setupShortcuts = () => {
   globalShortcut.register('CommandOrControl+Q', () => {
-    if (mainWindow) {
-      dialog.showMessageBox(mainWindow, {
-        type: 'question',
-        buttons: ['Cancel', 'Quit'],
-        defaultId: 1,
-        title: 'Quit?',
-        message: 'Are you sure you want to quit SimpliPlay?',
-      }).then(({ response }) => {
-        if (response === 1) app.quit();
-      });
-    }
+    const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the currently focused window
+
+    if (!focusedWindow) return; // Do nothing if no window is focused
+
+    dialog.showMessageBox(focusedWindow, {
+      type: 'question',
+      buttons: ['Cancel', 'Quit'],
+      defaultId: 1,
+      title: 'Quit?',
+      message: 'Are you sure you want to quit SimpliPlay?',
+    }).then(({ response }) => {
+      if (response === 1) app.quit();
+    });
   });
 
   globalShortcut.register('CommandOrControl+Shift+S', takeSnapshot);
