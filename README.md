@@ -4,10 +4,10 @@ The desktop version of SimpliPlay.
 ## simpliplay
 [Electron](https://electronjs.org) version of SimpliPlay for Windows, macOS, and Linux (x64 and ARM64).
 
-## simpliplay-lite
+## [simpliplay-lite](https://github.com/A-Star100/simpliplay-desktop/tree/lite)
 [Neutralinojs](https://neutralino.js.org) version of SimpliPlay (significantly smaller filesize) for Windows (x64 only), macOS, and Linux (both x64 and ARM64).
 
-## simpliplay-nwjs
+## [simpliplay-nwjs](https://github.com/A-Star100/simpliplay-desktop/tree/nwjs)
 [NW.js](https://nwjs.io) version of SimpliPlay for Windows, macOS, and Linux (x64 and ARM64).
 > [!WARNING]
 > This version is an example NW.js configuration, it won't be used in production, but you can use it if you would like. Files in this version won't be updated, so refer to files from the Electron release for production usage.
