@@ -1,12 +1,6 @@
 # simpliplay-desktop
 The desktop version of SimpliPlay.
 
-## simpliplay
-[Electron](https://electronjs.org) version of SimpliPlay for Windows, macOS, and Linux (x64 and ARM64).
-
-## simpliplay-lite
-[Neutralinojs](https://neutralino.js.org) version of SimpliPlay (significantly smaller filesize) for Windows (x64 only), macOS, and Linux (both x64 and ARM64).
-
 ## simpliplay-nwjs
 [NW.js](https://nwjs.io) version of SimpliPlay for Windows, macOS, and Linux (x64 and ARM64).
 > [!WARNING]
@@ -15,6 +9,6 @@ The desktop version of SimpliPlay.
 ___
 
 ## Setup
-Read the docs ([Electron - Quick Start](https://www.electronjs.org/docs/latest/tutorial/quick-start), [Neutralinojs - Your First App](https://neutralino.js.org/docs/getting-started/your-first-neutralinojs-app), [NW.js - Getting Started (For Users)](https://nwjs.readthedocs.io/en/latest/For%20Users/Getting%20Started/#write-nwjs-app))
+Read the docs: [NW.js - Getting Started (For Users)](https://nwjs.readthedocs.io/en/latest/For%20Users/Getting%20Started/#write-nwjs-app))
 
 
