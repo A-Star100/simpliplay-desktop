@@ -185,11 +185,13 @@ app.whenReady().then(() => {
   createWindow();
   setupMenu();
 
-  // Handle file opening from command-line arguments (Windows/Linux)
-  const args = process.argv.slice(1); // Skip the first argument (app path)
-  const fileArg = args.find(arg => !arg.startsWith('-') && !arg.includes('electron')); 
+  // Store file argument but don't open immediately
+  const args = process.argv.slice(1);
+  const fileArg = args.find(arg => !arg.startsWith('-') && !arg.includes('electron'));
 
-  if (fileArg) openFileSafely(fileArg);
+  setTimeout(() => {
+    if (fileArg) openFileSafely(fileArg); // ✅ Open only after window is ready
+  }, 500); // Adjust delay as needed
 
   setTimeout(() => {
     if (mainWindow) {
@@ -201,7 +203,6 @@ app.whenReady().then(() => {
     }
   }, 100);
 
-  // Handle file opening from Finder (macOS)
   app.on("open-file", (event, filePath) => {
     event.preventDefault();
     openFileSafely(filePath);
@@ -211,14 +212,15 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 
-  // ✅ Windows: Handle file reopening while app is already running
-  if (!app.requestSingleInstanceLock()) {
-    app.quit();
-  } else {
-    app.on("second-instance", (event, argv) => {
-      const fileArg = argv.find(arg => arg.startsWith("C:\\") || arg.startsWith("/"));
-      if (fileArg) openFileSafely(fileArg);
-    });
+  if (process.platform === "win32") { 
+    if (!app.requestSingleInstanceLock()) {
+      app.quit();
+    } else {
+      app.on("second-instance", (event, argv) => {
+        const fileArg = argv.find(arg => arg.startsWith("C:\\") || arg.startsWith("/"));
+        if (fileArg) openFileSafely(fileArg);
+      });
+    }
   }
 });
 
@@ -227,10 +229,22 @@ let hasOpenedFile = false;
 function openFileSafely(filePath) {
   if (!hasOpenedFile) {
     hasOpenedFile = true;
-    openFile(filePath);
-    setTimeout(() => hasOpenedFile = false, 1000); // Reset after 1 sec
+
+    if (mainWindow && mainWindow.webContents) {
+      if (mainWindow.webContents.isLoading()) {
+        mainWindow.webContents.once("did-finish-load", () => {
+          mainWindow.webContents.send("play-media", filePath);
+        });
+      } else {
+        mainWindow.webContents.send("play-media", filePath);
+      }
+    }
+
+    setTimeout(() => (hasOpenedFile = false), 1000);
   }
 }
+
+
 
 
 app.on("window-all-closed", () => {
