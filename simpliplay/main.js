@@ -181,6 +181,17 @@ function unregisterShortcuts() {
   console.log("Shortcuts unregistered");
 }
 
+function isValidFileArg(arg) {
+  return (
+    typeof arg === "string" &&
+    !arg.startsWith("-") && // Exclude Electron flags
+    !arg.includes("electron") && // Exclude internal Electron args
+    !arg.endsWith(".app") && // Exclude the app itself on macOS
+    !arg.endsWith("/Contents/MacOS/AppName") // Exclude macOS internal launch paths
+  );
+}
+
+
 app.whenReady().then(() => {
   createWindow();
   setupMenu();
