@@ -187,7 +187,7 @@ app.whenReady().then(() => {
 
   // Store file argument but don't open immediately
   const args = process.argv.slice(1);
-  const fileArg = args.find(arg => !arg.startsWith('-') && !arg.includes('electron'));
+  const fileArg = args.find(isValidFileArg); // Use the filtering function
 
   setTimeout(() => {
     if (fileArg) openFileSafely(fileArg); // ✅ Open only after window is ready
