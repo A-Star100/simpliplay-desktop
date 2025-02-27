@@ -188,6 +188,12 @@ app.whenReady().then(() => {
   setupMenu();
   setupShortcuts();
 
+  if (!mainWindow) {
+     createWindow(() => {
+       console.log("Created window");
+      });
+  }
+
   mainWindow.on("focus", () => {
     setupShortcuts(); // setupShortcuts() is an existing function made earlier in the code
   });
