@@ -185,6 +185,12 @@ app.whenReady().then(() => {
   createWindow();
   setupMenu();
 
+  // Handle file opening from command-line arguments (Windows/Linux)
+  const args = process.argv.slice(1); // Skip the first argument (app path)
+  const fileArg = args.find(arg => !arg.startsWith('-') && !arg.includes('electron')); 
+
+  if (fileArg) openFileSafely(fileArg);
+
   setTimeout(() => {
     if (mainWindow) {
       mainWindow.on("focus", () => {
@@ -195,15 +201,26 @@ app.whenReady().then(() => {
     }
   }, 100);
 
+  // Handle file opening from Finder (macOS)
   app.on("open-file", (event, filePath) => {
     event.preventDefault();
-    openFile(filePath);
+    openFileSafely(filePath);
   });
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
+
+let hasOpenedFile = false;
+
+function openFileSafely(filePath) {
+  if (!hasOpenedFile) {
+    hasOpenedFile = true;
+    openFile(filePath);
+    setTimeout(() => hasOpenedFile = false, 1000); // Reset after 1 sec
+  }
+}
 
 
 app.on("window-all-closed", () => {
