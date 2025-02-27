@@ -1,8 +1,3 @@
-// Listen for media file URL from main process
-window.electron.receive("play-media", (fileURL) => {
-  loadMedia(fileURL);
-});
-
 function loadMedia(fileURL) {
   dialogOverlay.style.display = 'none';
   const mediaElement = document.getElementById("mediaPlayer");
@@ -18,3 +13,23 @@ function loadMedia(fileURL) {
     };
   }
 }
+
+// Validate media URL
+function isSafeURL(fileURL) {
+  try {
+    const url = new URL(fileURL);
+    return url.protocol === "file:";
+  } catch (error) {
+    return false;
+  }
+}
+
+
+// ✅ Listen for "play-media" event from main process securely
+window.electron.receive("play-media", (fileURL) => {
+  if (isSafeURL(fileURL)) {
+    loadMedia(fileURL);
+  } else {
+    console.warn("Blocked unsafe media URL:", fileURL);
+  }
+});
