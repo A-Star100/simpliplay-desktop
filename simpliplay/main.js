@@ -74,6 +74,7 @@ const createWindow = (onReadyCallback) => {
       contextIsolation: true,
       enableRemoteModule: false,
       nodeIntegration: false, // Keep this false for security
+      sandbox: true,
     },
   });
 
@@ -149,12 +150,20 @@ const setupShortcuts = () => {
     });
   });
 
+  globalShortcut.register('CommandOrControl+Shift+S', () => {
+    const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the currently focused window
+
+    if (!focusedWindow) return; // Do nothing if no window is focused
+
+    takeSnapshot();
+  });
+
   globalShortcut.register('CommandOrControl+S', () => {
     const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the currently focused window
 
     if (!focusedWindow) return; // Do nothing if no window is focused
 
-    takeSnapshot
+    takeSnapshot();
   });
 
   // globalShortcut.register('CommandOrControl+Shift+S', takeSnapshot);
@@ -176,8 +185,14 @@ app.whenReady().then(() => {
   });
 });
 
+
 app.on("window-all-closed", () => {
- app.quit();
- /* once bug fixed replace above with:
+  globalShortcut.unregisterAll();
+  app.quit();
+  /* once bug fixed replace above with:
  if (process.platform !== 'darwin') app.quit() */
+});
+
+app.on("will-quit", () => {
+  globalShortcut.unregisterAll();
 });
