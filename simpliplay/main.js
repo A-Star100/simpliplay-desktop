@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { pathToFileURL } = require("url");
+var didRegisterShortcuts = false;
 
 let mainWindow;
 
@@ -134,6 +135,7 @@ const setupMenu = () => {
 };
 
 const setupShortcuts = () => {
+if (didRegisterShortcuts === false) {
   globalShortcut.register('CommandOrControl+Q', () => {
     const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the currently focused window
 
@@ -151,6 +153,7 @@ const setupShortcuts = () => {
   });
 
   globalShortcut.register('CommandOrControl+Shift+S', () => {
+
     const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the currently focused window
 
     if (!focusedWindow) return; // Do nothing if no window is focused
@@ -159,6 +162,7 @@ const setupShortcuts = () => {
   });
 
   globalShortcut.register('CommandOrControl+S', () => {
+
     const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the currently focused window
 
     if (!focusedWindow) return; // Do nothing if no window is focused
@@ -167,13 +171,31 @@ const setupShortcuts = () => {
   });
 
   // globalShortcut.register('CommandOrControl+Shift+S', takeSnapshot);
+  didRegisterShortcuts = true;
+}
 };
+
+function unregisterShortcuts() {
+  didRegisterShortcuts = false;
+  globalShortcut.unregisterAll();
+  console.log("Shortcuts unregistered");
+}
+
 
 // App lifecycle management
 app.whenReady().then(() => {
   createWindow();
   setupMenu();
   setupShortcuts();
+
+  mainWindow.on("focus", () => {
+    setupShortcuts(); // setupShortcuts() is an existing function made earlier in the code
+  });
+
+  mainWindow.on("blur", () => {
+    unregisterShortcuts();
+  });
+
 
   app.on("open-file", (event, filePath) => {
     event.preventDefault();
