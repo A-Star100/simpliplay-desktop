@@ -210,6 +210,16 @@ app.whenReady().then(() => {
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+
+  // ✅ Windows: Handle file reopening while app is already running
+  if (!app.requestSingleInstanceLock()) {
+    app.quit();
+  } else {
+    app.on("second-instance", (event, argv) => {
+      const fileArg = argv.find(arg => arg.startsWith("C:\\") || arg.startsWith("/"));
+      if (fileArg) openFileSafely(fileArg);
+    });
+  }
 });
 
 let hasOpenedFile = false;
