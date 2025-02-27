@@ -181,46 +181,29 @@ function unregisterShortcuts() {
   console.log("Shortcuts unregistered");
 }
 
-function isValidFileArg(arg) {
-  return (
-    typeof arg === "string" &&
-    !arg.startsWith("-") && // Exclude Electron flags
-    !arg.includes("electron") && // Exclude internal Electron args
-    !arg.endsWith(".app") && // Exclude the app itself on macOS
-    !arg.endsWith("/Contents/MacOS/AppName") // Exclude macOS internal launch paths
-  );
-}
-
-
 app.whenReady().then(() => {
   createWindow();
   setupMenu();
 
-  // Store file argument but don't open immediately
+  // Store but delay opening
   const args = process.argv.slice(1);
-  const fileArg = args.find(isValidFileArg); // Use the filtering function
+  const fileArg = args.find(isValidFileArg);
 
-  setTimeout(() => {
-    if (fileArg) openFileSafely(fileArg); // ✅ Open only after window is ready
-  }, 500); // Adjust delay as needed
+  if (fileArg) {
+    app.whenReady().then(() => {
+      if (mainWindow) openFileSafely(fileArg);
+    });
+  }
 
-  setTimeout(() => {
-    if (mainWindow) {
-      mainWindow.on("focus", () => {
-        if (!didRegisterShortcuts) setupShortcuts();
-      });
+  mainWindow?.on("focus", () => {
+    if (!didRegisterShortcuts) setupShortcuts();
+  });
 
-      mainWindow.on("blur", unregisterShortcuts);
-    }
-  }, 100);
+  mainWindow?.on("blur", unregisterShortcuts);
 
   app.on("open-file", (event, filePath) => {
     event.preventDefault();
     openFileSafely(filePath);
-  });
-
-  app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 
   if (process.platform === "win32") { 
@@ -228,7 +211,7 @@ app.whenReady().then(() => {
       app.quit();
     } else {
       app.on("second-instance", (event, argv) => {
-        const fileArg = argv.find(arg => arg.startsWith("C:\\") || arg.startsWith("/"));
+        const fileArg = argv.find(isValidFileArg);
         if (fileArg) openFileSafely(fileArg);
       });
     }
@@ -241,19 +224,20 @@ function openFileSafely(filePath) {
   if (!hasOpenedFile) {
     hasOpenedFile = true;
 
-    if (mainWindow && mainWindow.webContents) {
-      if (mainWindow.webContents.isLoading()) {
-        mainWindow.webContents.once("did-finish-load", () => {
-          mainWindow.webContents.send("play-media", filePath);
-        });
-      } else {
+    if (mainWindow?.webContents) {
+      mainWindow.webContents.once("did-finish-load", () => {
         mainWindow.webContents.send("play-media", filePath);
-      }
+      });
     }
 
     setTimeout(() => (hasOpenedFile = false), 1000);
   }
 }
+
+function isValidFileArg(arg) {
+  return arg && !arg.startsWith('-') && !arg.includes('electron') && fs.existsSync(arg);
+}
+
 
 
 
