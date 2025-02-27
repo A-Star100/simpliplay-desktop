@@ -181,27 +181,19 @@ function unregisterShortcuts() {
   console.log("Shortcuts unregistered");
 }
 
-
-// App lifecycle management
 app.whenReady().then(() => {
   createWindow();
   setupMenu();
-  setupShortcuts();
 
-  if (!mainWindow) {
-     createWindow(() => {
-       console.log("Created window");
+  setTimeout(() => {
+    if (mainWindow) {
+      mainWindow.on("focus", () => {
+        if (!didRegisterShortcuts) setupShortcuts();
       });
-  }
 
-  mainWindow.on("focus", () => {
-    setupShortcuts(); // setupShortcuts() is an existing function made earlier in the code
-  });
-
-  mainWindow.on("blur", () => {
-    unregisterShortcuts();
-  });
-
+      mainWindow.on("blur", unregisterShortcuts);
+    }
+  }, 100);
 
   app.on("open-file", (event, filePath) => {
     event.preventDefault();
