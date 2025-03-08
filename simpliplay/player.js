@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update media volume when the slider is moved
   volumeBar.addEventListener("input", function () {
-    mediaPlayer.volume = volumeSlider.value;
+    mediaPlayer.volume = volumeBar.value;
   });
 
   // Sync slider with media volume (in case it's changed programmatically)
