@@ -8,7 +8,11 @@
 }
 
 h1 {
-  font-family: "Inter-header", Arial, sans-serif;
+  font-family: "Inter-header", Arial, sans-serif !important;
+}
+
+* {
+  font-family: "Inter", Arial, sans-serif;
 }
 
     body {
