@@ -1,6 +1,8 @@
+let mediaElement = document.getElementById("mediaPlayer");
+
+
 function loadMedia(fileURL) {
   dialogOverlay.style.display = 'none';
-  const mediaElement = document.getElementById("mediaPlayer");
 
   mediaElement.oncanplay = null;
 
@@ -11,6 +13,14 @@ function loadMedia(fileURL) {
         mediaElement.play().catch(error => console.warn("Playback issue:", error));
       }
     };
+  }
+}
+
+// Handle submit subtitle URL
+function clearSubtitles() {
+  const tracks = mediaElement.getElementsByTagName('track');
+  for (let i = tracks.length - 1; i >= 0; i--) {
+    tracks[i].remove();
   }
 }
 
@@ -28,6 +38,7 @@ function isSafeURL(fileURL) {
 // ✅ Listen for "play-media" event from main process securely
 window.electron.receive("play-media", (fileURL) => {
   if (isSafeURL(fileURL)) {
+    clearSubtitles()
     loadMedia(fileURL);
   } else {
     console.warn("Blocked unsafe media URL:", fileURL);
