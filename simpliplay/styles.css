@@ -149,6 +149,12 @@ h1 {
       height: 20px;
     }
 
+    .settings-info {
+      font-size: 0.85em; 
+      color: #888;
+      margin-top: 10px;
+    }
+
     #showDialogBtn {
       margin: 10px 5px;
       padding: 10px 20px;
