@@ -302,16 +302,19 @@ subtitlesInput.addEventListener('keydown', (e) => {
       settingsPanel.style.display = 'block';
     });
 
-    // Save settings
     saveSettingsBtn.addEventListener('click', () => {
       autoplayEnabled = autoplayCheckbox.checked;
       loopEnabled = loopCheckbox.checked;
       mediaPlayer.autoplay = autoplayEnabled;
       mediaPlayer.loop = loopEnabled;
+      
+      const controlsEnabled = document.getElementById('controlsCheckbox').checked;
+      mediaPlayer.controls = controlsEnabled;
+    
       settingsPanel.style.display = 'none';
       settingsDialogOverlay.style.display = 'none';
     });
-
+    
 
 // End of first event listener for DOM content loaded
 
