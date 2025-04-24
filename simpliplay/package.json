@@ -1,10 +1,10 @@
 {
   "name": "SimpliPlay",
-  "version": "1.0.3",
-  "description": "The mission to make media playback accessible on every device, anywhere, anytime.",
+  "version": "1.0.4",
+  "description": "SimpliPlay - The mission to make media playback accessible on every device, anywhere, anytime.",
   "main": "./main.js",
   "scripts": {
-    "test": "echo Hello World!!!",
+    "test": "echo Hello World from SimpliPlay!!!",
     "start": "electron-forge start",
     "package": "electron-builder --dir",
     "make": "electron-builder"
@@ -31,7 +31,7 @@
       ]
     },
     "win": {
-      "target": "portable",
+      "target": "nsis",
       "icon": "icon.ico"
     },
     "linux": {
@@ -49,6 +49,16 @@
       {
         "ext": "webm",
         "name": "WebM Video",
+        "role": "Viewer"
+      },
+      {
+        "ext": "m4v",
+        "name": "M4V Video",
+        "role": "Viewer"
+      },
+      {
+        "ext": "m4a",
+        "name": "M4A Audio",
         "role": "Viewer"
       },
       {
@@ -77,6 +87,11 @@
         "role": "Viewer"
       },
       {
+        "ext": "flac",
+        "name": "FLAC Audio",
+        "role": "Viewer"
+      },
+      {
         "ext": "mkv",
         "name": "MKV Video",
         "role": "Viewer"
@@ -84,7 +99,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^34.0.1",
+    "electron": "^34.5.2",
     "electron-builder": "^25.1.8"
   }
 }
