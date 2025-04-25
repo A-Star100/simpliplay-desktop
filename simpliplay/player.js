@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitSubtitlesBtn = document.getElementById('submitSubtitlesBtn');
     const cancelSubtitlesBtn = document.getElementById('cancelSubtitlesBtn');
     const customControls = document.getElementById('customControls');
+    let hls = null
+    let player = null
 
     // Update media volume when the slider is moved
   volumeBar.addEventListener("input", function () {
@@ -97,14 +99,23 @@ submitUrlBtn.addEventListener('click', () => {
     // Assuming it's a URL and needs the protocol added
     url = 'http://' + url;  // You can also choose 'https://' if preferred
   }
+  
 
   if (url) {
     clearSubtitles();
-    if (url.includes('.m3u8')) {
+    if (hls !== null) {
+      hls.destroy()
+      hls = null
+    }
+    if (player !== null) {
+      player.reset()
+      player = null
+    }
+    if (url.toLowerCase().includes('.m3u8') || url.toLowerCase().includes('.m3u')) {
       // HLS stream
       if (Hls.isSupported()) {
-        mediaPlayer.style.display = 'flex'; // Hide the native video playerz
-        const hls = new Hls();
+        mediaPlayer.style.display = 'flex'; // Hide the native video player
+        hls = new Hls();
         mediaPlayer.pause();
         hls.loadSource(url);
         hls.attachMedia(mediaPlayer);
@@ -116,14 +127,14 @@ submitUrlBtn.addEventListener('click', () => {
           customControls.style.display = 'flex';
         });
       } else {
-        alert("HLS isn't supported on your browser.");
+        alert("Your device doesn't support HLS.");
         customControls.style.display = 'flex';
         urlInput.value = "";
       }
-    } else if (url.includes('.mpd')) {
+    } else if (url.toLowerCase().includes('.mpd')) {
       mediaPlayer.style.display = 'flex'; // Hide the native video player
       mediaPlayer.pause();
-      const player = dashjs.MediaPlayer().create();
+      player = dashjs.MediaPlayer().create();
       // MPEG-DASH stream
       player.initialize(mediaPlayer, url, true);
       customControls.style.display = 'flex';
@@ -309,8 +320,14 @@ subtitlesInput.addEventListener('keydown', (e) => {
       mediaPlayer.loop = loopEnabled;
       
       const controlsEnabled = document.getElementById('controlsCheckbox').checked;
+      const colorsEnabled = document.getElementById('colorsCheckbox').checked;
       mediaPlayer.controls = controlsEnabled;
-    
+      if (colorsEnabled) {
+        mediaPlayer.style.filter = "contrast(1.1) saturate(1.15) brightness(1.03)";
+      } else {
+        mediaPlayer.style.filter = "";
+      }
+
       settingsPanel.style.display = 'none';
       settingsDialogOverlay.style.display = 'none';
     });
