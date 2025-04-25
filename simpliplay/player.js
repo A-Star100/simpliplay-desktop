@@ -198,6 +198,14 @@ submitUrlBtn.addEventListener('click', () => {
     let previousObjectURL = null; // Store the last Object URL
 
     fileInput.addEventListener('change', (event) => {
+      if (hls !== null) {
+        hls.destroy()
+        hls = null
+      }
+      if (player !== null) {
+        player.reset()
+        player = null
+      }
         const file = event.target.files[0];
         if (!file) return;
     
