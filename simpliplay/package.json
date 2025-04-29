@@ -1,6 +1,6 @@
 {
   "name": "SimpliPlay",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "SimpliPlay - The mission to make media playback accessible on every device, anywhere, anytime.",
   "main": "./main.js",
   "scripts": {
@@ -21,14 +21,7 @@
       "target": [
         "dmg"
       ],
-      "icon": "icon.icns",
-      "fileAssociations": [
-        {
-          "ext": "mov",
-          "name": "QuickTime Movie",
-          "role": "Viewer"
-        }
-      ]
+      "icon": "icon.icns"
     },
     "win": {
       "target": "nsis",
@@ -95,11 +88,16 @@
         "ext": "mkv",
         "name": "MKV Video",
         "role": "Viewer"
+      },
+      {
+        "ext": "mov",
+        "name": "QuickTime Movie",
+        "role": "Viewer"
       }
     ]
   },
   "devDependencies": {
-    "electron": "^34.5.2",
+    "electron": "^35.2.1",
     "electron-builder": "^25.1.8"
   }
 }
