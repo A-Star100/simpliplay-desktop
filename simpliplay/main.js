@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { pathToFileURL } = require("url");
-var didRegisterShortcuts = false;
+let didRegisterShortcuts = false;
 
 let mainWindow;
 
@@ -226,7 +226,8 @@ function openFileSafely(filePath) {
 
     if (mainWindow?.webContents) {
       mainWindow.webContents.once("did-finish-load", () => {
-        mainWindow.webContents.send("play-media", filePath);
+        const winFileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
+        mainWindow.webContents.send("play-media", winFileURL);
       });
     }
 
@@ -237,10 +238,6 @@ function openFileSafely(filePath) {
 function isValidFileArg(arg) {
   return arg && !arg.startsWith('-') && !arg.includes('electron') && fs.existsSync(arg);
 }
-
-
-
-
 
 app.on("window-all-closed", () => {
   globalShortcut.unregisterAll();
