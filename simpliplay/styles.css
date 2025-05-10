@@ -131,7 +131,8 @@ h1 {
       cursor: pointer;
     }
 
-    video, iframe {
+    video {
+      /* To make color pop: filter: contrast(1.1) saturate(1.2);*/
       display: flex;
       margin: 20px auto;
       background: black;
@@ -141,9 +142,6 @@ h1 {
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
-    iframe {
-      border: none;
-    }
 
     .gap-box {
       height: 20px;

@@ -219,6 +219,7 @@ submitUrlBtn.addEventListener('click', () => {
         // Create a new Object URL for the selected file
         const fileURL = URL.createObjectURL(file);
         mediaPlayer.src = fileURL;
+        mediaPlayer.load();
         if (autoplayCheckbox.checked) {
         mediaPlayer.play();
         }
