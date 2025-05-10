@@ -206,7 +206,7 @@ app.whenReady().then(() => {
     openFileSafely(filePath);
   });
 
-  if (process.platform === "win32") { 
+  if (["win32", "linux"].includes(process.platform)) { 
     if (!app.requestSingleInstanceLock()) {
       app.quit();
     } else {
@@ -225,10 +225,8 @@ function openFileSafely(filePath) {
     hasOpenedFile = true;
 
     if (mainWindow?.webContents) {
-      mainWindow.webContents.once("did-finish-load", () => {
         const winFileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
         mainWindow.webContents.send("play-media", winFileURL);
-      });
     }
 
     setTimeout(() => (hasOpenedFile = false), 1000);
