@@ -31,6 +31,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let hls = null
     let player = null
 
+    midiPlayer.style.display = 'none';
+    midiVisualizer.style.display = 'none';
+
     // Update media volume when the slider is moved
   volumeBar.addEventListener("input", function () {
     mediaPlayer.volume = volumeBar.value;
@@ -113,7 +116,7 @@ submitUrlBtn.addEventListener('click', () => {
       player.reset()
       player = null
     }
-    if (url.toLowerCase().includes('.m3u8') || url.toLowerCase().includes('.m3u')) {
+    if (url.toLowerCase().endsWith('.m3u8') || url.toLowerCase().endsWith('.m3u')) {
       // HLS stream
       if (Hls.isSupported()) {
               midiPlayer.style.display = 'none';
@@ -137,7 +140,7 @@ submitUrlBtn.addEventListener('click', () => {
         customControls.style.display = 'flex';
         urlInput.value = "";
       }
-    } else if (url.toLowerCase().includes('.mpd')) {
+    } else if (url.toLowerCase().endsWith('.mpd')) {
             midiPlayer.style.display = 'none';
       midiVisualizer.style.display = 'none';
       midiPlayer.pause();
@@ -152,7 +155,7 @@ submitUrlBtn.addEventListener('click', () => {
       if (autoplayCheckbox.checked) {
         mediaPlayer.play();
       }
-    } else if (url.toLowerCase().includes('.mid') || url.toLowerCase().includes('.midi')) {
+    } else if (url.toLowerCase().endsWith('.mid') || url.toLowerCase().endsWith('.midi')) {
       midiPlayer.style.display = 'flex';
       midiVisualizer.style.display = 'flex';
        midiPlayer.src = url;
