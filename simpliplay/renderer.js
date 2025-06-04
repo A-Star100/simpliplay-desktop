@@ -1,8 +1,4 @@
 let mediaElement = document.getElementById("mediaPlayer");
-let midiPlayerElement = document.getElementById("midiPlayer");
-let midiVisualizerElement = document.getElementById("myVisualizer");
-
-    mediaElement.style.display = 'flex';
 
 
 function loadMedia(fileURL) {
@@ -38,14 +34,6 @@ function isSafeURL(fileURL) {
   }
 }
 
-function isMidi(fileURL) {
-  try {
-    const url = new URL(fileURL);
-    return (url.toLowerCase().endsWith('.mid') || url.toLowerCase().endsWith('.midi'))
-  } catch (error) {
-    return false;
-  }
-}
 
 // ✅ Listen for "play-media" event from main process securely
 window.electron.receive("play-media", (fileURL) => {
@@ -54,20 +42,5 @@ window.electron.receive("play-media", (fileURL) => {
     loadMedia(fileURL);
   } else {
     console.warn("Blocked unsafe media URL:", fileURL);
-  }
-
-  if (isMidi(fileURL)) {
-    midiPlayerElement.src = fileURL;
-    midiPlayerElement.style.display = 'flex';
-    midiPlayerVisualizer.style.display = 'flex';
-    mediaElement.style.display = 'none';
-    mediaElement.pause();
-    if (autoplayCheckbox && autoplayCheckbox.checked) {
-        midiPlayerElement.play().catch(error => console.warn("Playback issue:", error));
-    }
-  } else {
-    midiPlayerElement.style.display = 'none';
-    midiPlayerVisualizer.style.display = 'none';
-    mediaElement.style.display = 'flex';
   }
 });
