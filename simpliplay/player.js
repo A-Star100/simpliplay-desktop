@@ -26,6 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitSubtitlesBtn = document.getElementById('submitSubtitlesBtn');
     const cancelSubtitlesBtn = document.getElementById('cancelSubtitlesBtn');
     const customControls = document.getElementById('customControls');
+          const midiPlayer = document.getElementById("midiplayer")
+      const midiVisualizer = document.getElementById("myVisualizer")
     let hls = null
     let player = null
 
@@ -114,7 +116,11 @@ submitUrlBtn.addEventListener('click', () => {
     if (url.toLowerCase().includes('.m3u8') || url.toLowerCase().includes('.m3u')) {
       // HLS stream
       if (Hls.isSupported()) {
-        mediaPlayer.style.display = 'flex'; // Hide the native video player
+              midiPlayer.style.display = 'none';
+      midiVisualizer.style.display = 'none';
+      midiPlayer.pause();
+      midiPlayer.src = ""
+        mediaPlayer.style.display = 'flex'; // Show the native video player
         hls = new Hls();
         mediaPlayer.pause();
         hls.loadSource(url);
@@ -132,7 +138,11 @@ submitUrlBtn.addEventListener('click', () => {
         urlInput.value = "";
       }
     } else if (url.toLowerCase().includes('.mpd')) {
-      mediaPlayer.style.display = 'flex'; // Hide the native video player
+            midiPlayer.style.display = 'none';
+      midiVisualizer.style.display = 'none';
+      midiPlayer.pause();
+      midiPlayer.src = ""
+      mediaPlayer.style.display = 'flex'; // Show the native video player
       mediaPlayer.pause();
       player = dashjs.MediaPlayer().create();
       // MPEG-DASH stream
@@ -142,8 +152,23 @@ submitUrlBtn.addEventListener('click', () => {
       if (autoplayCheckbox.checked) {
         mediaPlayer.play();
       }
+    } else if (url.toLowerCase().includes('.mid') || url.toLowerCase().includes('.midi')) {
+      midiPlayer.style.display = 'flex';
+      midiVisualizer.style.display = 'flex';
+       midiPlayer.src = url;
+       urlInput.value = "";
+      mediaPlayer.style.display = 'none'; // Hide the native video player
+      customControls.style.display = 'none';
+      mediaPlayer.pause();
+       if (autoplayCheckbox.checked) {
+        midiPlayer.play();
+      }
     } else {
-      mediaPlayer.style.display = 'flex'; // Hide the native video player
+      midiPlayer.style.display = 'none';
+      midiVisualizer.style.display = 'none';
+      midiPlayer.pause();
+      midiPlayer.src = ""
+      mediaPlayer.style.display = 'flex'; // Show the native video player
       mediaPlayer.pause();
       mediaPlayer.src = url;
       customControls.style.display = 'flex';
