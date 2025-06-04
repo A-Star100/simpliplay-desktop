@@ -26,13 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitSubtitlesBtn = document.getElementById('submitSubtitlesBtn');
     const cancelSubtitlesBtn = document.getElementById('cancelSubtitlesBtn');
     const customControls = document.getElementById('customControls');
-          const midiPlayer = document.getElementById("midiplayer")
-      const midiVisualizer = document.getElementById("myVisualizer")
     let hls = null
     let player = null
-
-    midiPlayer.style.display = 'none';
-    midiVisualizer.style.display = 'none';
 
     // Update media volume when the slider is moved
   volumeBar.addEventListener("input", function () {
@@ -119,11 +114,7 @@ submitUrlBtn.addEventListener('click', () => {
     if (url.toLowerCase().endsWith('.m3u8') || url.toLowerCase().endsWith('.m3u')) {
       // HLS stream
       if (Hls.isSupported()) {
-              midiPlayer.style.display = 'none';
-      midiVisualizer.style.display = 'none';
-      midiPlayer.pause();
-      midiPlayer.src = ""
-        mediaPlayer.style.display = 'flex'; // Show the native video player
+        mediaPlayer.style.display = 'flex'; // Hide the native video player
         hls = new Hls();
         mediaPlayer.pause();
         hls.loadSource(url);
@@ -141,11 +132,7 @@ submitUrlBtn.addEventListener('click', () => {
         urlInput.value = "";
       }
     } else if (url.toLowerCase().endsWith('.mpd')) {
-            midiPlayer.style.display = 'none';
-      midiVisualizer.style.display = 'none';
-      midiPlayer.pause();
-      midiPlayer.src = ""
-      mediaPlayer.style.display = 'flex'; // Show the native video player
+      mediaPlayer.style.display = 'flex'; // Hide the native video player
       mediaPlayer.pause();
       player = dashjs.MediaPlayer().create();
       // MPEG-DASH stream
@@ -155,23 +142,8 @@ submitUrlBtn.addEventListener('click', () => {
       if (autoplayCheckbox.checked) {
         mediaPlayer.play();
       }
-    } else if (url.toLowerCase().endsWith('.mid') || url.toLowerCase().endsWith('.midi')) {
-      midiPlayer.style.display = 'flex';
-      midiVisualizer.style.display = 'flex';
-       midiPlayer.src = url;
-       urlInput.value = "";
-      mediaPlayer.style.display = 'none'; // Hide the native video player
-      customControls.style.display = 'none';
-      mediaPlayer.pause();
-       if (autoplayCheckbox.checked) {
-        midiPlayer.play();
-      }
     } else {
-      midiPlayer.style.display = 'none';
-      midiVisualizer.style.display = 'none';
-      midiPlayer.pause();
-      midiPlayer.src = ""
-      mediaPlayer.style.display = 'flex'; // Show the native video player
+      mediaPlayer.style.display = 'flex'; // Hide the native video player
       mediaPlayer.pause();
       mediaPlayer.src = url;
       customControls.style.display = 'flex';
