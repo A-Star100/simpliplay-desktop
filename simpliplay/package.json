@@ -1,6 +1,6 @@
 {
   "name": "SimpliPlay",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "SimpliPlay - The mission to make media playback accessible on every device, anywhere, anytime.",
   "main": "./main.js",
   "scripts": {
