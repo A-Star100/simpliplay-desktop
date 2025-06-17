@@ -5,7 +5,14 @@ const os = require('os');
 const { pathToFileURL } = require("url");
 let didRegisterShortcuts = false;
 
+if (process.platform === 'darwin') {
+app.commandLine.appendSwitch('disable-features', 'Metal');
+app.commandLine.appendSwitch('use-gl', 'desktop');
+}
+
+
 let mainWindow;
+
 
 // Handle file opening from Finder or File Explorer
 app.on('open-file', (event, filePath) => {
@@ -15,24 +22,24 @@ app.on('open-file', (event, filePath) => {
 
 const openFile = (filePath) => {
   app.whenReady().then(() => {
+    const fileURL = pathToFileURL(filePath).href;
+
     if (mainWindow) {
-      const fileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
       if (mainWindow.webContents.isLoading()) {
         mainWindow.webContents.once("did-finish-load", () => {
           mainWindow.webContents.send("play-media", fileURL);
         });
       } else {
-        const fileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
         mainWindow.webContents.send("play-media", fileURL);
       }
     } else {
       createWindow(() => {
-        const fileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
         mainWindow.webContents.send("play-media", fileURL);
       });
     }
   });
 };
+
 
 const takeSnapshot = async () => {
   if (!mainWindow) return;
@@ -81,6 +88,19 @@ const createWindow = (onReadyCallback) => {
 
   mainWindow.loadFile("index.html");
 
+if (process.platform === 'darwin') {
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.executeJavaScript("navigator.userAgent").then(ua => {
+      console.log("User Agent:", ua);
+    });
+
+    mainWindow.webContents.executeJavaScript("chrome.loadTimes ? chrome.loadTimes() : {}").then(loadTimes => {
+      console.log("GPU Info (legacy):", loadTimes);
+    });
+  });
+}
+
+
   mainWindow.once("ready-to-show", () => {
     if (onReadyCallback) onReadyCallback();
   });
@@ -102,6 +122,7 @@ const setupContextMenu = () => {
     contextMenu.popup({ window: mainWindow });
   });
 };
+
 
 // Set up application menu
 const setupMenu = () => {
