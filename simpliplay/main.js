@@ -6,8 +6,10 @@ const { pathToFileURL } = require("url");
 let didRegisterShortcuts = false;
 
 if (process.platform === 'darwin') {
-app.commandLine.appendSwitch('disable-features', 'Metal');
-app.commandLine.appendSwitch('use-gl', 'desktop');
+  if (process.argv.includes('--use-gl')) {
+    app.commandLine.appendSwitch('disable-features', 'Metal');
+    app.commandLine.appendSwitch('use-gl', 'desktop');
+  } 
 }
 
 
@@ -88,18 +90,19 @@ const createWindow = (onReadyCallback) => {
 
   mainWindow.loadFile("index.html");
 
-if (process.platform === 'darwin') {
-  mainWindow.webContents.on('did-finish-load', () => {
-    mainWindow.webContents.executeJavaScript("navigator.userAgent").then(ua => {
-      console.log("User Agent:", ua);
-    });
+  if (process.platform === 'darwin') {
+    if (process.argv.includes('--use-gl')) {
+      mainWindow.webContents.on('did-finish-load', () => {
+        mainWindow.webContents.executeJavaScript("navigator.userAgent").then(ua => {
+          console.log("User Agent:", ua);
+        });
 
-    mainWindow.webContents.executeJavaScript("chrome.loadTimes ? chrome.loadTimes() : {}").then(loadTimes => {
-      console.log("GPU Info (legacy):", loadTimes);
-    });
-  });
-}
-
+        mainWindow.webContents.executeJavaScript("chrome.loadTimes ? chrome.loadTimes() : {}").then(loadTimes => {
+          console.log("GPU Info (legacy):", loadTimes);
+        });
+      });
+    }
+  }
 
   mainWindow.once("ready-to-show", () => {
     if (onReadyCallback) onReadyCallback();
@@ -107,6 +110,7 @@ if (process.platform === 'darwin') {
 
   setupContextMenu();
 };
+
 
 // Set up context menu (prevents errors if `mainWindow` is undefined)
 const setupContextMenu = () => {
