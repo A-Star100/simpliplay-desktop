@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const customControls = document.getElementById('customControls');
     let hls = null
     let player = null
+    window.hls = hls; 
+    window.dash = player;
 
     // Update media volume when the slider is moved
   volumeBar.addEventListener("input", function () {
@@ -106,16 +108,19 @@ submitUrlBtn.addEventListener('click', () => {
     if (hls !== null) {
       hls.destroy()
       hls = null
+      window.hls = hls
     }
     if (player !== null) {
       player.reset()
       player = null
+      window.dash = player
     }
     if (url.toLowerCase().endsWith('.m3u8') || url.toLowerCase().endsWith('.m3u')) {
       // HLS stream
       if (Hls.isSupported()) {
         mediaPlayer.style.display = 'flex'; // Hide the native video player
         hls = new Hls();
+        window.hls = hls
         mediaPlayer.pause();
         hls.loadSource(url);
         hls.attachMedia(mediaPlayer);
@@ -126,6 +131,7 @@ submitUrlBtn.addEventListener('click', () => {
           urlInput.value = "";
           customControls.style.display = 'flex';
         });
+        window.hls = hls
       } else {
         alert("Your device doesn't support HLS.");
         customControls.style.display = 'flex';
@@ -135,6 +141,7 @@ submitUrlBtn.addEventListener('click', () => {
       mediaPlayer.style.display = 'flex'; // Hide the native video player
       mediaPlayer.pause();
       player = dashjs.MediaPlayer().create();
+      window.dash = player
       // MPEG-DASH stream
       player.initialize(mediaPlayer, url, true);
       customControls.style.display = 'flex';
@@ -142,6 +149,7 @@ submitUrlBtn.addEventListener('click', () => {
       if (autoplayCheckbox.checked) {
         mediaPlayer.play();
       }
+      window.dash = player
     } else {
       mediaPlayer.style.display = 'flex'; // Hide the native video player
       mediaPlayer.pause();
@@ -201,10 +209,12 @@ submitUrlBtn.addEventListener('click', () => {
       if (hls !== null) {
         hls.destroy()
         hls = null
+        window.hls = hls
       }
       if (player !== null) {
         player.reset()
         player = null
+        window.dash = player
       }
         const file = event.target.files[0];
         if (!file) return;
