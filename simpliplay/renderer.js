@@ -39,6 +39,14 @@ function isSafeURL(fileURL) {
 window.electron.receive("play-media", (fileURL) => {
   if (isSafeURL(fileURL)) {
     clearSubtitles()
+    if (window.hls) {
+      window.hls.destroy()
+      window.hls = null
+    }
+    if (window.dash) {
+      window.dash.reset()
+      window.dash = null
+    }
     loadMedia(fileURL);
   } else {
     console.warn("Blocked unsafe media URL:", fileURL);
