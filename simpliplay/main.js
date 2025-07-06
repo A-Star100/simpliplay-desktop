@@ -3,7 +3,10 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const { pathToFileURL } = require("url");
+const { checkForUpdate } = require('./updateChecker');
+let gpuAccel = "";
 let didRegisterShortcuts = false;
+let version = "1.0.7.3"
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
@@ -13,8 +16,12 @@ if (process.platform === 'darwin') {
 }
 
 
-let mainWindow;
 
+let mainWindow;
+if (process.argv.includes('--disable-gpu')) {
+  app.disableHardwareAcceleration();
+  gpuAccel = "disabled";
+}
 
 // Handle file opening from Finder or File Explorer
 app.on('open-file', (event, filePath) => {
@@ -105,6 +112,17 @@ const createWindow = (onReadyCallback) => {
   }
 
   mainWindow.once("ready-to-show", () => {
+
+  if (gpuAccel === "disabled") {
+      dialog.showMessageBox(mainWindow, {
+    type: 'warning',
+    buttons: ['Ok'],
+    defaultId: 0,
+    title: 'Warning!',
+    message: "Disabling GPU acceleration greatly decreases performance and is not recommended, but if you're curious, I don't wanna stop you.",
+  });
+  } 
+
     if (onReadyCallback) onReadyCallback();
   });
 
@@ -137,6 +155,27 @@ const setupMenu = () => {
   if (fileMenu && !fileMenu.submenu.items.some(item => item.label === 'Take a Snapshot')) {
     fileMenu.submenu.append(new MenuItem({ label: 'Take a Snapshot', accelerator: 'CommandOrControl+Shift+S', click: takeSnapshot }));
   }
+
+  const appMenu = menu.items.find(item => item.label === 'SimpliPlay');
+
+if (appMenu && !appMenu.submenu.items.some(item => item.label === 'Check for Updates')) {
+  const submenu = appMenu.submenu;
+  const separatorIndex = submenu.items.findIndex(item => item.type === 'separator');
+
+  const updateMenuItem = new MenuItem({
+    label: 'Check for Updates',
+    click: () => checkForUpdate(version)
+  });
+
+  if (separatorIndex === -1) {
+    // No separator found — just append
+    submenu.append(updateMenuItem);
+  } else {
+    // Insert right before the separator
+    submenu.insert(separatorIndex, updateMenuItem);
+  }
+}
+
 
   const helpMenu = menu.items.find(item => item.label === 'Help');
   if (helpMenu) {
