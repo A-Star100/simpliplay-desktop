@@ -1,6 +1,6 @@
 {
   "name": "SimpliPlay",
-  "version": "1.0.7",
+  "version": "2.0.0",
   "description": "SimpliPlay - The mission to make media playback accessible on every device, anywhere, anytime.",
   "main": "./main.js",
   "scripts": {
@@ -28,7 +28,7 @@
       "icon": "icon.ico"
     },
     "linux": {
-      "target": "flatpak",
+      "target": "AppImage",
       "icon": "icon.png",
       "executableName": "SimpliPlay",
       "synopsis": "The mission to make media playback accessible anywhere, anytime."
