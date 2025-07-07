@@ -6,7 +6,7 @@ const { pathToFileURL } = require("url");
 const { checkForUpdate } = require('./updateChecker');
 let gpuAccel = "";
 let didRegisterShortcuts = false;
-let version = "2.0.0.0"
+let version = "2.0.0.1"
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
@@ -164,6 +164,7 @@ if (appMenu && !appMenu.submenu.items.some(item => item.label === 'Check for Upd
 
   const updateMenuItem = new MenuItem({
     label: 'Check for Updates',
+    accelerator: 'CommandOrControl+Shift+U',
     click: () => checkForUpdate(version)
   });
 
