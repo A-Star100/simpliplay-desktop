@@ -16,7 +16,7 @@ The desktop version of SimpliPlay.
 [Legacy](https://simpliplay.netlify.app/legacy) version of SimpliPlay for Windows, macOS, and Linux (x64, x86, ARM64 and ARM).
 > [!WARNING]
 > This version uses a very old, legacy version of NW.js that supports Windows XP and macOS 10.6 or later. Unless the main desktop version isn't supported on your operating system, **don't**
-> use the legacy version, it will open you up to security issues on newer devices/
+> use the legacy version, it will open you up to security issues on newer devices!
 ___
 
 ## Setup
