@@ -1,0 +1,6 @@
+{
+    "name": "SimpliPlay",
+    "main": "./src/index.html",
+    "nodejs": false
+}
+  
