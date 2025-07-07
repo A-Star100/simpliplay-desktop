@@ -65,7 +65,7 @@ async function checkForUpdate(currentVersion) {
       });
 
       if (result === 0) {
-        shell.openExternal(latestReleaseUrl);
+        shell.openExternal("https://simpliplay.netlify.app/#download-options");
       }
     } else {
       dialog.showMessageBoxSync({
