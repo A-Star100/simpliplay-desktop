@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          path: simpliplay
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -22,9 +20,8 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: |
-          cd simpliplay
-          npm install
+        run: npm install
+        working-directory: simpliplay
 
       - name: Install extra tools
         run: brew install wine-stable || true
@@ -32,12 +29,8 @@ jobs:
       - name: Build Electron App
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: |
-          cd simpliplay
-          npx electron-builder \
-            --mac --x64 --arm64 --universal \
-            --linux --x64 --arm64 \
-            --win --x64 --arm64
+        run: npx electron-builder --mac --x64 --arm64 --universal --linux --x64 --arm64 --win --x64 --arm64
+        working-directory: simpliplay
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
