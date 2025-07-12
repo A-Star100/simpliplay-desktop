@@ -1,6 +1,6 @@
 {
   "name": "SimpliPlay",
-  "version": "2.0.2",
+  "version": "2.0.2.1",
   "description": "SimpliPlay - The mission to make media playback accessible on every device, anywhere, anytime.",
   "main": "./main.js",
   "scripts": {
@@ -96,8 +96,16 @@
       }
     ]
   },
+  "nsis": {
+    "oneClick": false,
+    "installerIcon": "icon.ico",
+    "uninstallerIcon": "icon.ico",
+    "uninstallDisplayName": "simpliplay-uninstaller",
+    "license": "LICENSE.md",
+    "allowToChangeInstallationDirectory": true
+  },
   "devDependencies": {
     "electron": "^37.2.1",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^26.0.12"
   }
 }
