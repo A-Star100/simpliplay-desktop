@@ -6,7 +6,7 @@ const { pathToFileURL } = require("url");
 const { checkForUpdate } = require('./updateChecker');
 let gpuAccel = "";
 let didRegisterShortcuts = false;
-let version = "2.0.0.1"
+let version = "2.0.0.2"
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
@@ -189,6 +189,17 @@ if (appMenu && !appMenu.submenu.items.some(item => item.label === 'Check for Upd
     addMenuItem('Source Code', 'https://github.com/A-Star100/simpliplay-desktop');
     addMenuItem('Website', 'https://simpliplay.netlify.app');
     addMenuItem('Help Center', 'https://simpliplay.netlify.app/help');
+
+    // Check for Updates
+  if (!helpMenu.submenu.items.some(item => item.label === 'Check for Updates')) {
+    helpMenu.submenu.append(
+      new MenuItem({
+        label: 'Check for Updates',
+        accelerator: 'CommandOrControl+Shift+U',
+        click: () => checkForUpdate(version)
+      })
+    );
+  }
 
     if (!helpMenu.submenu.items.some(item => item.label === 'Quit')) {
       helpMenu.submenu.append(new MenuItem({ type: 'separator' }));
