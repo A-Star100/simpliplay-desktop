@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          path: simpliplay
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -21,10 +23,10 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+        working-directory: simpliplay
 
       - name: Install extra tools
-        run: |
-          brew install wine-stable || true
+        run: brew install wine-stable || true
 
       - name: Build Electron App
         env:
@@ -34,9 +36,10 @@ jobs:
             --mac --x64 --arm64 --universal \
             --linux --x64 --arm64 \
             --win --x64 --arm64
+        working-directory: simpliplay
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: builds
-          path: dist/
+          path: simpliplay/dist/
