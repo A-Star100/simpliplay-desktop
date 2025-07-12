@@ -23,9 +23,6 @@ jobs:
         run: npm install
         working-directory: simpliplay
 
-      - name: Install extra tools
-        run: brew install wine-stable || true
-
       - name: Build Electron App
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
