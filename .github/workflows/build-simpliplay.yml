@@ -23,10 +23,22 @@ jobs:
         run: npm install
         working-directory: simpliplay
 
-      - name: Build Electron App
+      - name: Build macOS
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npx electron-builder --mac --x64 --arm64 --universal --linux --x64 --arm64 --win --x64 --arm64
+        run: npx electron-builder --mac --x64 --arm64 --universal
+        working-directory: simpliplay
+
+      - name: Build Windows
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: npx electron-builder --win --x64 --arm64
+        working-directory: simpliplay
+
+      - name: Build Linux
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: npx electron-builder --linux --x64 --arm64
         working-directory: simpliplay
 
       - name: Upload artifacts
