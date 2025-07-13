@@ -1,4 +1,4 @@
-name: Build Electron App
+name: Build Linux (Snap + AppImage)
 
 on:
   push:
@@ -7,31 +7,37 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  build_x64:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-
-      - name: Install dependencies
-        run: npm install
+      - run: npm install
         working-directory: simpliplay
-
-      - name: Install SnapCraft
-        run: sudo snap install snapcraft --classic 
-      
-      - name: Build Linux
-        run: npx electron-builder --linux --x64 --arm64
+      - run: npx electron-builder --linux --x64 --snap
         working-directory: simpliplay
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: builds
-          path: simpliplay/dist/
+          name: linux-x64-snap
+          path: simpliplay/dist/*.snap
+
+  build_arm64:
+    runs-on: self-hosted
+    # or specify an ARM64 runner label you have available
+    # runs-on: [self-hosted, linux, arm64]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+        working-directory: simpliplay
+      - run: npx electron-builder --linux --arm64 --snap
+        working-directory: simpliplay
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-snap
+          path: simpliplay/dist/*.snap
