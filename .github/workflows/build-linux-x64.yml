@@ -1,4 +1,5 @@
 name: Build Linux x64 (Snap + AppImage)
+# circleci config is used for arm64 builds
 
 on:
   push:
