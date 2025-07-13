@@ -24,7 +24,7 @@ jobs:
           path: simpliplay/dist/*.snap
 
   build_arm64:
-    runs-on: self-hosted
+    runs-on: ubuntu-24.04-arm
     # or specify an ARM64 runner label you have available
     # runs-on: [self-hosted, linux, arm64]
 
