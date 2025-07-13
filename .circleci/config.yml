@@ -1,0 +1,35 @@
+version: 2.1
+
+jobs:
+  build_arm64_linux:
+    docker:
+      - image: circleci/node:22  # Node.js 22 on ARM64 (make sure it supports ARM64)
+        platform: linux/arm64
+    working_directory: ~/project
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Install snapcraft
+          command: sudo snap install snapcraft --classic
+      - run:
+          name: Build Snap and AppImage (ARM64)
+          command: npx electron-builder --linux --arm64
+      - run:
+          name: Zip AppImage
+          command: zip -j simpliplay-arm64-appimage.zip dist/*.AppImage
+      - run:
+          name: Zip Snap
+          command: zip -j simpliplay-arm64-snap.zip dist/*.snap
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - dist
+            - simpliplay-arm64-appimage.zip
+
+workflows:
+  build_and_test:
+    jobs:
+      - build_arm64_linux
