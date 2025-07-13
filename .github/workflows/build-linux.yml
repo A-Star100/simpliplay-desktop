@@ -25,20 +25,16 @@ jobs:
 
   build_arm64:
     runs-on: ubuntu-24.04-arm
-    # or specify an ARM64 runner label you have available
-    # runs-on: [self-hosted, linux, arm64]
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install
-        working-directory: simpliplay
       - run: sudo snap install snapcraft --classic
-      - run: npx electron-builder --linux --arm64
+      - run: npx electron-builder --linux --arm64 -- --use-lxd
         working-directory: simpliplay
       - uses: actions/upload-artifact@v4
         with:
           name: linux-arm64-snap
           path: simpliplay/dist/*.snap
+
