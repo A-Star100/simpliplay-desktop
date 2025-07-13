@@ -1,3 +1,5 @@
+version: 2.1
+
 jobs:
   build_arm64_linux:
     docker:
@@ -21,3 +23,8 @@ jobs:
       - store_artifacts:
           path: dist/*.AppImage
           destination: appimages
+
+workflows:
+  build_and_test:
+    jobs:
+      - build_arm64_linux
