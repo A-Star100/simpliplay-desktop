@@ -1,0 +1,64 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-x64:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: simpliplay
+
+      - name: Build Windows (x64)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: npx electron-builder --win --x64
+        working-directory: simpliplay
+
+      - name: Upload artifacts (x64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: builds-x64
+          path: simpliplay/dist/
+
+  build-arm64:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: simpliplay
+
+      - name: Build Windows (arm64)
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: npx electron-builder --win --arm64
+        working-directory: simpliplay
+
+      - name: Upload artifacts (arm64)
+        uses: actions/upload-artifact@v4
+        with:
+          name: builds-arm64
+          path: simpliplay/dist/
