@@ -33,10 +33,6 @@
       "executableName": "SimpliPlay",
       "synopsis": "The mission to make media playback accessible anywhere, anytime.",
     },
-    "snap": {
-      "grade": "stable",
-      "confinement": "strict"
-    },
     "fileAssociations": [
       {
         "ext": "mp4",
