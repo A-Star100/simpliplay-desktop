@@ -23,21 +23,16 @@ jobs:
       - run: npx electron-builder --linux --x64
         working-directory: simpliplay
 
-      # Zip the AppImage (assuming default output is .AppImage)
-      - run: zip -j simpliplay-x64-appimage.zip simpliplay/dist/*.AppImage
-        working-directory: simpliplay
-
       # Upload Snap artifact
       - uses: actions/upload-artifact@v4
         with:
           name: linux-x64-snap
           path: simpliplay/dist/*.snap
 
-      # Upload zipped AppImage artifact
       - uses: actions/upload-artifact@v4
         with:
-          name: linux-x64-appimage-zip
-          path: simpliplay/simpliplay-x64-appimage.zip
+          name: linux-x64-appimage
+          path: simpliplay/dist/*.AppImage
 
   #build_arm64:
     #runs-on: ubuntu-24.04-arm
