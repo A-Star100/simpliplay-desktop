@@ -32,6 +32,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: npm install electron@37.2.1
+        working-directory: simpliplay
       - run: sudo snap install snapcraft --classic
       - run: npx electron-builder --linux --arm64
         working-directory: simpliplay
