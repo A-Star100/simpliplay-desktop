@@ -23,6 +23,8 @@ jobs:
         run: npm install
         working-directory: simpliplay
 
+      - name: Install SnapCraft
+        run: sudo snap install snapcraft --classic 
       
       - name: Build Linux
         run: npx electron-builder --linux --x64 --arm64
