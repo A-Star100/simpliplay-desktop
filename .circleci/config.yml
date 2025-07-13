@@ -4,7 +4,7 @@ jobs:
   build_arm64_linux:
     docker:
       - image: circleci/node:22  # Node.js 22 on ARM64
-        platform: linux/arm64
+      platform: linux/arm64
     working_directory: ~/simpliplay-desktop/simpliplay # working dir to repo/code dir
     steps:
       - checkout
