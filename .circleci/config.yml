@@ -2,10 +2,9 @@ version: 2.1
 
 jobs:
   build_arm64_linux:
-    docker:
-      - image: circleci/node:22  # Node.js 22 ARM64-compatible image
-    platform: linux/arm64
-    working_directory: ~/simpliplay-desktop/simpliplay
+    machine:
+      image: ubuntu-2204:current
+    resource_class: arm.medium
     steps:
       - checkout
       - run:
