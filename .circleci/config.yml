@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   build_arm64_linux:
     docker:
-      - image: circleci/node:22  # Node.js 22 on ARM64 (make sure it supports ARM64)
+      - image: circleci/node:22  # Node.js 22 on ARM64
         platform: linux/arm64
     working_directory: ~/simpliplay-desktop/simpliplay
     steps:
@@ -17,17 +17,16 @@ jobs:
       - run:
           name: Build Snap and AppImage (ARM64)
           command: npx electron-builder --linux --arm64
-      - run:
-          name: Zip AppImage
-          command: zip -j simpliplay-arm64-appimage.zip dist/*.AppImage
-      - run:
-          name: Zip Snap
-          command: zip -j simpliplay-arm64-snap.zip dist/*.snap
-      - persist_to_workspace:
-          root: ~/project
-          paths:
-            - dist
-            - simpliplay-arm64-appimage.zip
+
+      # Store .snap artifacts
+      - store_artifacts:
+          path: dist/*.snap
+          destination: snaps
+
+      # Store .AppImage artifacts
+      - store_artifacts:
+          path: dist/*.AppImage
+          destination: appimages
 
 workflows:
   build_and_test:
