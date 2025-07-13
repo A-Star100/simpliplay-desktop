@@ -1,4 +1,4 @@
-name: Build Electron App
+name: Build macOS
 
 on:
   push:
@@ -27,12 +27,6 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npx electron-builder --mac --x64 --arm64 --universal
-        working-directory: simpliplay
-
-      - name: Build Windows
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npx electron-builder --win --x64
         working-directory: simpliplay
 
       - name: Upload artifacts
