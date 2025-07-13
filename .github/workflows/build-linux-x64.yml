@@ -1,4 +1,4 @@
-name: Build Linux (Snap + AppImage)
+name: Build Linux x64 (Snap + AppImage)
 
 on:
   push:
@@ -38,36 +38,36 @@ jobs:
           name: linux-x64-appimage-zip
           path: simpliplay/simpliplay-x64-appimage.zip
 
-  build_arm64:
-    runs-on: ubuntu-24.04-arm
-    env:
-      SNAP_DESTRUCTIVE_MODE: "true"
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+  #build_arm64:
+    #runs-on: ubuntu-24.04-arm
+    #env:
+     # SNAP_DESTRUCTIVE_MODE: "true"
+    #steps:
+      #- uses: actions/checkout@v4
+      #- uses: actions/setup-node@v4
+        #with:
+          #node-version: 22
 
-      - run: npm install electron@37.2.1
-        working-directory: simpliplay
+      #- run: npm install electron@37.2.1
+        #working-directory: simpliplay
 
-      - run: sudo snap install snapcraft --classic
+     #- run: sudo snap install snapcraft --classic
 
-      - run: npx electron-builder --linux --arm64
-        working-directory: simpliplay
+      #- run: npx electron-builder --linux --arm64
+        #working-directory: simpliplay
 
       # Zip the ARM64 AppImage
-      - run: zip -j simpliplay-arm64-appimage.zip simpliplay/dist/*.AppImage
-        working-directory: simpliplay
+      #- run: zip -j simpliplay-arm64-appimage.zip simpliplay/dist/*.AppImage
+       # working-directory: simpliplay
 
       # Upload Snap artifact
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-arm64-snap
-          path: simpliplay/dist/*.snap
+      #- #uses: actions/upload-artifact@v4
+       # with:
+        #  name: linux-arm64-snap
+         # path: simpliplay/dist/*.snap
 
       # Upload zipped AppImage artifact
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-arm64-appimage-zip
-          path: simpliplay/simpliplay-arm64-appimage.zip
+     # - uses: actions/upload-artifact@v4
+      #  with:
+       #   name: linux-arm64-appimage-zip
+        #  path: simpliplay/simpliplay-arm64-appimage.zip
