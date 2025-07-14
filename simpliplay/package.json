@@ -28,7 +28,7 @@
       "icon": "icon.ico"
     },
     "linux": {
-      "target": ["snap", "AppImage"],
+      "target": ["AppImage"],
       "icon": "icon.png",
       "executableName": "SimpliPlay",
       "synopsis": "The mission to make media playback accessible anywhere, anytime."
