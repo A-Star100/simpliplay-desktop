@@ -1,5 +1,5 @@
 name: Build Linux 
-# arm64 builds do not use AppImage
+# arm64 builds do not use Snap anymore
 
 on:
   push:
