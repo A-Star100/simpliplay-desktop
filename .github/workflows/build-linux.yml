@@ -51,8 +51,8 @@ jobs:
       # Snapcraft CLI – optional if electron-builder doesn't need it
       #- run: sudo snap install snapcraft --classic
 
-      # Build both Snap and AppImage for arm64
-      - run: npx electron-builder --linux --arm64
+      # Build AppImage for arm64
+      - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
 
       # Upload Snap artifact (keep it for experimental use)
