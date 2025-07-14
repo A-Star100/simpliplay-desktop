@@ -20,6 +20,6 @@ The desktop version of SimpliPlay.
 ___
 
 ## Setup
-Read the docs ([Electron - Quick Start](https://www.electronjs.org/docs/latest/tutorial/quick-start), [Neutralinojs - Your First App](https://neutralino.js.org/docs/getting-started/your-first-neutralinojs-app), [NW.js - Getting Started (For Users)](https://nwjs.readthedocs.io/en/latest/For%20Users/Getting%20Started/#write-nwjs-app))
+Read the docs ([Electron - Tutorial](https://www.electronjs.org/docs/latest/tutorial/tutorial-prerequisites), [Neutralinojs - Your First App](https://neutralino.js.org/docs/getting-started/your-first-neutralinojs-app), [NW.js - Getting Started (For Users)](https://nwjs.readthedocs.io/en/latest/For%20Users/Getting%20Started/#write-nwjs-app))
 
 
