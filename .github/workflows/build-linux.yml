@@ -20,7 +20,7 @@ jobs:
         working-directory: simpliplay
 
       # Build Snap and AppImage both
-      - run: npx electron-builder --linux snap,AppImage --x64
+      - run: npx electron-builder --linux --x64
         working-directory: simpliplay
 
       # Upload Snap artifact
