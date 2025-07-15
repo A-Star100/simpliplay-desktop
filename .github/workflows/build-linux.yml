@@ -32,117 +32,117 @@ jobs:
           name: linux-x64-appimage
           path: simpliplay/dist/*.AppImage
 
-  build_arm64:
-    runs-on: ubuntu-24.04-arm
-    env:
-      SNAP_DESTRUCTIVE_MODE: "true"
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - run: npm install
-        working-directory: simpliplay
-
-      - run: sudo snap install snapcraft --classic
-
-      - run: npx electron-builder --dir --arm64 --linux
-        working-directory: simpliplay
-
-      - name: Create snapcraft.yaml
-        run: |
-          cat > simpliplay/dist/snapcraft.yaml <<'EOF'
-          name: simpliplay
-          base: core24
-          version: '2.0.2'
-          summary: SimpliPlay - Media playback accessible anywhere, anytime.
-          description: |
-            SimpliPlay is a modern Electron-based media player supporting various formats.
-
-          grade: stable
-          confinement: strict
-
-          environment:
-            LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/lib:$SNAP/usr/local/lib
-
-          apps:
-            simpliplay:
-              command: SimpliPlay --no-sandbox
-              plugs:
-                - desktop
-                - x11
-                - wayland
-                - audio-playback
-                - home
-                - removable-media
-
-          parts:
-            liboss:
-              plugin: nil  # no automatic fetch
-              override-build: |
-                curl -L -H "ngrok-skip-browser-warning: true" -o oss-v4.2-build2020-src-gpl.tar.bz2 "https://79cc76e9b5c9.ngrok-free.app/oss.tar.bz2"
-                tar -xzf oss-v4.2-build2020-src-gpl.tar.bz2
-                ./configure
-                make
-                make install
-              build-packages:
-                - build-essential
-                - gcc
-                - make
-                - libtool
-                - automake
-                - linux-headers-generic
-              stage:
-                - usr/lib/libOSSlib.so
-            simpliplay:
-              plugin: dump
-              source: ./linux-arm64-unpacked
-              stage-packages:
-                - libnss3
-                - libasound2
-                - libx11-xcb1
-                - libxcomposite1
-                - libxcursor1
-                - libxdamage1
-                - libxrandr2
-                - libgtk-3-0
-                - libllvm19
-                - libdrm-amdgpu1
-                - libdrm-radeon1
-                - mesa-libgallium
-                - libgbm1
-                - libglapi-mesa
-                - libsensors5
-                - libwayland-server0
-                - libxcb-dri2-0
-                - libxcb-dri3-0
-                - libxcb-present0
-                - libxcb-randr0
-                - libxcb-sync1
-                - libxcb-xfixes0
-                - libxshmfence1
-              after:
-                - liboss
-          EOF
-
-      - name: Install build dependencies
-        run: sudo apt-get update && sudo apt-get install -y autoconf automake autopoint build-essential gcc libtool linux-headers-generic make tar
-
-      - name: Build snap package
-        run: snapcraft --destructive-mode --output=simpliplay-arm64.snap
-        working-directory: simpliplay/dist/
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-arm64-snap
-          path: simpliplay/dist/simpliplay-arm64.snap
-
-      - run: npx electron-builder --linux AppImage --arm64
-        working-directory: simpliplay
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-arm64-appimage
-          path: simpliplay/dist/*.AppImage
+#  build_arm64:
+#    runs-on: ubuntu-24.04-arm
+#    env:
+#      SNAP_DESTRUCTIVE_MODE: "true"
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version: 22
+#
+#      - run: npm install
+#        working-directory: simpliplay
+#
+#      - run: sudo snap install snapcraft --classic
+#
+#      - run: npx electron-builder --dir --arm64 --linux
+#        working-directory: simpliplay
+#
+#      - name: Create snapcraft.yaml
+#        run: |
+#          cat > simpliplay/dist/snapcraft.yaml <<'EOF'
+#          name: simpliplay
+#          base: core24
+#          version: '2.0.2'
+#          summary: SimpliPlay - Media playback accessible anywhere, anytime.
+#          description: |
+#            SimpliPlay is a modern Electron-based media player supporting various formats.
+#
+#          grade: stable
+#          confinement: strict
+#
+#          environment:
+#            LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/lib:$SNAP/usr/local/lib
+#
+#          apps:
+#            simpliplay:
+#              command: SimpliPlay --no-sandbox
+#              plugs:
+#                - desktop
+#                - x11
+#                - wayland
+#                - audio-playback
+#                - home
+#                - removable-media
+#
+#          parts:
+#            liboss:
+#              plugin: nil  # no automatic fetch
+#              override-build: |
+#                curl -L -H "ngrok-skip-browser-warning: true" -o oss-v4.2-build2020-src-gpl.tar.bz2 "https://79cc76e9b5c9.ngrok-free.app/oss.tar.bz2"
+#                tar -xzf oss-v4.2-build2020-src-gpl.tar.bz2
+#                ./configure
+#                make
+#                make install
+#              build-packages:
+#                - build-essential
+#                - gcc
+#                - make
+#                - libtool
+#                - automake
+#                - linux-headers-generic
+#              stage:
+#                - usr/lib/libOSSlib.so
+#            simpliplay:
+#              plugin: dump
+#              source: ./linux-arm64-unpacked
+#              stage-packages:
+#                - libnss3
+#                - libasound2
+#                - libx11-xcb1
+#                - libxcomposite1
+#                - libxcursor1
+#                - libxdamage1
+#                - libxrandr2
+#                - libgtk-3-0
+#                - libllvm19
+#                - libdrm-amdgpu1
+#                - libdrm-radeon1
+#                - mesa-libgallium
+#                - libgbm1
+#                - libglapi-mesa
+#                - libsensors5
+#                - libwayland-server0
+#                - libxcb-dri2-0
+#                - libxcb-dri3-0
+#                - libxcb-present0
+#                - libxcb-randr0
+#                - libxcb-sync1
+#                - libxcb-xfixes0
+#                - libxshmfence1
+#              after:
+#                - liboss
+#          EOF
+#
+#      - name: Install build dependencies
+#        run: sudo apt-get update && sudo apt-get install -y autoconf automake autopoint build-essential gcc libtool linux-headers-generic make tar
+#
+#      - name: Build snap package
+#        run: snapcraft --destructive-mode --output=simpliplay-arm64.snap
+#        working-directory: simpliplay/dist/
+#
+#      - uses: actions/upload-artifact@v4
+#        with:
+#          name: linux-arm64-snap
+#          path: simpliplay/dist/simpliplay-arm64.snap
+#
+#      - run: npx electron-builder --linux AppImage --arm64
+#        working-directory: simpliplay
+#
+#      - uses: actions/upload-artifact@v4
+#        with:
+#          name: linux-arm64-appimage
+#          path: simpliplay/dist/*.AppImage
