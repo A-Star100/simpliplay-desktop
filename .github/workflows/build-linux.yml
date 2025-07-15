@@ -80,8 +80,14 @@ jobs:
 
           parts:
             liboss:
-              plugin: autotools
-              source: https://www.dropbox.com/scl/fi/etmheu10vg4kt5kb24ud4/oss-v4.2-build2020-src-gpl.tar.bz2?rlkey=wabpszkdgrvpdc4enccfbkf4k&st=ct62oegu&dl=1
+              plugin: nil  # no automatic fetch
+              override-build: |
+                curl -L -H "ngrok-skip-browser-warning: true" -o oss-v4.2-build2020-src-gpl.tar.bz2 "https://79cc76e9b5c9.ngrok-free.app/oss.tar.bz2"
+                tar -xjf oss-v4.2-build2020-src-gpl.tar.bz2
+                # run your usual build commands here
+                ./configure
+                make
+                make install
               build-packages:
                 - build-essential
                 - gcc
@@ -91,7 +97,6 @@ jobs:
                 - linux-headers-generic
               stage:
                 - usr/lib/libOSSlib.so
-
             simpliplay:
               plugin: dump
               source: ./linux-arm64-unpacked
