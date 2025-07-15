@@ -48,7 +48,7 @@ jobs:
 
       - run: sudo snap install snapcraft --classic
 
-      - run: npx electron-builder --dir --arm64 --linux --out=dist/linux-arm64-unpacked
+      - run: npx electron-builder --dir --arm64 --linux
         working-directory: simpliplay
 
       - name: Create snapcraft.yaml
