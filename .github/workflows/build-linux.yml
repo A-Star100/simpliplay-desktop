@@ -81,7 +81,6 @@ jobs:
               source: ./linux-arm64-unpacked
               stage-packages:
                 - libnss3
-                - libxss1
                 - libasound2
                 - libx11-xcb1
                 - libxcomposite1
@@ -113,7 +112,6 @@ jobs:
         with:
           name: linux-arm64-snap
           path: simpliplay/dist/simpliplay-arm64.snap
-
 
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
