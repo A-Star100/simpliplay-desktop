@@ -1,5 +1,4 @@
 name: Build Linux 
-# arm64 builds do not use Snap anymore
 
 on:
   push:
@@ -52,7 +51,7 @@ jobs:
       - run: sudo snap install snapcraft --classic
 
       # Build AppImage for arm64
-      - run: npx electron-builder --linux AppImage --arm64
+      - run: npx electron-builder --linux --arm64
         working-directory: simpliplay
 
       # Upload Snap artifact (keep it for experimental use)
