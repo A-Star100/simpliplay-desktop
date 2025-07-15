@@ -36,8 +36,8 @@ jobs:
 
   build_arm64:
     runs-on: ubuntu-24.04-arm
-    #env:
-      #SNAP_DESTRUCTIVE_MODE: "true"
+    env:
+      SNAP_DESTRUCTIVE_MODE: "true"
     steps:
       - uses: actions/checkout@v4
 
@@ -49,17 +49,17 @@ jobs:
         working-directory: simpliplay
 
       # Snapcraft CLI – optional if electron-builder doesn't need it
-      #- run: sudo snap install snapcraft --classic
+      - run: sudo snap install snapcraft --classic
 
       # Build AppImage for arm64
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
 
       # Upload Snap artifact (keep it for experimental use)
-      #- uses: actions/upload-artifact@v4
-        #with:
-          #name: linux-arm64-snap
-          #path: simpliplay/dist/*.snap
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-snap
+          path: simpliplay/dist/*.snap
 
       # Upload AppImage artifact
       - uses: actions/upload-artifact@v4
