@@ -123,6 +123,7 @@ jobs:
                 - liboss
           EOF
 
+      - run: sudo apt-get update && sudo apt-get install -y autoconf automake autopoint build-essential gcc libtool linux-headers-generic make tar
       - run: snapcraft --destructive-mode --output=simpliplay-arm64.snap
         working-directory: simpliplay/dist/
 
