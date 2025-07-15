@@ -12,6 +12,9 @@
   "author": "Anirudh Sevugan",
   "build": {
     "npmRebuild": false,
+    "snap": {
+    	"base": "core24"
+    },
     "appId": "com.anirudhsevugan.simpliPlay",
     "productName": "SimpliPlay",
     "directories": {
