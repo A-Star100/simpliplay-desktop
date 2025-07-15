@@ -1,5 +1,5 @@
-name: Build Linux 
-# we build arm64 snaps in house
+name: Build Linux
+
 on:
   push:
     branches: [main]
@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -18,11 +19,9 @@ jobs:
       - run: npm install
         working-directory: simpliplay
 
-      # Build Snap and AppImage both
       - run: npx electron-builder --linux --x64
         working-directory: simpliplay
 
-      # Upload Snap artifact
       - uses: actions/upload-artifact@v4
         with:
           name: linux-x64-snap
@@ -47,22 +46,65 @@ jobs:
       - run: npm install
         working-directory: simpliplay
 
-      # Snapcraft CLI – optional if electron-builder doesn't need it
-      #- run: sudo snap install snapcraft --classic
+      - run: sudo snap install snapcraft --classic
 
-      # Build AppImage for arm64
+      - run: npx electron-builder --dir --arm64 --linux
+        working-directory: simpliplay
+
+      - name: Create snapcraft.yaml
+        run: |
+          mkdir -p snap
+          cat > snap/snapcraft.yaml <<EOF
+          name: simpliplay
+          base: core24
+          version: '2.0.2'
+          summary: SimpliPlay - Media playback accessible anywhere, anytime.
+          description: |
+            SimpliPlay is a modern Electron-based media player supporting various formats.
+
+          grade: stable
+          confinement: strict
+
+          apps:
+            simpliplay:
+              command: SimpliPlay
+              plugs:
+                - desktop
+                - x11
+                - wayland
+                - audio-playback
+                - home
+                - removable-media
+
+          parts:
+            simpliplay:
+              plugin: dump
+              source: ../linux-arm64-unpacked
+              stage-packages:
+                - libnss3
+                - libxss1
+                - libasound2
+                - libx11-xcb1
+                - libxcomposite1
+                - libxcursor1
+                - libxdamage1
+                - libxrandr2
+                - libgtk-3-0
+          EOF
+        working-directory: simpliplay/dist/linux-arm64-unpacked
+
+      - run: snapcraft
+        working-directory: simpliplay/dist/linux-arm64-unpacked
+
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
 
-      # Upload Snap artifact (keep it for experimental use)
-      #- uses: actions/upload-artifact@v4
-        #with:
-         # name: linux-arm64-snap
-         # path: simpliplay/dist/*.snap
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-snap
+          path: simpliplay/dist/linux-arm64-unpacked/*.snap
 
-      # Upload AppImage artifact
       - uses: actions/upload-artifact@v4
         with:
           name: linux-arm64-appimage
           path: simpliplay/dist/*.AppImage
-
