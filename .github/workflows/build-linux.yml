@@ -53,8 +53,7 @@ jobs:
 
       - name: Create snapcraft.yaml
         run: |
-          mkdir -p snap
-          cat > snap/snapcraft.yaml <<EOF
+          cat > simpliplay/dist/snapcraft.yaml <<EOF
           name: simpliplay
           base: core24
           version: '2.0.2'
@@ -90,23 +89,33 @@ jobs:
                 - libxdamage1
                 - libxrandr2
                 - libgtk-3-0
+                - libllvm19
+                - libdrm-amdgpu1
+                - libdrm-radeon1
+                - mesa-libgallium
+                - libgbm1
+                - libglapi-mesa
+                - libsensors5
+                - libwayland-server0
+                - libxcb-dri2-0
+                - libxcb-dri3-0
+                - libxcb-present0
+                - libxcb-randr0
+                - libxcb-sync1
+                - libxcb-xfixes0
+                - libxshmfence1
           EOF
-        working-directory: simpliplay/dist/linux-arm64-unpacked
 
-      - run: snapcraft --destructive-mode
-        working-directory: simpliplay/dist/linux-arm64-unpacked
-
-      - run: npx electron-builder --linux AppImage --arm64
-        working-directory: simpliplay
+      - run: snapcraft --destructive-mode --output=simpliplay-arm64.snap
+        working-directory: simpliplay/dist
 
       - uses: actions/upload-artifact@v4
         with:
           name: linux-arm64-snap
-          path: |
-            simpliplay/dist/linux-arm64-unpacked/*.snap
-            simpliplay/dist/linux-arm64-unpacked/snap/*.snap
+          path: simpliplay/dist/simpliplay-arm64.snap
 
-
+      - run: npx electron-builder --linux AppImage --arm64
+        working-directory: simpliplay
 
       - uses: actions/upload-artifact@v4
         with:
