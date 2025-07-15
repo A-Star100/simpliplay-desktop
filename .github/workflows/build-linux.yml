@@ -48,7 +48,7 @@ jobs:
 
       - run: sudo snap install snapcraft --classic
 
-      - run: npx electron-builder --dir --arm64 --linux
+      - run: npx electron-builder --dir --arm64 --linux --out=dist/linux-arm64-unpacked
         working-directory: simpliplay
 
       - name: Create snapcraft.yaml
@@ -78,7 +78,7 @@ jobs:
           parts:
             simpliplay:
               plugin: dump
-              source: ../linux-arm64-unpacked
+              source: ./linux-arm64-unpacked
               stage-packages:
                 - libnss3
                 - libxss1
@@ -113,6 +113,7 @@ jobs:
         with:
           name: linux-arm64-snap
           path: simpliplay/dist/simpliplay-arm64.snap
+
 
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
