@@ -15,7 +15,7 @@ if (process.platform === 'darwin') {
   } 
 }
 
-
+// random change just to make sure that snapcraft releases fixed version on new channel to delete arm64 versions
 
 let mainWindow;
 if (process.argv.includes('--disable-gpu')) {
