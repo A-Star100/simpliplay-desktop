@@ -53,7 +53,7 @@ jobs:
 
       - name: Create snapcraft.yaml
         run: |
-          cat > simpliplay/dist/snapcraft.yaml <<EOF
+          cat > simpliplay/dist/snapcraft.yaml <<'EOF'
           name: simpliplay
           base: core24
           version: '2.0.2'
@@ -63,6 +63,9 @@ jobs:
 
           grade: stable
           confinement: strict
+
+          environment:
+            LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/lib:$SNAP/usr/local/lib
 
           apps:
             simpliplay:
@@ -76,6 +79,19 @@ jobs:
                 - removable-media
 
           parts:
+            liboss:
+              plugin: autotools
+              source: https://fossies.org/linux/misc/oss-v4.2-build2020-src-gpl.tar.bz2
+              build-packages:
+                - build-essential
+                - gcc
+                - make
+                - libtool
+                - automake
+                - linux-headers-generic
+              stage:
+                - usr/lib/libOSSlib.so
+
             simpliplay:
               plugin: dump
               source: ./linux-arm64-unpacked
@@ -103,6 +119,8 @@ jobs:
                 - libxcb-sync1
                 - libxcb-xfixes0
                 - libxshmfence1
+              after:
+                - liboss
           EOF
 
       - run: snapcraft --destructive-mode --output=simpliplay-arm64.snap
