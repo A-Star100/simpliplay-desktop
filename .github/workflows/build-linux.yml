@@ -93,7 +93,7 @@ jobs:
           EOF
         working-directory: simpliplay/dist/linux-arm64-unpacked
 
-      - run: snapcraft
+      - run: snapcraft --destructive-mode
         working-directory: simpliplay/dist/linux-arm64-unpacked
 
       - run: npx electron-builder --linux AppImage --arm64
