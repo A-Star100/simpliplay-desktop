@@ -6,7 +6,7 @@ const { pathToFileURL } = require("url");
 const { checkForUpdate } = require('./updateChecker');
 let gpuAccel = "";
 let didRegisterShortcuts = false;
-let version = "2.0.0.2"
+let version = "2.0.3.0"
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
@@ -261,8 +261,15 @@ app.whenReady().then(() => {
   createWindow();
   setupMenu();
 
+  
+  mainWindow?.on("focus", () => {
+    if (!didRegisterShortcuts) setupShortcuts();
+  });
+
+  mainWindow?.on("blur", unregisterShortcuts);
+
   // Store but delay opening
-  const args = process.argv.slice(1);
+  const args = process.argv.slice(2);
   const fileArg = args.find(isValidFileArg);
 
   if (fileArg) {
@@ -270,12 +277,6 @@ app.whenReady().then(() => {
       if (mainWindow) openFileSafely(fileArg);
     });
   }
-
-  mainWindow?.on("focus", () => {
-    if (!didRegisterShortcuts) setupShortcuts();
-  });
-
-  mainWindow?.on("blur", unregisterShortcuts);
 
   app.on("open-file", (event, filePath) => {
     event.preventDefault();
@@ -300,6 +301,8 @@ function openFileSafely(filePath) {
   if (!hasOpenedFile) {
     hasOpenedFile = true;
 
+    const absPath = path.resolve(filePath); // ensure absolute path
+
     if (mainWindow?.webContents) {
         const winFileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
         mainWindow.webContents.send("play-media", winFileURL);
@@ -310,7 +313,10 @@ function openFileSafely(filePath) {
 }
 
 function isValidFileArg(arg) {
-  return arg && !arg.startsWith('-') && !arg.includes('electron') && fs.existsSync(arg);
+    if (!arg || arg.startsWith('-') || arg.includes('electron')) return false;
+  
+    const resolvedPath = path.resolve(arg); // resolves relative paths to absolute
+    return fs.existsSync(resolvedPath);
 }
 
 app.on("window-all-closed", () => {
