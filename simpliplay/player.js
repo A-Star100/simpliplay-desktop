@@ -31,6 +31,25 @@ document.addEventListener('DOMContentLoaded', () => {
     window.hls = hls; 
     window.dash = player;
 
+    async function detectStreamType(url) {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    const contentType = response.headers.get('Content-Type') || '';
+
+    const isHLS = url.toLowerCase().endsWith('.m3u8') ||
+      contentType.includes('application/vnd.apple.mpegurl') ||
+      contentType.includes('application/x-mpegURL');
+
+    const isDASH = url.toLowerCase().endsWith('.mpd') ||
+      contentType.includes('application/dash+xml');
+
+    return { isHLS, isDASH, contentType };
+  } catch (err) {
+    console.error("Failed to detect stream type:", err);
+    return { isHLS: false, isDASH: false, contentType: null };
+  }
+}
+
     // Update media volume when the slider is moved
   volumeBar.addEventListener("input", function () {
     mediaPlayer.volume = volumeBar.value;
@@ -93,7 +112,7 @@ submitSubtitlesBtn.addEventListener('click', () => {
     let loopEnabled = false;
 
     // Handle submit URL button in custom dialog
-submitUrlBtn.addEventListener('click', () => {
+submitUrlBtn.addEventListener('click', async () => {
   let url = urlInput.value;
 
   // Check if URL is a valid URL and doesn't contain "http" or "https"
@@ -101,6 +120,8 @@ submitUrlBtn.addEventListener('click', () => {
     // Assuming it's a URL and needs the protocol added
     url = 'http://' + url;  // You can also choose 'https://' if preferred
   }
+
+const { isHLS, isDASH } = await detectStreamType(url);
   
 
   if (url) {
@@ -115,7 +136,7 @@ submitUrlBtn.addEventListener('click', () => {
       player = null
       window.dash = player
     }
-    if (url.toLowerCase().endsWith('.m3u8') || url.toLowerCase().endsWith('.m3u')) {
+    if (url.toLowerCase().endsWith('.m3u8') || url.toLowerCase().endsWith('.m3u') || isHLS) {
       // HLS stream
       if (Hls.isSupported()) {
         mediaPlayer.style.display = 'flex'; // Hide the native video player
@@ -137,7 +158,7 @@ submitUrlBtn.addEventListener('click', () => {
         customControls.style.display = 'flex';
         urlInput.value = "";
       }
-    } else if (url.toLowerCase().endsWith('.mpd')) {
+    } else if (url.toLowerCase().endsWith('.mpd') || isDASH) {
       mediaPlayer.style.display = 'flex'; // Hide the native video player
       mediaPlayer.pause();
       player = dashjs.MediaPlayer().create();
