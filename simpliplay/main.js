@@ -6,7 +6,7 @@ const { pathToFileURL } = require("url");
 const { checkForUpdate } = require('./updateChecker');
 let gpuAccel = "";
 let didRegisterShortcuts = false;
-let version = "2.0.3.0"
+let version = "2.0.3.1"
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
@@ -313,10 +313,16 @@ function openFileSafely(filePath) {
 }
 
 function isValidFileArg(arg) {
-    if (!arg || arg.startsWith('-') || arg.includes('electron')) return false;
-  
-    const resolvedPath = path.resolve(arg); // resolves relative paths to absolute
-    return fs.existsSync(resolvedPath);
+  if (!arg || arg.startsWith('-') || arg.includes('electron')) return false;
+
+  const resolvedPath = path.resolve(arg);
+  if (!fs.existsSync(resolvedPath)) return false;
+
+  // Reject known executable/script extensions
+  const badExtensions = ['.exe', '.bat', '.cmd', '.sh', '.msi', '.com', '.vbs', '.ps1', '.jar', '.scr'];
+  const ext = path.extname(resolvedPath).toLowerCase();
+
+  return !badExtensions.includes(ext);
 }
 
 app.on("window-all-closed", () => {
