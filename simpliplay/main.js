@@ -6,7 +6,7 @@ const { pathToFileURL } = require("url");
 const { checkForUpdate } = require('./updateChecker');
 let gpuAccel = "";
 let didRegisterShortcuts = false;
-let version = "2.0.4.0"
+let version = "2.0.4.1"
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
@@ -245,8 +245,8 @@ if (existingAddonsMenuItem) {
         if (alreadyLoaded) {
           await dialog.showMessageBox(mainWindow, {
             type: 'error',
-            title: 'Add-on Load Error',
-            message: `An add-on named "${fileName}" is already loaded.`,
+            title: 'Could not load addon',
+            message: `An add-on named "${fileName}" has already been loaded before.`,
             buttons: ['OK']
           });
           return;
@@ -261,7 +261,24 @@ if (existingAddonsMenuItem) {
             checked: true,
             click: (menuItem) => {
               if (menuItem.checked) {
-                mainWindow.webContents.send('load-addon', fileURL);
+                fs.access(filePath, (err) => {
+                  if (!err) {
+                      mainWindow.webContents.send('load-addon', fileURL);
+                  } else {
+                      dialog.showMessageBox(mainWindow, {
+                        type: 'error',
+                        title: 'Could not load addon',
+                        message: `The add-on "${fileName}" could not be found or doesn't exist anymore.`,
+                        buttons: ['OK']
+                      }).then(() => {
+                        // Delay unchecking to ensure dialog closes first
+                      setTimeout(() => {
+                          menuItem.checked = false;
+                      }, 100);
+                      });
+                  }
+                });
+
               } else {
                 mainWindow.webContents.send('unload-addon', fileURL);
               }
