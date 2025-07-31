@@ -18,19 +18,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm install
         working-directory: simpliplay
 
-      - name: Build macOS
+      - name: Build macOS App (Universal)
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npx electron-builder --mac --x64 --arm64 --universal
+        run: |
+          npx electron-builder --mac --x64 --arm64 --universal
         working-directory: simpliplay
 
-      - name: Upload artifacts
+      - name: Upload macOS DMG Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: builds
-          path: simpliplay/dist/
+          name: macOS-builds
+          path: simpliplay/dist/*.dmg
