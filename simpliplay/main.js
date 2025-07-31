@@ -207,7 +207,94 @@ if (appMenu && !appMenu.submenu.items.some(item => item.label === 'Check for Upd
     }
   }
 
-  Menu.setApplicationMenu(menu);
+const loadedAddons = new Map(); // key: addon filepath, value: MenuItem
+
+const newMenuItems = menu ? [...menu.items] : [];
+
+let addonsMenu;
+
+// Check if Add-ons menu already exists
+const existingAddonsMenuItem = newMenuItems.find(item => item.label === 'Add-ons');
+
+if (existingAddonsMenuItem) {
+  addonsMenu = existingAddonsMenuItem.submenu;
+} else {
+  addonsMenu = new Menu();
+
+  // "Load Add-on" menu item
+  addonsMenu.append(new MenuItem({
+    label: 'Load Add-on',
+    accelerator: 'CommandOrControl+Shift+A',
+    click: async () => {
+      const result = await dialog.showOpenDialog(mainWindow, {
+        title: 'Load Add-on',
+        filters: [{ name: 'JavaScript Files', extensions: ['simpliplay'] }],
+        properties: ['openFile'],
+      });
+
+      if (!result.canceled && result.filePaths.length > 0) {
+        const filePath = result.filePaths[0];
+        const fileName = path.basename(filePath);
+        const fileURL = pathToFileURL(filePath).href;
+
+        // Check if an addon with the same filename is already loaded
+        const alreadyLoaded = [...loadedAddons.keys()].some(
+          loadedPath => path.basename(loadedPath) === fileName
+        );
+
+        if (alreadyLoaded) {
+          await dialog.showMessageBox(mainWindow, {
+            type: 'error',
+            title: 'Add-on Load Error',
+            message: `An add-on named "${fileName}" is already loaded.`,
+            buttons: ['OK']
+          });
+          return;
+        }
+
+        if (!loadedAddons.has(filePath)) {
+          mainWindow.webContents.send('load-addon', fileURL);
+
+          const addonMenuItem = new MenuItem({
+            label: fileName,
+            type: 'checkbox',
+            checked: true,
+            click: (menuItem) => {
+              if (menuItem.checked) {
+                mainWindow.webContents.send('load-addon', fileURL);
+              } else {
+                mainWindow.webContents.send('unload-addon', fileURL);
+              }
+            }
+          });
+
+          if (!addonsMenu.items.some(item => item.type === 'separator')) {
+            addonsMenu.append(new MenuItem({ type: 'separator' }));
+          }
+
+          addonsMenu.append(addonMenuItem);
+          loadedAddons.set(filePath, addonMenuItem);
+
+          // Rebuild the menu after adding the new addon item
+          Menu.setApplicationMenu(Menu.buildFromTemplate(newMenuItems));
+        }
+      }
+    }
+  }));
+
+  // Add the Add-ons menu only once here:
+  newMenuItems.push(new MenuItem({ label: 'Add-ons', submenu: addonsMenu }));
+
+  // Set the application menu after adding Add-ons menu
+  Menu.setApplicationMenu(Menu.buildFromTemplate(newMenuItems));
+}
+
+
+// Re-apply the full menu if you add newMenuItems outside of the if above
+//Menu.setApplicationMenu(Menu.buildFromTemplate(newMenuItems));
+
+
+  //Menu.setApplicationMenu(menu);
 };
 
 const setupShortcuts = () => {
