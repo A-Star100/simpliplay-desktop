@@ -33,7 +33,7 @@ jobs:
           path: simpliplay/dist/*.AppImage
 
   build_arm64:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-22.04-arm
     steps:
       - uses: actions/checkout@v4
 
@@ -43,9 +43,14 @@ jobs:
 
       - run: npm install
         working-directory: simpliplay
-
+        
+      - run: npm install -g yarn
+        working-directory: simpliplay
 
       - run: npx electron-builder --linux AppImage --arm64
+        working-directory: simpliplay
+
+      - run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true yarn run electron:build --arm64 Snap --linux
         working-directory: simpliplay
 
       - uses: actions/upload-artifact@v4
