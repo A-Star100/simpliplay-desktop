@@ -17,6 +17,9 @@
     "directories": {
       "output": "dist"
     },
+    "snap": {
+      "base": "core22"
+    },
     "mac": {
       "target": [
         "dmg"
