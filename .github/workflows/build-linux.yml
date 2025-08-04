@@ -46,7 +46,7 @@ jobs:
           mv simpliplay/package.json simpliplay/package-unused.json
           mv simpliplay/package-arm64-linux.json simpliplay/package.json
 
-      - run: npm ci
+      - run: npm install
         working-directory: simpliplay
 
       - run: npx electron-builder --linux AppImage --arm64
