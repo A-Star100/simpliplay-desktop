@@ -46,20 +46,19 @@ jobs:
           mv simpliplay/package.json simpliplay/package-unused.json
           mv simpliplay/package-arm64-linux.json simpliplay/package.json
 
-      - run: npm install
+      - run: npm ci
         working-directory: simpliplay
 
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
 
       - run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
-        working-directory: simpliplay
 
       - run: sudo snap install snapcraft --classic
-        working-directory: simpliplay
 
       - run: sudo snap install gnome-3-28-1804
-        working-directory: simpliplay
+
+      - run: sudo snap install gtk-common-themes
 
       - run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
