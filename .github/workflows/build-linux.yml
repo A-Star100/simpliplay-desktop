@@ -41,6 +41,11 @@ jobs:
         with:
           node-version: 22
 
+      - name: Use ARM64 package.json
+        run: |
+          mv simpliplay/package.json simpliplay/package-unused.json
+          mv simpliplay/package-arm64-linux.json simpliplay/package.json
+
       - run: npm install
         working-directory: simpliplay
 
