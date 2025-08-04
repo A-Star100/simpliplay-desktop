@@ -58,6 +58,9 @@ jobs:
       - run: sudo snap install snapcraft --classic
         working-directory: simpliplay
 
+      - run: sudo snap install gnome-3-28-1804
+        working-directory: simpliplay
+
       - run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
 
