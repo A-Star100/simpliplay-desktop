@@ -50,7 +50,7 @@ jobs:
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
 
-      - run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true yarn run electron:build --arm64 Snap --linux
+      - run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --arm64 Snap --linux
         working-directory: simpliplay
 
       - uses: actions/upload-artifact@v4
