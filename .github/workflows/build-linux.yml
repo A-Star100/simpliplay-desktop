@@ -60,6 +60,8 @@ jobs:
 
       - run: sudo snap install gtk-common-themes
 
+      - run: sudo snap install core22
+
       - run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
 
