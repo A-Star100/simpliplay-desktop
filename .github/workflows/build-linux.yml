@@ -50,6 +50,9 @@ jobs:
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
 
+      - run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
+        working-directory: simpliplay
+
       - run: sudo snap install snapcraft --classic
         working-directory: simpliplay
 
