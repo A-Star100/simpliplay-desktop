@@ -33,7 +33,7 @@ jobs:
           path: simpliplay/dist/*.AppImage
 
   build_arm64:
-    runs-on: ubuntu-22.04-arm64
+    runs-on: ubuntu-22.04-arm
     steps:
       - uses: actions/checkout@v4
 
