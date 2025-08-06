@@ -14,7 +14,10 @@ jobs:
         run: mkdir -p all-artifacts
 
       - name: Poll for expected artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           echo "Polling (every 15 seconds) until all required artifacts are available..."
 
           REQUIRED=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64")
@@ -43,14 +46,13 @@ jobs:
             echo "🔁 Not all artifacts found. Retrying in 15 seconds..."
             sleep 15
           done
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract ZIP files and prepare list of files to upload
         run: |
+          set -e
           echo "🔍 Extracting ZIP files and collecting allowed SimpliPlay files..."
 
-          find all-artifacts -type f -name '*.zip' | while read zipfile; do
+          find all-artifacts -type f -name '*.zip' | while read -r zipfile; do
             extract_dir="${zipfile%.zip}"
             echo "📦 Extracting $zipfile to $extract_dir"
             unzip -o "$zipfile" -d "$extract_dir"
@@ -72,7 +74,10 @@ jobs:
 
       - name: Rename files if duplicates exist on release
         id: rename
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           sanitize_filename() {
             echo "$1" | tr ' ' '-'
           }
@@ -89,10 +94,8 @@ jobs:
             filename=$(basename "$filepath")
             dirname=$(basename "$(dirname "$filepath")")
 
-            # Replace spaces with dashes
             safe_filename=$(sanitize_filename "$filename")
 
-            # Check for duplicates against existing assets
             if echo "$existing_assets" | grep -qx "$safe_filename"; then
               extension="${filename##*.}"
               name="${filename%.*}"
@@ -102,7 +105,6 @@ jobs:
               cp "$filepath" "all-artifacts/$newname"
               echo "all-artifacts/$newname" >> upload-files-renamed.txt
             else
-              # Rename if original had spaces, else keep original
               if [[ "$filename" != "$safe_filename" ]]; then
                 cp "$filepath" "all-artifacts/$safe_filename"
                 echo "all-artifacts/$safe_filename" >> upload-files-renamed.txt
@@ -114,20 +116,14 @@ jobs:
 
           echo "Final list of files to upload:"
           cat upload-files-renamed.txt
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Prepare files list for release
-        id: files-list
-        run: |
-          files=$(cat upload-files-renamed.txt | tr '\n' ' ')
-          echo "files=$files" >> $GITHUB_OUTPUT
 
       - name: Upload assets to draft release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: "draft-${{ github.run_number }}"
-          draft: true
-          files: ${{ steps.files-list.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          release_tag="draft-${{ github.run_number }}"
+          while IFS= read -r filepath; do
+            echo "Uploading $filepath"
+            gh release upload "$release_tag" "$filepath" --clobber
+          done < upload-files-renamed.txt
