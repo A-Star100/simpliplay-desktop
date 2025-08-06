@@ -51,20 +51,18 @@ jobs:
       - name: Show downloaded files
         run: ls -R all-artifacts
 
-      - name: Extract ZIP artifacts
+      - name: Prepare list of files to upload
         run: |
-          echo "🔍 Looking for ZIP files to extract..."
-          find all-artifacts -type f -name "*.zip" | while read zipfile; do
-            echo "📦 Extracting $zipfile"
-            unzip -o "$zipfile" -d "${zipfile%.*}"
-          done
+          find all-artifacts -type f \( -iname "*.exe" -o -iname "*.dmg" -o -iname "*.snap" -o -iname "*.AppImage" \) > upload-files.txt
+          echo "Files to upload:"
+          cat upload-files.txt
 
       - name: Create GitHub Draft Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "draft-${{ github.run_number }}"
           draft: true
-          files: all-artifacts/**
+          files: $(cat upload-files.txt)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
