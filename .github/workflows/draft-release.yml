@@ -71,12 +71,20 @@ jobs:
           echo "Files to upload:"
           cat upload-files.txt
 
-      - name: Create GitHub Draft Release
+      - name: Create GitHub Draft Release (no files)
+        id: create_release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "draft-${{ github.run_number }}"
           draft: true
-          files: all-artifacts/**/*.exe all-artifacts/**/*.dmg all-artifacts/**/*.snap all-artifacts/**/*.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Upload assets from list
+        run: |
+          while IFS= read -r file; do
+            echo "Uploading $file"
+            gh release upload "draft-${{ github.run_number }}" "$file"
+          done < upload-files.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
