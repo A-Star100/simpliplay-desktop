@@ -26,7 +26,7 @@ jobs:
             rm -rf all-artifacts
             mkdir -p all-artifacts
 
-            # This will download all available artifacts for this run
+            # Download all available artifacts for this run
             gh run download --dir all-artifacts || true
 
             missing=0
@@ -48,12 +48,26 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Show downloaded files
-        run: ls -R all-artifacts
-
-      - name: Prepare list of files to upload
+      - name: Extract ZIP files and prepare list of files to upload
         run: |
-          find all-artifacts -type f \( -iname "*.exe" -o -iname "*.dmg" -o -iname "*.snap" -o -iname "*.AppImage" \) > upload-files.txt
+          echo "🔍 Extracting ZIP files and collecting allowed files..."
+
+          # Extract all ZIPs to their own folder
+          find all-artifacts -type f -name '*.zip' | while read zipfile; do
+            extract_dir="${zipfile%.zip}"
+            echo "📦 Extracting $zipfile to $extract_dir"
+            unzip -o "$zipfile" -d "$extract_dir"
+          done
+
+          # Find allowed files only inside extracted directories
+          find all-artifacts -type d | while read dir; do
+            if [[ "$dir" == *.zip ]]; then
+              # skip actual zip files
+              continue
+            fi
+            find "$dir" -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.snap' -o -iname '*.AppImage' \)
+          done > upload-files.txt
+
           echo "Files to upload:"
           cat upload-files.txt
 
@@ -65,4 +79,3 @@ jobs:
           files: $(cat upload-files.txt)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
