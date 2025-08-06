@@ -76,6 +76,7 @@ jobs:
         with:
           tag_name: "draft-${{ github.run_number }}"
           draft: true
-          files: $(cat upload-files.txt)
+          files: all-artifacts/**/*.exe all-artifacts/**/*.dmg all-artifacts/**/*.snap all-artifacts/**/*.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
