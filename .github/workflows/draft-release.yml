@@ -62,7 +62,9 @@ jobs:
       - name: Create GitHub Draft Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: "draft-${{ github.run_number }}"
           draft: true
           files: all-artifacts/**
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
