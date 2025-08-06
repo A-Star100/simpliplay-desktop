@@ -22,11 +22,9 @@ jobs:
           while true; do
             echo "⏳ Checking artifacts..."
 
-            # Clean up and re-download artifacts each poll
             rm -rf all-artifacts
             mkdir -p all-artifacts
 
-            # Download all available artifacts for this run
             gh run download --dir all-artifacts || true
 
             missing=0
@@ -52,20 +50,25 @@ jobs:
         run: |
           echo "🔍 Extracting ZIP files and collecting allowed SimpliPlay files..."
 
-          # Extract all ZIPs to their own folder
           find all-artifacts -type f -name '*.zip' | while read zipfile; do
             extract_dir="${zipfile%.zip}"
             echo "📦 Extracting $zipfile to $extract_dir"
             unzip -o "$zipfile" -d "$extract_dir"
           done
 
-          # Prepare list for upload-files.txt, only SimpliPlay* with allowed extensions
           rm -f upload-files.txt
-          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.snap' -o -iname '*.AppImage' \) | \
-          grep 'SimpliPlay' > upload-files.txt
+          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.snap' -o -iname '*.AppImage' \) | grep 'SimpliPlay' > upload-files.txt
 
           echo "Filtered files to upload:"
           cat upload-files.txt
+
+      - name: Create empty draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "draft-${{ github.run_number }}"
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Rename files if duplicates exist on release
         id: rename
@@ -75,7 +78,6 @@ jobs:
           echo "Existing assets on release $release_tag:"
           echo "$existing_assets"
 
-          # Prepare a new upload list with renamed files if needed
           rm -f upload-files-renamed.txt
           touch upload-files-renamed.txt
 
@@ -84,7 +86,6 @@ jobs:
             dirname=$(basename $(dirname "$filepath"))
 
             if echo "$existing_assets" | grep -qx "$filename"; then
-              # rename to avoid conflict, e.g., append source folder
               extension="${filename##*.}"
               name="${filename%.*}"
               newname="${name}-${dirname}.${extension}"
@@ -101,11 +102,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create GitHub Draft Release
+      - name: Prepare files list for release
+        id: files-list
+        run: |
+          files=$(cat upload-files-renamed.txt | tr '\n' ' ')
+          echo "files=$files" >> $GITHUB_OUTPUT
+
+      - name: Upload assets to draft release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "draft-${{ github.run_number }}"
           draft: true
-          files: ${{ join(fromJSON(format('["%s"]', join(fromFile('upload-files-renamed.txt'), '","'))), ' ') }}
+          files: ${{ steps.files-list.outputs.files }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
