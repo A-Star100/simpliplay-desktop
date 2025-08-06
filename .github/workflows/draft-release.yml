@@ -21,7 +21,7 @@ jobs:
 
           while true; do
             echo "⏳ Checking artifacts..."
-            
+
             # Clean up and re-download artifacts each poll
             rm -rf all-artifacts
             mkdir -p all-artifacts
@@ -50,7 +50,7 @@ jobs:
 
       - name: Extract ZIP files and prepare list of files to upload
         run: |
-          echo "🔍 Extracting ZIP files and collecting allowed files..."
+          echo "🔍 Extracting ZIP files and collecting allowed SimpliPlay files..."
 
           # Extract all ZIPs to their own folder
           find all-artifacts -type f -name '*.zip' | while read zipfile; do
@@ -59,32 +59,53 @@ jobs:
             unzip -o "$zipfile" -d "$extract_dir"
           done
 
-          # Find allowed files only inside extracted directories
-          find all-artifacts -type d | while read dir; do
-            if [[ "$dir" == *.zip ]]; then
-              # skip actual zip files
-              continue
-            fi
-            find "$dir" -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.snap' -o -iname '*.AppImage' \)
-          done > upload-files.txt
+          # Prepare list for upload-files.txt, only SimpliPlay* with allowed extensions
+          rm -f upload-files.txt
+          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.snap' -o -iname '*.AppImage' \) | \
+          grep 'SimpliPlay' > upload-files.txt
 
-          echo "Files to upload:"
+          echo "Filtered files to upload:"
           cat upload-files.txt
 
-      - name: Create GitHub Draft Release (no files)
-        id: create_release
+      - name: Rename files if duplicates exist on release
+        id: rename
+        run: |
+          release_tag="draft-${{ github.run_number }}"
+          existing_assets=$(gh release view "$release_tag" --json assets --jq '.assets[].name' || echo "")
+          echo "Existing assets on release $release_tag:"
+          echo "$existing_assets"
+
+          # Prepare a new upload list with renamed files if needed
+          rm -f upload-files-renamed.txt
+          touch upload-files-renamed.txt
+
+          while IFS= read -r filepath; do
+            filename=$(basename "$filepath")
+            dirname=$(basename $(dirname "$filepath"))
+
+            if echo "$existing_assets" | grep -qx "$filename"; then
+              # rename to avoid conflict, e.g., append source folder
+              extension="${filename##*.}"
+              name="${filename%.*}"
+              newname="${name}-${dirname}.${extension}"
+              echo "Renaming $filename to $newname because it exists in release"
+              cp "$filepath" "all-artifacts/$newname"
+              echo "all-artifacts/$newname" >> upload-files-renamed.txt
+            else
+              echo "$filepath" >> upload-files-renamed.txt
+            fi
+          done < upload-files.txt
+
+          echo "Final list of files to upload:"
+          cat upload-files-renamed.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Draft Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "draft-${{ github.run_number }}"
           draft: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload assets from list
-        run: |
-          while IFS= read -r file; do
-            echo "Uploading $file"
-            gh release upload "draft-${{ github.run_number }}" "$file"
-          done < upload-files.txt
+          files: ${{ join(fromJSON(format('["%s"]', join(fromFile('upload-files-renamed.txt'), '","'))), ' ') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
