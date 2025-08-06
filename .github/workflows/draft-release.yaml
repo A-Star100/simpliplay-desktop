@@ -1,0 +1,65 @@
+name: Draft Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create-draft-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare folder
+        run: mkdir -p all-artifacts
+
+      - name: Poll for expected artifacts
+        run: |
+          echo "Polling every 15 seconds until all required artifacts are available..."
+
+          REQUIRED=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64")
+
+          while true; do
+            echo "⏳ Checking artifacts..."
+            
+            # Clean up and re-download artifacts each poll
+            rm -rf all-artifacts
+            mkdir -p all-artifacts
+
+            # This will download all available artifacts for this run
+            gh run download --dir all-artifacts || true
+
+            missing=0
+            for ARTIFACT in "${REQUIRED[@]}"; do
+              if [ ! -d "all-artifacts/$ARTIFACT" ]; then
+                echo "❌ Missing: $ARTIFACT"
+                missing=1
+              fi
+            done
+
+            if [ "$missing" -eq 0 ]; then
+              echo "✅ All required artifacts found."
+              break
+            fi
+
+            echo "🔁 Not all artifacts found. Retrying in 15 seconds..."
+            sleep 15
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Show downloaded files
+        run: ls -R all-artifacts
+
+      - name: Extract ZIP artifacts
+        run: |
+          echo "🔍 Looking for ZIP files to extract..."
+          find all-artifacts -type f -name "*.zip" | while read zipfile; do
+            echo "📦 Extracting $zipfile"
+            unzip -o "$zipfile" -d "${zipfile%.*}"
+          done
+
+      - name: Create GitHub Draft Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: all-artifacts/**
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
