@@ -43,7 +43,7 @@ jobs:
               break
             fi
 
-            echo "🔁 Not all artifacts found. Retrying in 15 seconds..."
+            echo "🔁 Not all artifacts were found. Retrying in 15 seconds..."
             sleep 15
           done
 
