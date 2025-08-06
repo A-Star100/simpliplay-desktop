@@ -59,7 +59,7 @@ jobs:
           done
 
           rm -f upload-files.txt
-          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.snap' -o -iname '*.AppImage' \) | grep 'SimpliPlay' > upload-files.txt
+          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.AppImage' \) | grep 'SimpliPlay' > upload-files.txt
 
           echo "Filtered files to upload:"
           cat upload-files.txt
