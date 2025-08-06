@@ -73,6 +73,10 @@ jobs:
       - name: Rename files if duplicates exist on release
         id: rename
         run: |
+          sanitize_filename() {
+            echo "$1" | tr ' ' '-'
+          }
+
           release_tag="draft-${{ github.run_number }}"
           existing_assets=$(gh release view "$release_tag" --json assets --jq '.assets[].name' || echo "")
           echo "Existing assets on release $release_tag:"
@@ -83,17 +87,28 @@ jobs:
 
           while IFS= read -r filepath; do
             filename=$(basename "$filepath")
-            dirname=$(basename $(dirname "$filepath"))
+            dirname=$(basename "$(dirname "$filepath")")
 
-            if echo "$existing_assets" | grep -qx "$filename"; then
+            # Replace spaces with dashes
+            safe_filename=$(sanitize_filename "$filename")
+
+            # Check for duplicates against existing assets
+            if echo "$existing_assets" | grep -qx "$safe_filename"; then
               extension="${filename##*.}"
               name="${filename%.*}"
-              newname="${name}-${dirname}.${extension}"
+              safe_name=$(sanitize_filename "$name")
+              newname="${safe_name}-${dirname}.${extension}"
               echo "Renaming $filename to $newname because it exists in release"
               cp "$filepath" "all-artifacts/$newname"
               echo "all-artifacts/$newname" >> upload-files-renamed.txt
             else
-              echo "$filepath" >> upload-files-renamed.txt
+              # Rename if original had spaces, else keep original
+              if [[ "$filename" != "$safe_filename" ]]; then
+                cp "$filepath" "all-artifacts/$safe_filename"
+                echo "all-artifacts/$safe_filename" >> upload-files-renamed.txt
+              else
+                echo "$filepath" >> upload-files-renamed.txt
+              fi
             fi
           done < upload-files.txt
 
