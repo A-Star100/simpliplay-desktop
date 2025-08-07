@@ -34,7 +34,8 @@
       "target": ["snap", "AppImage"],
       "icon": "icon.png",
       "executableName": "SimpliPlay",
-      "synopsis": "The mission to make media playback accessible anywhere, anytime."
+      "synopsis": "The mission to make media playback accessible anywhere, anytime.",
+      "artifactName": "SimpliPlay-${arch}-linux.${ext}"
     },
     "fileAssociations": [
       {
