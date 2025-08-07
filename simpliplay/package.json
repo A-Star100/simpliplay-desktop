@@ -18,13 +18,15 @@
       "output": "dist"
     },
     "snap": {
-      "desktop": {
-        "Name": "Simpliplay",
-        "Exec": "simpliplay.wrapper",
-        "Icon": "simpliplay",
-        "Type": "Application",
-        "Categories": "Utility;"
-      }
+      "apps": {
+        "simpliplay": {
+          "command": "simpliplay.wrapper"
+        }
+      },
+      "confinement": "strict",
+      "grade": "stable",
+      "summary": "A cross-platform, simple media player.",
+      "description": "The mission to make media playback accessible on every platform, anywhere, anytime.",
     },
     "mac": {
       "target": [
