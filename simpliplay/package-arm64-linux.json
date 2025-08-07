@@ -18,7 +18,14 @@
       "output": "dist"
     },
     "snap": {
-      "base": "core22"
+      "base": "core22",
+      "desktop": {
+        "Name": "Simpliplay",
+        "Exec": "simpliplay.wrapper",
+        "Icon": "simpliplay",
+        "Type": "Application",
+        "Categories": "Utility;"
+      }
     },
     "mac": {
       "target": [
