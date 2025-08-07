@@ -1,7 +1,7 @@
 {
   "name": "SimpliPlay",
   "version": "2.0.4",
-  "description": "SimpliPlay - The mission to make media playback accessible on every device, anywhere, anytime.",
+  "description": "The mission to make media playback accessible on every platform, anywhere, anytime.",
   "main": "./main.js",
   "scripts": {
     "test": "echo Hello World from SimpliPlay!!!",
