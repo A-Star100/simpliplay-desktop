@@ -17,6 +17,15 @@
     "directories": {
       "output": "dist"
     },
+    "snap": {
+      "desktop": {
+        "Name": "Simpliplay",
+        "Exec": "simpliplay.wrapper",
+        "Icon": "simpliplay",
+        "Type": "Application",
+        "Categories": "Utility;"
+      }
+    },
     "mac": {
       "target": [
         "dmg"
