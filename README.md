@@ -1,5 +1,5 @@
 # simpliplay-desktop
-The desktop version of SimpliPlay.
+The desktop version of SimpliPlay, a simple, cross-platform media player.
 
 ## simpliplay
 [Electron](https://electronjs.org) version of SimpliPlay for Windows, macOS, and Linux (x64 and ARM64).
