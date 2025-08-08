@@ -29,71 +29,59 @@ jobs:
         run: npm install
         working-directory: simpliplay
 
-      - name: Package all app bundles without signing
-        run: npx electron-builder --dir --mac --x64 --arm64 --universal
+      # This step creates the DMG with its UI for all three architectures.
+      # By default, it creates them as read/write sparse images.
+      - name: Package all app bundles into DMGs
+        run: npx electron-builder --mac --x64 --arm64 --universal
         working-directory: simpliplay
-      
-      - name: Force ad-hoc signing on all app bundles
-        run: |
-          X64_APP_PATH="dist/mac/SimpliPlay.app"
-          ARM64_APP_PATH="dist/mac-arm64/SimpliPlay.app"
-          UNIVERSAL_APP_PATH="dist/mac-universal/SimpliPlay.app"
-          
-          echo "Signing x64 app bundle..."
-          codesign --force --deep --sign - "$X64_APP_PATH"
-          
-          echo "Signing arm64 app bundle..."
-          codesign --force --deep --sign - "$ARM64_APP_PATH"
-          
-          echo "Signing universal app bundle..."
-          codesign --force --deep --sign - "$UNIVERSAL_APP_PATH"
-          
-          echo "Ad-hoc signing complete for all bundles."
-        working-directory: simpliplay
-      
-      - name: Create basic DMG installers
-        run: |
-          # --- Set up variables ---
-          APP_NAME="SimpliPlay"
 
-          # --- Function to create a DMG from a signed app bundle ---
-          create_dmg() {
-            local app_path="$1"
-            local dmg_name="$2"
-            local volume_name="$3"
-
-            # Calculate the size of the app bundle in KB, then add a 50MB buffer
-            APP_SIZE_KB=$(du -sk "$app_path" | cut -f1)
-            DMG_SIZE_MB=$(( ($APP_SIZE_KB / 1024) + 50 ))
+      # This is the key step that signs and converts all three DMGs.
+      - name: Sign and convert all DMGs
+        run: |
+          # Get a list of all generated DMGs
+          DMGS=$(find dist -name "*.dmg" -print)
+          
+          # Loop through each DMG file
+          for DMG_PATH in $DMGS; do
+            echo "Processing $DMG_PATH"
             
-            echo "Calculated DMG size: ${DMG_SIZE_MB}MB"
-
-            # Create a new, empty APFS DMG with the specified volume name and calculated size
-            hdiutil create -fs APFS -size "${DMG_SIZE_MB}m" -volname "$volume_name" -ov "$dmg_name"
-
-            # Mount the newly created DMG
-            MOUNT_PATH="/Volumes/$volume_name"
-            hdiutil attach "$dmg_name" -mountpoint "$MOUNT_PATH"
-
-            # Copy the app bundle into the mounted DMG
-            cp -r "$app_path" "$MOUNT_PATH/"
-
-            # Create the symlink to /Applications inside the mounted DMG
-            ln -s /Applications "$MOUNT_PATH/Applications"
-
+            # Extract the DMG name (e.g., SimpliPlay.dmg)
+            DMG_BASENAME=$(basename "$DMG_PATH")
+            
+            # The mount point needs to be unique for each DMG.
+            MOUNT_PATH="/Volumes/${DMG_BASENAME%.*}"
+            
+            echo "Mounting DMG: $DMG_PATH"
+            hdiutil attach "$DMG_PATH" -mountpoint "$MOUNT_PATH"
+            
+            # The app bundle path inside the DMG
+            APP_PATH="$MOUNT_PATH/SimpliPlay.app"
+            
+            if [ -d "$APP_PATH" ]; then
+              # Force ad-hoc signing on the app bundle inside the mounted DMG
+              echo "Ad-hoc signing app bundle inside the mounted DMG..."
+              codesign --force --deep --sign - "$APP_PATH"
+            else
+              echo "Error: Could not find app bundle at $APP_PATH"
+              exit 1
+            fi
+            
             # Unmount the DMG
+            echo "Unmounting DMG..."
             hdiutil detach "$MOUNT_PATH"
-          }
-
-          # --- Create DMG for each architecture ---
-          create_dmg "dist/mac/SimpliPlay.app" "dist/SimpliPlay-x64-darwin.dmg" "SimpliPlay x64"
-          create_dmg "dist/mac-arm64/SimpliPlay.app" "dist/SimpliPlay-arm64-darwin.dmg" "SimpliPlay arm64"
-          create_dmg "dist/mac-universal/SimpliPlay.app" "dist/SimpliPlay-universal-darwin.dmg" "SimpliPlay Universal"
-
+            
+            # Define the final output path
+            FINAL_DMG_PATH="dist/$(basename "${DMG_PATH%.*}")-signed.dmg"
+            
+            # Convert the read/write DMG to a final, compressed, read-only DMG.
+            echo "Converting to compressed, read-only DMG: $FINAL_DMG_PATH"
+            hdiutil convert "$DMG_PATH" -format UDZO -o "$FINAL_DMG_PATH"
+          done
         working-directory: simpliplay
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: builds
-          path: simpliplay/dist/*.dmg
+          # Upload only the final signed DMGs
+          path: simpliplay/dist/*-signed.dmg
