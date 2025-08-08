@@ -25,9 +25,10 @@ jobs:
 
       - name: Create a temporary keychain
         run: |
-          security create-keychain -p "" build.keychain
+          KEYCHAIN_PASSWORD="" # Use a variable for the password
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security list-keychains -s build.keychain login.keychain-db
-          security unlock-keychain -p "" build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
 
       - name: Check PEM secret presence
         env:
@@ -46,17 +47,15 @@ jobs:
         run: |
           echo "$CERT_PEM" > cert.pem
           
-          # Import certificate (assuming private key is included in PEM)
-          security import cert.pem \
-            -k build.keychain \
-            -T /usr/bin/codesign
+          # Import certificate with empty password and allow it for codesigning
+          security import cert.pem -k build.keychain -P "" -T /usr/bin/codesign
 
+          # Trust the certificate for codesigning purposes
           security set-key-partition-list \
             -S apple-tool:,apple: \
-            -s \
-            -k "" \
+            -k "$KEYCHAIN_PASSWORD" \
             build.keychain
-
+      
       - name: Build macOS
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: true
