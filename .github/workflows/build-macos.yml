@@ -71,17 +71,16 @@ jobs:
             ln -s /Applications "$temp_dir/Applications"
             
             # Create the DMG from the temporary directory
-            hdiutil create -volname "$volume_name" -srcfolder "$temp_dir" -fs HFS+ -ov "$dmg_name"
+            hdiutil create -volname "$volume_name" -srcfolder "$temp_dir" -fs APFS -ov "$dmg_name"
             
             # Clean up the temporary directory
             rm -r "$temp_dir"
           }
-
+          
           # --- Create DMG for each architecture ---
           create_dmg "dist/mac/SimpliPlay.app" "dist/SimpliPlay-x64-darwin.dmg" "SimpliPlay x64"
           create_dmg "dist/mac-arm64/SimpliPlay.app" "dist/SimpliPlay-arm64-darwin.dmg" "SimpliPlay arm64"
           create_dmg "dist/mac-universal/SimpliPlay.app" "dist/SimpliPlay-universal-darwin.dmg" "SimpliPlay Universal"
-
         working-directory: simpliplay
 
       - name: Upload artifacts
