@@ -45,7 +45,7 @@ jobs:
           echo "Ad-hoc signing complete for all bundles."
         working-directory: simpliplay
       
-      - name: Create DMG installers
+      - name: Create custom DMG installers
         run: |
           # --- Set up variables ---
           APP_NAME="SimpliPlay"
@@ -73,7 +73,7 @@ jobs:
                 open
                 set position of item "%s.app" to {150, 150}
                 set position of item "Applications" to {450, 150}
-                set background picture of container window to file ".background:%s"
+                set background picture of container window to file POSIX file "%s"
                 set current view of container window to icon view
                 set toolbar visible of container window to false
                 set statusbar visible of container window to false
@@ -82,7 +82,7 @@ jobs:
                 delay 5
                 close
               end tell
-            end tell' "$volume_name" "$APP_NAME" "$BACKGROUND_IMAGE" | osascript
+            end tell' "$volume_name" "$APP_NAME" "$MOUNT_POINT/.background/$BACKGROUND_IMAGE" | osascript
             
             hdiutil detach "$MOUNT_POINT"
             hdiutil convert "$temp_dmg_name" -format UDRW -ov -o "$dmg_name"
