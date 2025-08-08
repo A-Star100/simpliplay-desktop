@@ -29,51 +29,42 @@ jobs:
         run: npm install
         working-directory: simpliplay
 
-      # This step creates the DMG with its UI for all three architectures.
-      # By default, it creates them as read/write sparse images.
-      - name: Package all app bundles into DMGs
-        run: npx electron-builder --mac --x64 --arm64 --universal
+      # This step creates the DMG with the UI, and the app bundle inside is unsigned.
+      # This is the single, simple step that handles the complex parts for you.
+      - name: Create unsigned DMGs with UI
+        run: npx electron-builder --mac
         working-directory: simpliplay
 
-      # This is the key step that signs and converts all three DMGs.
-      - name: Sign and convert all DMGs
+      # A more robust step to find, sign, and convert all DMGs.
+      - name: Sign and finalize DMGs
         run: |
-          # Get a list of all generated DMGs
-          DMGS=$(find dist -name "*.dmg" -print)
+          # Find all DMG files created by Electron Builder.
+          DMGS=$(find dist/mac -name "*.dmg" -print)
           
-          # Loop through each DMG file
+          # Loop through each DMG file.
           for DMG_PATH in $DMGS; do
-            echo "Processing $DMG_PATH"
+            echo "Processing DMG: $DMG_PATH"
             
-            # Extract the DMG name (e.g., SimpliPlay.dmg)
-            DMG_BASENAME=$(basename "$DMG_PATH")
+            MOUNT_PATH="/Volumes/electron-builder-dmg"
             
-            # The mount point needs to be unique for each DMG.
-            MOUNT_PATH="/Volumes/${DMG_BASENAME%.*}"
-            
-            echo "Mounting DMG: $DMG_PATH"
+            # Attach the DMG as a read/write volume.
             hdiutil attach "$DMG_PATH" -mountpoint "$MOUNT_PATH"
             
-            # The app bundle path inside the DMG
+            # The app bundle path inside the mounted DMG.
             APP_PATH="$MOUNT_PATH/SimpliPlay.app"
             
-            if [ -d "$APP_PATH" ]; then
-              # Force ad-hoc signing on the app bundle inside the mounted DMG
-              echo "Ad-hoc signing app bundle inside the mounted DMG..."
-              codesign --force --deep --sign - "$APP_PATH"
-            else
-              echo "Error: Could not find app bundle at $APP_PATH"
-              exit 1
-            fi
+            # Ad-hoc sign the app bundle.
+            echo "Signing app at $APP_PATH"
+            codesign --force --deep --sign - "$APP_PATH"
             
-            # Unmount the DMG
-            echo "Unmounting DMG..."
+            # Unmount the DMG.
             hdiutil detach "$MOUNT_PATH"
             
-            # Define the final output path
-            FINAL_DMG_PATH="dist/$(basename "${DMG_PATH%.*}")-signed.dmg"
+            # Get the output filename for the finalized DMG.
+            FINAL_DMG_NAME=$(basename "$DMG_PATH" .dmg)
+            FINAL_DMG_PATH="dist/${FINAL_DMG_NAME}-signed.dmg"
             
-            # Convert the read/write DMG to a final, compressed, read-only DMG.
+            # Convert the read/write DMG to a read-only, compressed DMG.
             echo "Converting to compressed, read-only DMG: $FINAL_DMG_PATH"
             hdiutil convert "$DMG_PATH" -format UDZO -o "$FINAL_DMG_PATH"
           done
@@ -83,5 +74,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: builds
-          # Upload only the final signed DMGs
           path: simpliplay/dist/*-signed.dmg
