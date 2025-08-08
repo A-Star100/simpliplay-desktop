@@ -19,6 +19,12 @@ jobs:
         with:
           node-version: 22
 
+      - name: Clean up caches
+        run: |
+          npm cache clean --force
+          rm -rf ~/Library/Caches/electron-builder
+        working-directory: simpliplay
+
       - name: Install dependencies
         run: npm install
         working-directory: simpliplay
