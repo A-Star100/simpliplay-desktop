@@ -41,6 +41,7 @@ jobs:
         run: |
           if [ -z "$CERT_PEM" ]; then
             echo "Certificate secret (MAC_CERTIFICATE_PEM) is missing. Skipping code signing."
+            exit 1
           else
             echo "Certificate secret found. Proceeding with code signing."
           fi
@@ -56,12 +57,18 @@ jobs:
           # The -P flag specifies a blank password for the PEM file itself.
           security import cert.pem -k build.keychain -P '' -T /usr/bin/codesign
 
-          # Trust the certificate for code signing
+      - name: Add certificate trust
+        run: |
+          KEYCHAIN_PASSWORD=""
+          # This is the crucial step to establish trust for electron-builder.
+          # Tell the keychain to trust the certificate for the purpose of code signing.
           security set-key-partition-list \
             -S apple-tool: \
             -k "$KEYCHAIN_PASSWORD" \
             build.keychain
-          
+
+      - name: Verify identity
+        run: |
           # Verify that the identity is now trusted
           security find-identity -v -p codesigning build.keychain
 
