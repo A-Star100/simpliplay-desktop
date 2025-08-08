@@ -45,7 +45,7 @@ jobs:
           echo "Ad-hoc signing complete for all bundles."
         working-directory: simpliplay
       
-      - name: Create custom DMG installers
+      - name: Create DMG installers
         run: |
           # --- Set up variables ---
           APP_NAME="SimpliPlay"
