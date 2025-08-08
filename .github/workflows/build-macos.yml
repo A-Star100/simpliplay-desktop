@@ -22,61 +22,8 @@ jobs:
       - name: Install dependencies
         run: npm install
         working-directory: simpliplay
-
-      - name: Create and unlock temporary keychain
-        run: |
-          KEYCHAIN_PASSWORD=""
-          # Create a new, temporary keychain with a blank password
-          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          # Set the new keychain as the default for the session
-          security list-keychains -s build.keychain
-          # Unlock the keychain to make it accessible
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          # Set the keychain timeout to a high value so it doesn't lock during the build
-          security set-keychain-settings -t 3600 build.keychain
-
-      - name: Check for certificate secret
-        env:
-          CERT_PEM: ${{ secrets.MAC_CERTIFICATE_PEM }}
-        run: |
-          if [ -z "$CERT_PEM" ]; then
-            echo "Certificate secret (MAC_CERTIFICATE_PEM) is missing. Skipping code signing."
-            exit 1
-          else
-            echo "Certificate secret found. Proceeding with code signing."
-          fi
-
-      - name: Write and import certificate
-        env:
-          CERT_PEM: ${{ secrets.MAC_CERTIFICATE_PEM }}
-        run: |
-          # Write the plain text PEM secret directly to a file
-          echo "$CERT_PEM" > cert.pem
-
-          # Directly import the PEM file into the temporary keychain
-          # The -P flag specifies a blank password for the PEM file itself.
-          security import cert.pem -k build.keychain -P '' -T /usr/bin/codesign
-
-      - name: Add certificate trust
-        run: |
-          KEYCHAIN_PASSWORD=""
-          # This is the crucial step to establish trust for electron-builder.
-          # Tell the keychain to trust the certificate for the purpose of code signing.
-          security set-key-partition-list \
-            -S apple-tool: \
-            -k "$KEYCHAIN_PASSWORD" \
-            build.keychain
-
-      - name: Verify identity
-        run: |
-          # Verify that the identity is now trusted
-          security find-identity -v -p codesigning build.keychain
-
-      - name: Build macOS app
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: true
-          CSC_KEYCHAIN: build.keychain
-          CSC_NAME: "Anirudh Sevugan"
+      
+      - name: Build macOS app (Ad-hoc signing)
         run: npx electron-builder --mac --x64 --arm64 --universal
         working-directory: simpliplay
 
@@ -85,8 +32,3 @@ jobs:
         with:
           name: builds
           path: simpliplay/dist/*.dmg
-
-      - name: Delete temporary keychain
-        if: always()
-        run: |
-          security delete-keychain build.keychain
