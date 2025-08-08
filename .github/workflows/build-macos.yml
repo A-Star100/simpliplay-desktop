@@ -50,6 +50,7 @@ jobs:
           # --- Set up variables ---
           APP_NAME="SimpliPlay"
           BACKGROUND_IMAGE="dmg-background.png"
+          BACKGROUND_PATH=$(pwd)/"$BACKGROUND_IMAGE"
 
           # --- Function to create a DMG from a signed app bundle ---
           create_dmg() {
@@ -64,7 +65,7 @@ jobs:
             hdiutil attach "$temp_dmg_name" -mountpoint "$MOUNT_POINT"
             
             mkdir "$MOUNT_POINT/.background"
-            cp "$BACKGROUND_IMAGE" "$MOUNT_POINT/.background/"
+            cp "$BACKGROUND_PATH" "$MOUNT_POINT/.background/"
             cp -R "$app_path" "$MOUNT_POINT/"
             ln -s /Applications "$MOUNT_POINT/Applications"
 
@@ -73,7 +74,7 @@ jobs:
                 open
                 set position of item "%s.app" to {150, 150}
                 set position of item "Applications" to {450, 150}
-                set background picture of container window to file POSIX file "%s"
+                set background picture of container window to file POSIX file "/.background/%s"
                 set current view of container window to icon view
                 set toolbar visible of container window to false
                 set statusbar visible of container window to false
@@ -82,7 +83,7 @@ jobs:
                 delay 5
                 close
               end tell
-            end tell' "$volume_name" "$APP_NAME" "$MOUNT_POINT/.background/$BACKGROUND_IMAGE" | osascript
+            end tell' "$volume_name" "$APP_NAME" "$BACKGROUND_IMAGE" | osascript
             
             hdiutil detach "$MOUNT_POINT"
             hdiutil convert "$temp_dmg_name" -format UDRW -ov -o "$dmg_name"
