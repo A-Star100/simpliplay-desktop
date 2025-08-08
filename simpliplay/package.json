@@ -28,7 +28,8 @@
         "dmg"
       ],
       "icon": "icon.icns",
-      "artifactName": "SimpliPlay-${arch}-darwin.${ext}"
+      "artifactName": "SimpliPlay-${arch}-darwin.${ext}",
+      "identity": "-"
     },
     "win": {
       "target": [
