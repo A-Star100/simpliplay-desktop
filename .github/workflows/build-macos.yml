@@ -29,36 +29,26 @@ jobs:
           security list-keychains -s build.keychain login.keychain-db
           security unlock-keychain -p "" build.keychain
 
-      - name: Check secrets presence
+      - name: Check PEM secret presence
         env:
-          CERT_P12_RAW: ${{ secrets.MAC_CERTIFICATE_P12_RAW }}
-          CERT_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          CERT_PEM: ${{ secrets.MAC_CERTIFICATE_PEM }}
         run: |
-          if [ -z "$CERT_PASSWORD" ]; then
-            echo "Password secret is empty or missing!"
+          if [ -z "$CERT_PEM" ]; then
+            echo "PEM secret is empty or missing!"
             exit 1
           else
-            echo "Password is set"
+            echo "PEM is set"
           fi
 
-          if [ -z "$CERT_P12_RAW" ]; then
-            echo "P12 secret is empty or missing!"
-            exit 1
-          else
-            echo "P12 is set"
-          fi
-
-      - name: Import macOS certificate
+      - name: Write PEM file and import
         env:
-          CERT_P12_RAW: ${{ secrets.MAC_CERTIFICATE_P12_RAW }}
-          CERT_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
+          CERT_PEM: ${{ secrets.MAC_CERTIFICATE_PEM }}
         run: |
-          # Write raw secret directly to file (no decoding)
-          echo "$CERT_P12_RAW" > cert.p12
-
-          security import cert.p12 \
+          echo "$CERT_PEM" > cert.pem
+          
+          # Import certificate (assuming private key is included in PEM)
+          security import cert.pem \
             -k build.keychain \
-            -P "$CERT_PASSWORD" \
             -T /usr/bin/codesign
 
           security set-key-partition-list \
@@ -72,7 +62,6 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           CSC_KEYCHAIN: build.keychain
           CSC_NAME: "Anirudh Sevugan"
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
         run: npx electron-builder --mac --x64 --arm64 --universal
         working-directory: simpliplay
 
