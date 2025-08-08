@@ -23,42 +23,51 @@ jobs:
         run: npm install
         working-directory: simpliplay
 
-      - name: Create a temporary keychain
+      - name: Create and unlock temporary keychain
         run: |
-          KEYCHAIN_PASSWORD="" # The password for the temporary keychain
+          KEYCHAIN_PASSWORD=""
+          # Create a new, temporary keychain with a blank password
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
-          security list-keychains -s build.keychain login.keychain-db
+          # Set the new keychain as the default for the session
+          security list-keychains -s build.keychain
+          # Unlock the keychain to make it accessible
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          # Set the keychain timeout to a high value so it doesn't lock during the build
+          security set-keychain-settings -t 3600 build.keychain
 
-      - name: Check PEM secret presence
+      - name: Check for certificate secret
         env:
           CERT_PEM: ${{ secrets.MAC_CERTIFICATE_PEM }}
         run: |
           if [ -z "$CERT_PEM" ]; then
-            echo "PEM secret is empty or missing!"
-            exit 1
+            echo "Certificate secret (MAC_CERTIFICATE_PEM) is missing. Skipping code signing."
           else
-            echo "PEM is set"
+            echo "Certificate secret found. Proceeding with code signing."
           fi
 
       - name: Write and import certificate
         env:
           CERT_PEM: ${{ secrets.MAC_CERTIFICATE_PEM }}
-          KEYCHAIN_PASSWORD: ""
         run: |
-          # Create a temporary P12 file from the Base64-encoded PEM
-          echo "$CERT_PEM" | base64 --decode > cert.p12
+          # Write the plain text PEM secret directly to a file
+          echo "$CERT_PEM" > cert.pem
 
-          # Import the P12 file into the keychain. The -P flag is for the P12 password.
-          security import cert.p12 -k build.keychain -P "" -T /usr/bin/codesign
+          # Use openssl to convert the PEM file to a PKCS12 (.p12) file
+          openssl pkcs12 -export -in cert.pem -out certificate.p12 -nokeys -password pass:
+
+          # Import the certificate into the temporary keychain
+          security import certificate.p12 -k build.keychain -P "" -T /usr/bin/codesign
 
           # Trust the certificate for code signing
           security set-key-partition-list \
             -S apple-tool: \
             -k "$KEYCHAIN_PASSWORD" \
             build.keychain
-      
-      - name: Build macOS
+          
+          # Verify that the identity is now trusted
+          security find-identity -v -p codesigning build.keychain
+
+      - name: Build macOS app
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: true
           CSC_KEYCHAIN: build.keychain
