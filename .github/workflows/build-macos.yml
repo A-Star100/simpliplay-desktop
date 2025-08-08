@@ -68,7 +68,21 @@ jobs:
             cp -R "$app_path" "$MOUNT_POINT/"
             ln -s /Applications "$MOUNT_POINT/Applications"
 
-            osascript -e 'tell application "Finder"' -e '  tell disk "'$volume_name'"' -e '    open' -e '    set position of item "'$APP_NAME'.app" to {150, 150}' -e '    set position of item "Applications" to {450, 150}' -e '    set background picture of container window to file ".background:'$BACKGROUND_IMAGE'"' -e '    set current view of container window to icon view' -e '    set toolbar visible of container window to false' -e '    set statusbar visible of container window to false' -e '    set bounds of container window to {400, 100, 700, 700}' -e '    update without registering applications' -e '    delay 5' -e '    close' -e '  end tell' -e 'end tell'
+            printf 'tell application "Finder"
+              tell disk "%s"
+                open
+                set position of item "%s.app" to {150, 150}
+                set position of item "Applications" to {450, 150}
+                set background picture of container window to file ".background:%s"
+                set current view of container window to icon view
+                set toolbar visible of container window to false
+                set statusbar visible of container window to false
+                set bounds of container window to {400, 100, 700, 700}
+                update without registering applications
+                delay 5
+                close
+              end tell
+            end tell' "$volume_name" "$APP_NAME" "$BACKGROUND_IMAGE" | osascript
             
             hdiutil detach "$MOUNT_POINT"
             hdiutil convert "$temp_dmg_name" -format UDRW -ov -o "$dmg_name"
