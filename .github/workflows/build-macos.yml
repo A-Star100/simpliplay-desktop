@@ -25,7 +25,7 @@ jobs:
 
       - name: Create a temporary keychain
         run: |
-          KEYCHAIN_PASSWORD="" # Use a variable for the password
+          KEYCHAIN_PASSWORD="" # The password for the temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security list-keychains -s build.keychain login.keychain-db
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
@@ -41,18 +41,20 @@ jobs:
             echo "PEM is set"
           fi
 
-      - name: Write PEM file and import
+      - name: Write and import certificate
         env:
           CERT_PEM: ${{ secrets.MAC_CERTIFICATE_PEM }}
+          KEYCHAIN_PASSWORD: ""
         run: |
-          echo "$CERT_PEM" > cert.pem
-          
-          # Import certificate with empty password and allow it for codesigning
-          security import cert.pem -k build.keychain -P "" -T /usr/bin/codesign
+          # Create a temporary P12 file from the Base64-encoded PEM
+          echo "$CERT_PEM" | base64 --decode > cert.p12
 
-          # Trust the certificate for codesigning purposes
+          # Import the P12 file into the keychain. The -P flag is for the P12 password.
+          security import cert.p12 -k build.keychain -P "" -T /usr/bin/codesign
+
+          # Trust the certificate for code signing
           security set-key-partition-list \
-            -S apple-tool:,apple: \
+            -S apple-tool: \
             -k "$KEYCHAIN_PASSWORD" \
             build.keychain
       
