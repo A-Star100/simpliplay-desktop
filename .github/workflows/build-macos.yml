@@ -55,36 +55,36 @@ jobs:
         run: |
           # --- Set up variables ---
           APP_NAME="SimpliPlay"
-          
+
           # --- Function to create a DMG from a signed app bundle ---
           create_dmg() {
             local app_path="$1"
             local dmg_name="$2"
             local volume_name="$3"
-            
-            # Calculate the size of the app bundle in KB, then add a buffer (e.g., 50MB)
+
+            # Calculate the size of the app bundle in KB, then add a 50MB buffer
             APP_SIZE_KB=$(du -sk "$app_path" | cut -f1)
-            DMG_SIZE_MB=$(( ($APP_SIZE_KB / 1024) + 5 ))
+            DMG_SIZE_MB=$(( ($APP_SIZE_KB / 1024) + 50 ))
             
             echo "Calculated DMG size: ${DMG_SIZE_MB}MB"
-            
+
             # Create a new, empty APFS DMG with the specified volume name and calculated size
             hdiutil create -fs APFS -size "${DMG_SIZE_MB}m" -volname "$volume_name" -ov "$dmg_name"
-            
+
             # Mount the newly created DMG
             MOUNT_PATH="/Volumes/$volume_name"
             hdiutil attach "$dmg_name" -mountpoint "$MOUNT_PATH"
-            
+
             # Copy the app bundle into the mounted DMG
             cp -r "$app_path" "$MOUNT_PATH/"
-            
+
             # Create the symlink to /Applications inside the mounted DMG
             ln -s /Applications "$MOUNT_PATH/Applications"
-            
+
             # Unmount the DMG
             hdiutil detach "$MOUNT_PATH"
           }
-          
+
           # --- Create DMG for each architecture ---
           create_dmg "dist/mac/SimpliPlay.app" "dist/SimpliPlay-x64-darwin.dmg" "SimpliPlay x64"
           create_dmg "dist/mac-arm64/SimpliPlay.app" "dist/SimpliPlay-arm64-darwin.dmg" "SimpliPlay arm64"
