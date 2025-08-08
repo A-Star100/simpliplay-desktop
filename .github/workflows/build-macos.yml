@@ -29,10 +29,10 @@ jobs:
           security list-keychains -s build.keychain login.keychain-db
           security unlock-keychain -p "" build.keychain
 
-      - name: Check secret presence
+      - name: Check secrets presence
         env:
-          CERT_P12_BASE64: ${{ secrets.MAC_CERTIFICATE_P12 }}
-          CERT_PASSWORD: "${{ secrets.MAC_CERTIFICATE_PASSWORD }}"
+          CERT_P12_RAW: ${{ secrets.MAC_CERTIFICATE_P12_RAW }}
+          CERT_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
         run: |
           if [ -z "$CERT_PASSWORD" ]; then
             echo "Password secret is empty or missing!"
@@ -41,7 +41,7 @@ jobs:
             echo "Password is set"
           fi
 
-          if [ -z "$CERT_P12_BASE64" ]; then
+          if [ -z "$CERT_P12_RAW" ]; then
             echo "P12 secret is empty or missing!"
             exit 1
           else
@@ -50,10 +50,11 @@ jobs:
 
       - name: Import macOS certificate
         env:
-          CERT_P12_BASE64: ${{ secrets.MAC_CERTIFICATE_P12 }}
-          CERT_PASSWORD: "${{ secrets.MAC_CERTIFICATE_PASSWORD }}"
+          CERT_P12_RAW: ${{ secrets.MAC_CERTIFICATE_P12_RAW }}
+          CERT_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
         run: |
-          echo "$CERT_P12_BASE64" | tr -d '\n\r ' | base64 -D > cert.p12
+          # Write raw secret directly to file (no decoding)
+          echo "$CERT_P12_RAW" > cert.p12
 
           security import cert.p12 \
             -k build.keychain \
@@ -66,13 +67,12 @@ jobs:
             -k "" \
             build.keychain
 
-
       - name: Build macOS
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           CSC_KEYCHAIN: build.keychain
           CSC_NAME: "Anirudh Sevugan"
-          CSC_KEY_PASSWORD: "${{ secrets.MAC_CERTIFICATE_PASSWORD }}"
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERTIFICATE_PASSWORD }}
         run: npx electron-builder --mac --x64 --arm64 --universal
         working-directory: simpliplay
 
