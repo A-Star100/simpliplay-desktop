@@ -45,54 +45,15 @@ jobs:
           echo "Ad-hoc signing complete for all bundles."
         working-directory: simpliplay
       
-      - name: Create custom DMG installers
+      - name: Create basic DMG installers
         run: |
           # --- Set up variables ---
           APP_NAME="SimpliPlay"
-          BACKGROUND_IMAGE="dmg-background.png"
-          BACKGROUND_PATH=$(pwd)/"$BACKGROUND_IMAGE"
-
-          # --- Function to create a DMG from a signed app bundle ---
-          create_dmg() {
-            local app_path="$1"
-            local dmg_name="$2"
-            local temp_dmg_name="$3"
-            local volume_name="$4"
-
-            hdiutil create -size 300m -fs HFS+ -volname "$volume_name" "$temp_dmg_name"
-            
-            MOUNT_POINT="/Volumes/$volume_name"
-            hdiutil attach "$temp_dmg_name" -mountpoint "$MOUNT_POINT"
-            
-            mkdir "$MOUNT_POINT/.background"
-            cp "$BACKGROUND_PATH" "$MOUNT_POINT/.background/"
-            cp -R "$app_path" "$MOUNT_POINT/"
-            ln -s /Applications "$MOUNT_POINT/Applications"
-
-            printf 'tell application "Finder"
-              tell disk "%s"
-                open
-                set position of item "%s.app" to {150, 150}
-                set position of item "Applications" to {450, 150}
-                set background picture of container window to file POSIX file "/.background/%s"
-                set current view of container window to icon view
-                set toolbar visible of container window to false
-                set statusbar visible of container window to false
-                set bounds of container window to {400, 100, 700, 700}
-                update without registering applications
-                delay 5
-                close
-              end tell
-            end tell' "$volume_name" "$APP_NAME" "$BACKGROUND_IMAGE" | osascript
-            
-            hdiutil detach "$MOUNT_POINT"
-            hdiutil convert "$temp_dmg_name" -format UDRW -ov -o "$dmg_name"
-          }
-
+          
           # --- Create DMG for each architecture ---
-          create_dmg "dist/mac/SimpliPlay.app" "dist/SimpliPlay-x64-darwin.dmg" "temp-x64.dmg" "SimpliPlay x64"
-          create_dmg "dist/mac-arm64/SimpliPlay.app" "dist/SimpliPlay-arm64-darwin.dmg" "temp-arm64.dmg" "SimpliPlay arm64"
-          create_dmg "dist/mac-universal/SimpliPlay.app" "dist/SimpliPlay-universal-darwin.dmg" "temp-universal.dmg" "SimpliPlay Universal"
+          hdiutil create -volname "SimpliPlay x64" -srcfolder dist/mac/ -fs HFS+ -ov "dist/SimpliPlay-x64-darwin.dmg"
+          hdiutil create -volname "SimpliPlay arm64" -srcfolder dist/mac-arm64/ -fs HFS+ -ov "dist/SimpliPlay-arm64-darwin.dmg"
+          hdiutil create -volname "SimpliPlay Universal" -srcfolder dist/mac-universal/ -fs HFS+ -ov "dist/SimpliPlay-universal-darwin.dmg"
 
         working-directory: simpliplay
 
