@@ -35,8 +35,18 @@ jobs:
           CERT_PASSWORD: "${{ secrets.MAC_CERTIFICATE_PASSWORD }}"
         run: |
           echo "$CERT_P12_BASE64" | base64 -D > cert.p12
-          security import cert.p12 -k build.keychain -P "$CERT_PASSWORD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
+
+          security import cert.p12 \
+            -k build.keychain \
+            -P "$CERT_PASSWORD" \
+            -T /usr/bin/codesign
+
+          security set-key-partition-list \
+            -S apple-tool:,apple: \
+            -s \
+            -k "" \
+            build.keychain
+
 
       - name: Build macOS
         env:
