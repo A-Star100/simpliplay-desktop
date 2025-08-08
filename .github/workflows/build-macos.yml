@@ -23,24 +23,64 @@ jobs:
         run: npm install
         working-directory: simpliplay
 
-      - name: Build and package macOS app
-        run: npx electron-builder --mac --x64 --arm64
+      - name: Package all app bundles without signing
+        run: npx electron-builder --dir --mac --x64 --arm64 --universal
         working-directory: simpliplay
       
-      - name: Force ad-hoc signing
+      - name: Force ad-hoc signing on all app bundles
         run: |
-          # The path to your packaged .app file
-          APP_PATH="dist/mac/SimpliPlay.app"
+          X64_APP_PATH="dist/mac/SimpliPlay.app"
+          ARM64_APP_PATH="dist/mac-arm64/SimpliPlay.app"
+          UNIVERSAL_APP_PATH="dist/mac-universal/SimpliPlay.app"
           
-          # Use the native codesign tool to apply an ad-hoc signature
-          codesign --force --deep --sign - "$APP_PATH"
-          codesign --force --deep --sign - "dist/mac-arm64/SimpliPlay.app"
+          echo "Signing x64 app bundle..."
+          codesign --force --deep --sign - "$X64_APP_PATH"
+          
+          echo "Signing arm64 app bundle..."
+          codesign --force --deep --sign - "$ARM64_APP_PATH"
+          
+          echo "Signing universal app bundle..."
+          codesign --force --deep --sign - "$UNIVERSAL_APP_PATH"
+          
+          echo "Ad-hoc signing complete for all bundles."
+        working-directory: simpliplay
+      
+      - name: Create custom DMG installers
+        run: |
+          # --- Set up variables ---
+          APP_NAME="SimpliPlay"
+          BACKGROUND_IMAGE="dmg-background.png"
+
+          # --- Function to create a DMG from a signed app bundle ---
+          create_dmg() {
+            local app_path="$1"
+            local dmg_name="$2"
+            local temp_dmg_name="$3"
+            local volume_name="$4"
+
+            hdiutil create -size 300m -fs HFS+ -volname "$volume_name" "$temp_dmg_name"
+            
+            MOUNT_POINT="/Volumes/$volume_name"
+            hdiutil attach "$temp_dmg_name" -mountpoint "$MOUNT_POINT"
+            
+            mkdir "$MOUNT_POINT/.background"
+            cp "$BACKGROUND_IMAGE" "$MOUNT_POINT/.background/"
+            cp -R "$app_path" "$MOUNT_POINT/"
+            ln -s /Applications "$MOUNT_POINT/Applications"
+
+            osascript -e 'tell application "Finder"' -e '  tell disk "'$volume_name'"' -e '    open' -e '    set position of item "'$APP_NAME'.app" to {150, 150}' -e '    set position of item "Applications" to {450, 150}' -e '    set background picture of container window to file ".background:'$BACKGROUND_IMAGE'"' -e '    set current view of container window to icon view' -e '    set toolbar visible of container window to false' -e '    set statusbar visible of container window to false' -e '    set bounds of container window to {400, 100, 700, 700}' -e '    update without registering applications' -e '    delay 5' -e '    close' -e '  end tell' -e 'end tell'
+            
+            hdiutil detach "$MOUNT_POINT"
+            hdiutil convert "$temp_dmg_name" -format UDRW -ov -o "$dmg_name"
+          }
+
+          # --- Create DMG for each architecture ---
+          create_dmg "dist/mac/SimpliPlay.app" "dist/SimpliPlay-x64-darwin.dmg" "temp-x64.dmg" "SimpliPlay x64"
+          create_dmg "dist/mac-arm64/SimpliPlay.app" "dist/SimpliPlay-arm64-darwin.dmg" "temp-arm64.dmg" "SimpliPlay arm64"
+          create_dmg "dist/mac-universal/SimpliPlay.app" "dist/SimpliPlay-universal-darwin.dmg" "temp-universal.dmg" "SimpliPlay Universal"
+
         working-directory: simpliplay
 
-      - name: Build universal macOS app
-        run: npx electron-builder --mac --universal
-        working-directory: simpliplay
-        
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
