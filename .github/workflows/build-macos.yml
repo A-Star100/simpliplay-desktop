@@ -59,7 +59,7 @@ jobs:
 
       - name: Build macOS
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
+          CSC_IDENTITY_AUTO_DISCOVERY: true
           CSC_KEYCHAIN: build.keychain
           CSC_NAME: "Anirudh Sevugan"
         run: npx electron-builder --mac --x64 --arm64 --universal
