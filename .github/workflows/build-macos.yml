@@ -50,10 +50,31 @@ jobs:
           # --- Set up variables ---
           APP_NAME="SimpliPlay"
           
+          # --- Function to create a DMG from a signed app bundle ---
+          create_dmg() {
+            local app_path="$1"
+            local dmg_name="$2"
+            local volume_name="$3"
+            
+            # Create a temporary directory to build DMG contents
+            local temp_dir="dmg_contents"
+            mkdir "$temp_dir"
+            
+            # Copy the app bundle and create the symlink
+            cp -r "$app_path" "$temp_dir/"
+            ln -s /Applications "$temp_dir/Applications"
+            
+            # Create the DMG from the temporary directory
+            hdiutil create -volname "$volume_name" -srcfolder "$temp_dir" -fs HFS+ -ov "$dmg_name"
+            
+            # Clean up the temporary directory
+            rm -r "$temp_dir"
+          }
+
           # --- Create DMG for each architecture ---
-          hdiutil create -volname "SimpliPlay x64" -srcfolder dist/mac/ -fs HFS+ -ov "dist/SimpliPlay-x64-darwin.dmg"
-          hdiutil create -volname "SimpliPlay arm64" -srcfolder dist/mac-arm64/ -fs HFS+ -ov "dist/SimpliPlay-arm64-darwin.dmg"
-          hdiutil create -volname "SimpliPlay Universal" -srcfolder dist/mac-universal/ -fs HFS+ -ov "dist/SimpliPlay-universal-darwin.dmg"
+          create_dmg "dist/mac/SimpliPlay.app" "dist/SimpliPlay-x64-darwin.dmg" "SimpliPlay x64"
+          create_dmg "dist/mac-arm64/SimpliPlay.app" "dist/SimpliPlay-arm64-darwin.dmg" "SimpliPlay arm64"
+          create_dmg "dist/mac-universal/SimpliPlay.app" "dist/SimpliPlay-universal-darwin.dmg" "SimpliPlay Universal"
 
         working-directory: simpliplay
 
