@@ -52,10 +52,13 @@ jobs:
           # Write the plain text PEM secret directly to a file
           echo "$CERT_PEM" > cert.pem
 
-          # Use openssl to convert the PEM file to a PKCS12 (.p12) file
-          openssl pkcs12 -export -in cert.pem -out certificate.p12 -nokeys -password pass:
+          # Use openssl to convert the PEM to a PKCS12 (.p12) file with an empty password for the .p12 file itself.
+          # The -passout option is critical here. It explicitly sets the export password.
+          # The -password pass: is for an unencrypted private key within the PEM.
+          openssl pkcs12 -export -out certificate.p12 -in cert.pem -passout pass: -password pass:
 
           # Import the certificate into the temporary keychain
+          # The `-P` flag must match the password used in the openssl command (which is blank)
           security import certificate.p12 -k build.keychain -P "" -T /usr/bin/codesign
 
           # Trust the certificate for code signing
