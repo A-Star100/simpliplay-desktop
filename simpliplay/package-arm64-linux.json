@@ -113,7 +113,7 @@
     "allowToChangeInstallationDirectory": true
   },
   "devDependencies": {
-    "electron": "^37.2.5",
+    "electron": "^37.3.0",
     "electron-builder": "^26.0.12"
   }
 }
