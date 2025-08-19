@@ -285,6 +285,8 @@ if (existingAddonsMenuItem) {
             }
           });
 
+          
+
           if (!addonsMenu.items.some(item => item.type === 'separator')) {
             addonsMenu.append(new MenuItem({ type: 'separator' }));
           }
@@ -298,6 +300,26 @@ if (existingAddonsMenuItem) {
       }
     }
   }));
+
+// "About Addons" menu item (info dialog version)
+addonsMenu.append(new MenuItem({
+  label: 'About Addons',
+  click: async () => {
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      buttons: ['OK'],
+      defaultId: 0,
+      title: 'About Addons',
+      message: 'Addons can do almost anything from adding features to the media player to adding an entire game within the app!',
+      detail: 'Addons are regular, client-side JavaScript files with the [.simpliplay] extension.'
+    });
+
+    if (result.response === 0) {
+      console.log('User clicked OK');
+      // no need for dialog.closeDialog()
+    }
+  }
+}));
 
   // Add the Add-ons menu only once here:
   newMenuItems.push(new MenuItem({ label: 'Add-ons', submenu: addonsMenu }));
