@@ -299,6 +299,27 @@ if (existingAddonsMenuItem) {
     }
   }));
 
+  // "About Addons" menu item (info dialog version)
+addonsMenu.append(new MenuItem({
+  label: 'Acerca de los complementos',
+  click: async () => {
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      buttons: ['De acuerdo'],
+      defaultId: 0,
+      title: 'Acerca de los complementos',
+      message: 'Los complementos pueden hacer casi cualquier cosa, desde añadir funciones al reproductor multimedia hasta añadir un juego completo dentro de la aplicación.',
+      detail: 'Los complementos son archivos JavaScript normales del lado del cliente con la extensión [.simpliplay].'
+    });
+
+    if (result.response === 0) {
+      console.log('El usuario hizo clic en Aceptar.');
+      // no need for dialog.closeDialog()
+    }
+  }
+}));
+
+
   // Add the Add-ons menu only once here:
   newMenuItems.push(new MenuItem({ label: 'Add-ons', submenu: addonsMenu }));
 
