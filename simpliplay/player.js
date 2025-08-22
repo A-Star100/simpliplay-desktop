@@ -65,27 +65,63 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-// Function to add subtitles dynamically (e.g., after URL input)
-function addSubtitles(url) {
-  // Remove any existing subtitle tracks
+async function addSubtitles(url) {
+  // Remove existing tracks
   const existingTracks = mediaPlayer.getElementsByTagName('track');
-  for (let track of existingTracks) {
-    track.remove();
+  for (let track of existingTracks) track.remove();
+
+  // Fetch subtitle content
+  let text = '';
+  try {
+    const res = await fetch(url);
+    text = await res.text();
+  } catch (err) {
+    console.error('Failed to fetch subtitles:', err);
+    return;
   }
 
-  // Create a new track for subtitles
+  // Detect format
+  const firstLine = text.split(/\r?\n/)[0].trim();
+  const format = firstLine.startsWith('WEBVTT') || url.toLowerCase().endsWith('.vtt') ? 'vtt' : 'srt';
+
+  // Convert SRT → VTT if needed
+  if (format === 'srt') {
+    text = 'WEBVTT\n\n' + text
+      .replace(/\r+/g, '')
+      .replace(/^\s+|\s+$/g, '')
+      .split('\n')
+      .map(line => line.replace(/(\d+):(\d+):(\d+),(\d+)/g, '$1:$2:$3.$4'))
+      .join('\n');
+  }
+
+  // Create Blob URL
+  const blob = new Blob([text], { type: 'text/vtt' });
+  const blobUrl = URL.createObjectURL(blob);
+
+  // Create and append track
   const track = document.createElement('track');
   track.kind = 'subtitles';
   track.label = 'English';
   track.srclang = 'en';
-  track.src = url;
-
-  // Append the new track
+  track.src = blobUrl;
+  track.default = true;
   mediaPlayer.appendChild(track);
 
-  // Optionally, enable subtitles by default
-  track.track.mode = 'showing'; // Enable subtitles by default
+  // Force enable immediately
+  setTimeout(() => {
+    for (let t of mediaPlayer.textTracks) t.mode = 'disabled';
+    track.track.mode = 'showing';
+  }, 50); // slight delay ensures the browser registers it
 }
+
+
+/*// Handle submit subtitle URL
+function clearSubtitles() {
+  const tracks = mediaPlayer.getElementsByTagName('track');
+  for (let i = tracks.length - 1; i >= 0; i--) {
+    tracks[i].remove();
+  }
+}*/
 
 // Handle submit subtitle URL
 function clearSubtitles() {
