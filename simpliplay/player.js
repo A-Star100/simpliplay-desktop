@@ -66,9 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 async function addSubtitles(url) {
-  // Remove existing tracks
+  // Remove existing tracks and revoke any previous blob URLs
   const existingTracks = mediaPlayer.getElementsByTagName('track');
-  for (let track of existingTracks) track.remove();
+  for (let i = existingTracks.length - 1; i >= 0; i--) {
+    const track = existingTracks[i];
+    if (track.src.startsWith('blob:')) URL.revokeObjectURL(track.src);
+    track.remove();
+  }
 
   // Fetch subtitle content
   let text = '';
@@ -84,26 +88,28 @@ async function addSubtitles(url) {
   const firstLine = text.split(/\r?\n/)[0].trim();
   const format = firstLine.startsWith('WEBVTT') || url.toLowerCase().endsWith('.vtt') ? 'vtt' : 'srt';
 
-  // Convert SRT → VTT if needed
+  // Determine track source
+  let trackSrc = url;
   if (format === 'srt') {
+    // Convert SRT → VTT
     text = 'WEBVTT\n\n' + text
       .replace(/\r+/g, '')
       .replace(/^\s+|\s+$/g, '')
       .split('\n')
       .map(line => line.replace(/(\d+):(\d+):(\d+),(\d+)/g, '$1:$2:$3.$4'))
       .join('\n');
-  }
 
-  // Create Blob URL
-  const blob = new Blob([text], { type: 'text/vtt' });
-  const blobUrl = URL.createObjectURL(blob);
+    // Create Blob URL for converted subtitles
+    const blob = new Blob([text], { type: 'text/vtt' });
+    trackSrc = URL.createObjectURL(blob);
+  }
 
   // Create and append track
   const track = document.createElement('track');
   track.kind = 'subtitles';
   track.label = 'English';
   track.srclang = 'en';
-  track.src = blobUrl;
+  track.src = trackSrc;
   track.default = true;
   mediaPlayer.appendChild(track);
 
@@ -111,8 +117,9 @@ async function addSubtitles(url) {
   setTimeout(() => {
     for (let t of mediaPlayer.textTracks) t.mode = 'disabled';
     track.track.mode = 'showing';
-  }, 50); // slight delay ensures the browser registers it
+  }, 50);
 }
+
 
 
 /*// Handle submit subtitle URL
@@ -123,13 +130,17 @@ function clearSubtitles() {
   }
 }*/
 
-// Handle submit subtitle URL
 function clearSubtitles() {
   const tracks = mediaPlayer.getElementsByTagName('track');
   for (let i = tracks.length - 1; i >= 0; i--) {
-    tracks[i].remove();
+    const track = tracks[i];
+    if (track.src.startsWith('blob:')) {
+      URL.revokeObjectURL(track.src); // free memory leaks from SRT to VTT converted subtitles
+    }
+    track.remove();
   }
 }
+
 
 // Use this function when a new video is loaded
 
