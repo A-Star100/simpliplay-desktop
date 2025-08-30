@@ -304,6 +304,7 @@ const { isHLS, isDASH } = await detectStreamType(url);
     
         // Store the new Object URL for future cleanup
         previousObjectURL = fileURL;
+        fileInput.value = "";
     
         // Hide dialog after selecting a file
         dialogOverlay.style.display = 'none';
