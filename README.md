@@ -26,5 +26,5 @@ ___
 Read the docs ([Electron - Tutorial](https://www.electronjs.org/docs/latest/tutorial/tutorial-prerequisites), [Neutralinojs - Your First App](https://neutralino.js.org/docs/getting-started/your-first-neutralinojs-app), [NW.js - Getting Started (For Users)](https://nwjs.readthedocs.io/en/latest/For%20Users/Getting%20Started/#write-nwjs-app))
 
 ## Mirrors
-Self-hosted mirror available [here](https://git.anirudhsevugan.me/simpliplay/simpliplay-desktop-mirror).
-**The server may not always be up. You'll see a screen saying "Git is down" if the server is down, with a link to contact me (the webmaster)**.
+Self-hosted mirror available [here](https://new-git.anirudhsevugan.me/anirudh/simpliplay-desktop/src/branch/main/).
+**The server may not always be up. If it isn't, you can contact me at: (personal at anirudhsevugan dot me)**.
