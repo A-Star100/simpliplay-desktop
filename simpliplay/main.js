@@ -6,7 +6,7 @@ const { pathToFileURL } = require("url");
 const { checkForUpdate } = require('./updateChecker');
 let gpuAccel = "";
 let didRegisterShortcuts = false;
-let version = "2.1.1.0"
+let version = "2.1.2.0"
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
@@ -318,6 +318,14 @@ addonsMenu.append(new MenuItem({
       console.log('User clicked OK');
       // no need for dialog.closeDialog()
     }
+  }
+}));
+
+  // "Store" menu item (info dialog version)
+addonsMenu.append(new MenuItem({
+  label: 'Store',
+  click: () => {
+    shell.openExternal("https://simpliplay.netlify.app/addons/")
   }
 }));
 
