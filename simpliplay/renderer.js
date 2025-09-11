@@ -86,7 +86,6 @@ window.addEventListener('drop', e => {
     if (previousDropURL) {
         URL.revokeObjectURL(previousDropURL);
         window.previousDropURL = previousDropURL;
-        previousDropURL = null;
     }
 
     // Revoke previous file picker Object URL
@@ -200,5 +199,6 @@ window.electron.receive("load-addon", (fileURL) => {
 window.electron.receive("unload-addon", (fileURL) => {
     unloadAddon(fileURL);
 });
+
 
 
