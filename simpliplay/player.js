@@ -272,6 +272,7 @@ const { isHLS, isDASH } = await detectStreamType(url);
 
    
     let previousObjectURL = null; // Store the last Object URL
+    window.objectURL = previousObjectURL
 
     fileInput.addEventListener('change', (event) => {
       if (hls !== null) {
@@ -292,7 +293,13 @@ const { isHLS, isDASH } = await detectStreamType(url);
         // Revoke the previous Object URL if it exists
         if (previousObjectURL) {
             URL.revokeObjectURL(previousObjectURL);
+            window.objectURL = previousObjectURL
         }
+
+        // Revoke previous file picker Object URL
+    if (window.previousDropURL) {
+        URL.revokeObjectURL(window.previousDropURL);
+    }
     
         // Create a new Object URL for the selected file
         const fileURL = URL.createObjectURL(file);
