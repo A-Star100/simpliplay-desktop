@@ -86,6 +86,7 @@ window.addEventListener('drop', e => {
     if (previousDropURL) {
         URL.revokeObjectURL(previousDropURL);
         window.previousDropURL = previousDropURL;
+        previousDropURL = null;
     }
 
     // Revoke previous file picker Object URL
@@ -96,12 +97,18 @@ window.addEventListener('drop', e => {
     // Create a new Object URL
     const fileURL = URL.createObjectURL(file);
     mediaElement.src = fileURL;
-    mediaElement.load();
 
-    // Autoplay if checkbox is checked
+  
+// Only attempt to play if the browser thinks it can handle this type
+if (mediaElement.canPlayType(file.type)) {
+  mediaElement.load();
+      // Autoplay if checkbox is checked
     if (autoplayCheckbox.checked) {
         mediaElement.play().catch(err => console.warn(err));
     }
+} else {
+    console.warn("SimpliPlay does not support this video type:", file.type);
+}
 
     // Store for future cleanup
     previousDropURL = fileURL;
@@ -193,4 +200,5 @@ window.electron.receive("load-addon", (fileURL) => {
 window.electron.receive("unload-addon", (fileURL) => {
     unloadAddon(fileURL);
 });
+
 
