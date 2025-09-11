@@ -16,6 +16,103 @@ function loadMedia(fileURL) {
   }
 }
 
+window.addEventListener('DOMContentLoaded', () => {
+const dropArea = document.createElement('div');
+dropArea.style.position = 'fixed';
+dropArea.style.top = '0';
+dropArea.style.left = '0';
+dropArea.style.width = '100vw';
+dropArea.style.height = '100vh';
+dropArea.style.display = 'none'; // hidden by default
+dropArea.style.zIndex = '0';     // behind everything
+dropArea.style.opacity = '0';    // invisible
+document.body.appendChild(dropArea);
+
+let dragCounter = 0; // track nested dragenter/dragleave events
+
+
+window.addEventListener('dragenter', (e) => {
+    if (e.dataTransfer.types.includes('Files')) {
+        dragCounter++;
+        e.preventDefault();
+        e.stopPropagation();
+    }
+});
+
+window.addEventListener('dragleave', (e) => {
+    if (e.dataTransfer.types.includes('Files')) {
+        dragCounter--;
+        if (dragCounter <= 0) dragCounter = 0;
+        e.preventDefault();
+        e.stopPropagation();
+    }
+});
+
+window.addEventListener('dragover', (e) => {
+    if (e.dataTransfer.types.includes('Files')) {
+        e.preventDefault(); // allow drop
+        e.stopPropagation();
+    }
+});
+
+
+let previousDropURL = null; // Store last Object URL
+window.previousDropURL = previousDropURL
+
+window.addEventListener('drop', e => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+
+    // Destroy existing HLS/DASH instances if they exist
+    if (window.hls) {
+        window.hls.destroy();
+        window.hls = null;
+    }
+    if (window.dash) {
+        window.dash.reset();
+        window.dash = null;
+    }
+
+    // Clear previously loaded subtitles
+    const tracks = mediaElement.getElementsByTagName('track');
+    for (let i = tracks.length - 1; i >= 0; i--) {
+        tracks[i].remove();
+    }
+
+    // Revoke previous Object URL
+    if (previousDropURL) {
+        URL.revokeObjectURL(previousDropURL);
+        window.previousDropURL = previousDropURL;
+    }
+
+    // Revoke previous file picker Object URL
+    if (window.objectURL) {
+        URL.revokeObjectURL(window.objectURL);
+    }
+
+    // Create a new Object URL
+    const fileURL = URL.createObjectURL(file);
+    mediaElement.src = fileURL;
+    mediaElement.load();
+
+    // Autoplay if checkbox is checked
+    if (autoplayCheckbox.checked) {
+        mediaElement.play().catch(err => console.warn(err));
+    }
+
+    // Store for future cleanup
+    previousDropURL = fileURL;
+
+    // Hide file dialog if applicable
+    if (dialogOverlay) dialogOverlay.style.display = 'none';
+});
+
+
+});
+
 // Handle submit subtitle URL
 function clearSubtitles() {
   const tracks = mediaElement.getElementsByTagName('track');
