@@ -107,6 +107,7 @@ if (mediaElement.canPlayType(file.type)) {
     }
 } else {
     console.warn("SimpliPlay does not support this video type:", file.type);
+  alert("SimpliPlay either can't play this file or the MIME type may be incorrect");
 }
 
     // Store for future cleanup
@@ -199,6 +200,7 @@ window.electron.receive("load-addon", (fileURL) => {
 window.electron.receive("unload-addon", (fileURL) => {
     unloadAddon(fileURL);
 });
+
 
 
 
