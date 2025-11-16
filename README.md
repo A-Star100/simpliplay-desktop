@@ -8,7 +8,7 @@ The desktop version of SimpliPlay, a simple, cross-platform media player.
 [Neutralinojs](https://neutralino.js.org) version of SimpliPlay (significantly smaller filesize) for Windows (x64 only), macOS, and Linux (both x64 and ARM64).
 > [!WARNING]
 > This version of SimpliPlay has been [officially discontinued](https://simpliplay.netlify.app/docs/blog/lite-ver-end) and **will not** receive any more security updates.
-> It is still stable and secure, but has not received a few patches (e.g, the infamous **[memory leak issue](https://github.com/A-Star100/simpliplay-desktop/issues/4)**) that the web version, Chrome extension, and main desktop version all have.
+> It is still stable and secure, but has not received a few patches (e.g, the infamous **[memory leak issue](https://github.com/A-Star100/simpliplay-desktop/issues/4)**) that the web version, Chrome extension, and main desktop version all have patches for.
 
 ## [simpliplay-nwjs](https://github.com/A-Star100/simpliplay-desktop/tree/nwjs)
 [NW.js](https://nwjs.io) version of SimpliPlay for Windows, macOS, and Linux (x64 and ARM64).
