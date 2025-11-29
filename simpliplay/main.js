@@ -6,7 +6,7 @@ const { pathToFileURL } = require("url");
 const { checkForUpdate } = require('./updateChecker');
 let gpuAccel = "";
 let didRegisterShortcuts = false;
-let version = "2.1.8.1" // i hope electron 39.2.1 fixes the exception on launch for Linux ARM64 VMs
+let version = "2.1.8.2" // zero-day vulnerability patch in electron - VERY SEVERE
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
