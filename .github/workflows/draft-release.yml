@@ -13,55 +13,28 @@ jobs:
       - name: Prepare folder
         run: mkdir -p all-artifacts
 
-      - name: Poll for expected artifacts
+      - name: Download all artifacts from latest workflow run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          set -e
-          echo "Polling (every 15 seconds) until all required artifacts are available..."
+          echo "⬇️ Downloading all artifacts from latest workflow run..."
+          LATEST_RUN_ID=$(gh run list -L 1 --json databaseId --jq '.[0].databaseId')
+          gh run download $LATEST_RUN_ID --dir all-artifacts
 
-          REQUIRED=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64")
-
-          while true; do
-            echo "⏳ Checking artifacts..."
-
-            rm -rf all-artifacts
-            mkdir -p all-artifacts
-
-            gh run download --dir all-artifacts || true
-
-            missing=0
-            for ARTIFACT in "${REQUIRED[@]}"; do
-              if [ ! -d "all-artifacts/$ARTIFACT" ]; then
-                echo "❌ Missing: $ARTIFACT"
-                missing=1
-              fi
-            done
-
-            if [ "$missing" -eq 0 ]; then
-              echo "✅ All required artifacts found."
-              break
-            fi
-
-            echo "🔁 Not all artifacts were found. Retrying in 15 seconds..."
-            sleep 15
-          done
-
-      - name: Extract ZIP files and prepare list of files to upload
+      - name: Extract ZIP files
         run: |
-          set -e
-          echo "🔍 Extracting ZIP files and collecting allowed SimpliPlay files..."
-
+          echo "📦 Extracting any ZIP files..."
           find all-artifacts -type f -name '*.zip' | while read -r zipfile; do
             extract_dir="${zipfile%.zip}"
-            echo "📦 Extracting $zipfile to $extract_dir"
             unzip -o "$zipfile" -d "$extract_dir"
           done
 
+      - name: Collect files to upload
+        run: |
+          echo "🔍 Collecting SimpliPlay binaries..."
           rm -f upload-files.txt
-          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.AppImage' \) | grep 'SimpliPlay' > upload-files.txt
-
-          echo "Filtered files to upload:"
+          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.AppImage' -o -iname '*.snap' \) | grep 'SimpliPlay' > upload-files.txt
+          echo "Files to upload:"
           cat upload-files.txt
 
       - name: Create empty draft release
@@ -72,52 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Rename files if duplicates exist on release
-        id: rename
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -e
-          sanitize_filename() {
-            echo "$1" | tr ' ' '-'
-          }
-
-          release_tag="draft-${{ github.run_number }}"
-          existing_assets=$(gh release view "$release_tag" --json assets --jq '.assets[].name' || echo "")
-          echo "Existing assets on release $release_tag:"
-          echo "$existing_assets"
-
-          rm -f upload-files-renamed.txt
-          touch upload-files-renamed.txt
-
-          while IFS= read -r filepath; do
-            filename=$(basename "$filepath")
-            dirname=$(basename "$(dirname "$filepath")")
-
-            safe_filename=$(sanitize_filename "$filename")
-
-            if echo "$existing_assets" | grep -qx "$safe_filename"; then
-              extension="${filename##*.}"
-              name="${filename%.*}"
-              safe_name=$(sanitize_filename "$name")
-              newname="${safe_name}-${dirname}.${extension}"
-              echo "Renaming $filename to $newname because it exists in release"
-              cp "$filepath" "all-artifacts/$newname"
-              echo "all-artifacts/$newname" >> upload-files-renamed.txt
-            else
-              if [[ "$filename" != "$safe_filename" ]]; then
-                cp "$filepath" "all-artifacts/$safe_filename"
-                echo "all-artifacts/$safe_filename" >> upload-files-renamed.txt
-              else
-                echo "$filepath" >> upload-files-renamed.txt
-              fi
-            fi
-          done < upload-files.txt
-
-          echo "Final list of files to upload:"
-          cat upload-files-renamed.txt
-
-      - name: Upload assets to draft release
+      - name: Upload assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -126,4 +54,4 @@ jobs:
           while IFS= read -r filepath; do
             echo "Uploading $filepath"
             gh release upload "$release_tag" "$filepath" --clobber
-          done < upload-files-renamed.txt
+          done < upload-files.txt
