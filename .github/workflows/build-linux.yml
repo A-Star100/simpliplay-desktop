@@ -156,8 +156,8 @@ jobs:
           #path: simpliplay/dist/*.flatpak
         #continue-on-error: true
 
-  build_armhf:
-    runs-on: ubuntu-22.04-arm    # ARM64 runner
+  build_i386:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
   
@@ -165,48 +165,19 @@ jobs:
         with:
           node-version: 22
   
-      - name: Install QEMU for ARMHF
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support
-  
-      - name: Install Snapcraft
-        run: sudo snap install snapcraft --classic
-  
-      - run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
-
-      - run: sudo snap install snapcraft --classic
-
-      - run: sudo snap install gnome-3-28-1804
-
-      - run: sudo snap install gtk-common-themes
-
-      - run: sudo snap install core22
-  
-      - name: Use ARM64 package.json
-        run: |
-          mv simpliplay/package.json simpliplay/package-unused.json
-          mv simpliplay/package-arm64-linux.json simpliplay/package.json
-  
       - run: npm install
         working-directory: simpliplay
   
-      - name: Build Snap armhf
-        run: npx electron-builder --linux snap --armhf
+      - name: Build Snap + AppImage i386
+        run: npx electron-builder --linux snap AppImage --ia32
         working-directory: simpliplay
-        continue-on-error: true   # optional, in case it fails
-
-      - name: Build AppImage armhf
-        run: npx electron-builder --linux AppImage --armhf
-        working-directory: simpliplay
-        continue-on-error: true   # optional, in case it fails
   
       - uses: actions/upload-artifact@v4
         with:
-          name: linux-armhf-snap
+          name: linux-i386-snap
           path: simpliplay/dist/*.snap
-
+  
       - uses: actions/upload-artifact@v4
         with:
-          name: linux-armhf-appimage
+          name: linux-i386-appimage
           path: simpliplay/dist/*.AppImage
