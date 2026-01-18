@@ -196,46 +196,60 @@ jobs:
           name: linux-i386-appimage
           path: simpliplay/dist/*.AppImage
 
-  build_armhf:
-    runs-on: ubuntu-22.04-arm
-    steps:
-      - uses: actions/checkout@v4
+build_armv7:
+  runs-on: ubuntu-22.04-arm
+  steps:
+    - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
 
-      - name: Install QEMU & dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu binfmt-support qemu-user-static
+    - name: Install QEMU & dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu binfmt-support qemu-user-static
 
-      - name: Install app dependencies
-        run: npm install
-        working-directory: simpliplay
+    - name: Install electron-builder dependencies
+      run: npm install
+      working-directory: simpliplay
 
-      - name: Prepare ARMHF package.json
-        run: |
-          # Save original
-          cp simpliplay/package.json simpliplay/package.json.orig
-          # Patch Electron to v3.1 (like i386)
-          if ! command -v jq &> /dev/null; then
-            sudo apt-get update
-            sudo apt-get install -y jq
-          fi
-          jq '.devDependencies.electron="3.1.13"' simpliplay/package.json.orig > simpliplay/package.armhf.json
-          mv simpliplay/package.armhf.json simpliplay/package.json
+    - name: Build ARMv7 AppImage
+      run: npx electron-builder --linux AppImage --armv7l
+      working-directory: simpliplay
+      continue-on-error: true
 
-      - name: Build ARMHF AppImage
-        run: npx electron-builder --linux AppImage --armv7l
-        working-directory: simpliplay
-        continue-on-error: true
+    - name: Upload ARMv7 AppImage
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-armv7-appimage
+        path: simpliplay/dist/*.AppImage
+      continue-on-error: true
 
-      - name: Restore original package.json
-        run: mv simpliplay/package.json.orig simpliplay/package.json
+    - name: Prepare Snap wrapper folder
+      run: |
+        mkdir -p snap/parts/appimage-wrapper
+        cp simpliplay/dist/*.AppImage snap/parts/appimage-wrapper/
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-armhf-appimage
-          path: simpliplay/dist/*.AppImage
-        continue-on-error: true
+    - name: Generate Snapcraft.yaml for ARMv7 wrapper
+      run: |
+        APP_NAME="simpliplay-armv7"
+        SNAP_DIR="snap"
+        PART_DIR="$SNAP_DIR/parts/appimage-wrapper"
+        APPIMAGE_FILE=$(ls $PART_DIR/*.AppImage | head -n1)
+        # Parse version from package.json
+        APP_VERSION=$(jq -r '.version' simpliplay/package.json)
+        mkdir -p "$SNAP_DIR"
+        printf "name: %s\nversion: \"%s\"\nsummary: \"Wrapper Snap for SimpliPlay ARMv7 AppImage\"\ndescription: |\n  This Snap contains the ARMv7 AppImage of SimpliPlay.\nbase: core22\nconfinement: strict\narchitectures:\n  - build-on: amd64\n    run-on: armhf\n\nparts:\n  appimage-wrapper:\n    plugin: dump\n    source: parts/appimage-wrapper\n    override-build: |\n      mkdir -p \$SNAPCRAFT_PART_INSTALL\n      cp * \$SNAPCRAFT_PART_INSTALL/\n      chmod +x \$SNAPCRAFT_PART_INSTALL/*.AppImage\n    stage-packages: []\n\napps:\n  simpliplay:\n    command: \$SNAP/$(basename $APPIMAGE_FILE)\n" > "$SNAP_DIR/snapcraft.yaml"
+
+
+    - name: Build ARMv7 wrapper Snap
+      run: snapcraft --destructive-mode
+      working-directory: snap
+      continue-on-error: true
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: linux-armv7-snap
+        path: snap/*.snap
+      continue-on-error: true
