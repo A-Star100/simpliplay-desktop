@@ -24,7 +24,16 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y flatpak flatpak-builder
 
-      - run: npx electron-builder --linux --x64
+      - name: Build Snap + AppImage
+        run: npx electron-builder --linux snap AppImage --x64
+        working-directory: simpliplay
+        
+      - name: Create unpacked build for Flatpak
+        run: npx electron-builder --linux --x64 --dir
+        working-directory: simpliplay
+        
+      - name: Build Flatpak  
+        run: npx electron-builder --linux flatpak --x64
         working-directory: simpliplay
 
       - uses: actions/upload-artifact@v4
@@ -59,13 +68,13 @@ jobs:
       - run: npm install
         working-directory: simpliplay
 
-      - run: npx electron-builder --linux AppImage --arm64
-        working-directory: simpliplay
-
       - name: Install Flatpak tooling
         run: |
           sudo apt-get update
           sudo apt-get install -y flatpak flatpak-builder
+
+      - run: npx electron-builder --linux AppImage --arm64
+        working-directory: simpliplay
 
       - run: npx electron-builder --linux flatpak --arm64
         working-directory: simpliplay
