@@ -164,6 +164,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Prepare i386 package.json
+        run: |
+          # Save original
+          cp simpliplay/package.json simpliplay/package.json.orig
+      
+          # Check if jq is installed; install if missing
+          if ! command -v jq &> /dev/null
+          then
+            echo "jq not found, installing..."
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+      
+          # Patch package.json to use Electron v3.1
+          jq '.devDependencies.electron="3.1.13"' simpliplay/package.json.orig > simpliplay/package.i386.json
+      
+          # Replace package.json for the i386 build
+          mv simpliplay/package.i386.json simpliplay/package.json
   
       - run: npm install
         working-directory: simpliplay
