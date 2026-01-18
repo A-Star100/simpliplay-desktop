@@ -195,3 +195,47 @@ jobs:
         with:
           name: linux-i386-appimage
           path: simpliplay/dist/*.AppImage
+
+  build_armhf:
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install QEMU & dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu binfmt-support qemu-user-static
+
+      - name: Install app dependencies
+        run: npm install
+        working-directory: simpliplay
+
+      - name: Prepare ARMHF package.json
+        run: |
+          # Save original
+          cp simpliplay/package.json simpliplay/package.json.orig
+          # Patch Electron to v3.1 (like i386)
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+          jq '.devDependencies.electron="3.1.13"' simpliplay/package.json.orig > simpliplay/package.armhf.json
+          mv simpliplay/package.armhf.json simpliplay/package.json
+
+      - name: Build ARMHF AppImage
+        run: npx electron-builder --linux AppImage --armv7l
+        working-directory: simpliplay
+        continue-on-error: true
+
+      - name: Restore original package.json
+        run: mv simpliplay/package.json.orig simpliplay/package.json
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-armhf-appimage
+          path: simpliplay/dist/*.AppImage
+        continue-on-error: true
