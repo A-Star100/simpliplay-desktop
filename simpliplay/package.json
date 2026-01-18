@@ -30,6 +30,20 @@
       "uninstallDisplayName": "simpliplay-uninstaller",
       "allowToChangeInstallationDirectory": true
     },
+    "flatpak": {
+      "runtime": "org.freedesktop.Platform",
+      "runtimeVersion": "23.08",
+      "sdk": "org.freedesktop.Sdk",
+      "base": "org.electronjs.Electron2.BaseApp",
+      "baseVersion": "23.08",
+      "finishArgs": [
+        "--share=ipc",
+        "--socket=x11",
+        "--device=dri",
+        "--filesystem=xdg-run/pipewire-0",
+        "--filesystem=home:ro"
+      ]
+    },
     "mac": {
       "target": [
         "dmg"
