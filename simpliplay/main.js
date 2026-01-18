@@ -6,7 +6,7 @@ const { pathToFileURL } = require("url");
 const { checkForUpdate } = require('./updateChecker');
 let gpuAccel = "";
 let didRegisterShortcuts = false;
-let version = "2.1.9.0" // regular electron update once in a while
+let version = "2.2.0.0" // regular electron update once in a while
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
