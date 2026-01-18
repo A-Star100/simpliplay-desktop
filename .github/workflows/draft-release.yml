@@ -45,7 +45,52 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload assets
+      - name: Sanitize filenames and handle duplicates
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          sanitize() {
+            echo "$1" | tr ' ' '-'
+          }
+
+          release_tag="draft-${{ github.run_number }}"
+          mkdir -p all-artifacts-final
+          rm -f upload-files-final.txt
+
+          # Fetch existing assets on the release
+          existing_assets=$(gh release view "$release_tag" --json assets --jq '.assets[].name' || echo "")
+
+          while IFS= read -r filepath; do
+            filename=$(basename "$filepath")
+            dirname=$(basename "$(dirname "$filepath")")
+            safe_filename=$(sanitize "$filename")
+
+            # If duplicate exists, append directory name to distinguish
+            if echo "$existing_assets" | grep -qx "$safe_filename"; then
+              extension="${filename##*.}"
+              name="${filename%.*}"
+              safe_name=$(sanitize "$name")
+              new_filename="${safe_name}-${dirname}.${extension}"
+              cp "$filepath" "all-artifacts-final/$new_filename"
+              echo "all-artifacts-final/$new_filename" >> upload-files-final.txt
+            else
+              # Rename if necessary, else keep original
+              if [[ "$filename" != "$safe_filename" ]]; then
+                cp "$filepath" "all-artifacts-final/$safe_filename"
+                echo "all-artifacts-final/$safe_filename" >> upload-files-final.txt
+              else
+                cp "$filepath" "all-artifacts-final/$filename"
+                echo "all-artifacts-final/$filename" >> upload-files-final.txt
+              fi
+            fi
+          done < upload-files.txt
+
+          echo "Final list of files to upload:"
+          cat upload-files-final.txt
+
+      - name: Upload assets to draft release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -54,4 +99,4 @@ jobs:
           while IFS= read -r filepath; do
             echo "Uploading $filepath"
             gh release upload "$release_tag" "$filepath" --clobber
-          done < upload-files.txt
+          done < upload-files-final.txt
