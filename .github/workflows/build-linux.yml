@@ -246,7 +246,7 @@ jobs:
   
   
       - name: Build ARMv7 wrapper Snap
-        run: snapcraft --destructive-mode
+        run: snapcraft pack --destructive-mode
         working-directory: snap
         continue-on-error: true
   
