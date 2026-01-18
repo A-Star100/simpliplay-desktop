@@ -49,7 +49,7 @@
       "icon": "icon.ico"
     },
     "linux": {
-      "target": ["snap", "AppImage", "flatpak"],
+      "target": ["snap", "AppImage"],
       "icon": "icon.png",
       "executableName": "SimpliPlay",
       "synopsis": "The mission to make media playback accessible anywhere, anytime.",
