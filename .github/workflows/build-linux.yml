@@ -19,43 +19,43 @@ jobs:
       - run: npm install
         working-directory: simpliplay
 
-      - name: Install Flatpak tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder
-        continue-on-error: true
+      #- name: Install Flatpak tools
+        #run: |
+          #sudo apt-get update
+          #sudo apt-get install -y flatpak flatpak-builder
+        #continue-on-error: true
 
       - name: Build Snap + AppImage
         run: npx electron-builder --linux snap AppImage --x64
         working-directory: simpliplay
         
-      - name: Create unpacked build for Flatpak
-        run: npx electron-builder --linux --x64 --dir
-        working-directory: simpliplay
+      #- name: Create unpacked build for Flatpak
+        #run: npx electron-builder --linux --x64 --dir
+        #working-directory: simpliplay
         
-      - name: Prepare Flatpak package.json
-        run: |
-          # Save original
-          cp simpliplay/package.json simpliplay/package.json.orig
-          # Check if jq is installed; if not, install it
-          if ! command -v jq &> /dev/null
-          then
-            echo "jq not found, installing..."
-            sudo apt-get update
-            sudo apt-get install -y jq
-          fi
-          # Create patched package.json with older Electron
-          jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
-          # Replace package.json for Flatpak build
-          mv simpliplay/package.flatpak.json simpliplay/package.json
+      #- name: Prepare Flatpak package.json
+        #run: |
+          ## Save original
+          #cp simpliplay/package.json simpliplay/package.json.orig
+          ## Check if jq is installed; if not, install it
+          #if ! command -v jq &> /dev/null
+          #then
+            #echo "jq not found, installing..."
+            #sudo apt-get update
+            #sudo apt-get install -y jq
+          #fi
+          ## Create patched package.json with older Electron
+          #jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
+          ## Replace package.json for Flatpak build
+          #mv simpliplay/package.flatpak.json simpliplay/package.json
 
-      - name: Build Flatpak
-        run: npx electron-builder --linux flatpak --x64
-        working-directory: simpliplay
-        continue-on-error: true
+      #- name: Build Flatpak
+        #run: npx electron-builder --linux flatpak --x64
+        #working-directory: simpliplay
+        #continue-on-error: true
 
-      - name: Restore original package.json
-        run: mv simpliplay/package.json.orig simpliplay/package.json
+      #- name: Restore original package.json
+        #run: mv simpliplay/package.json.orig simpliplay/package.json
 
       - uses: actions/upload-artifact@v4
         with:
@@ -67,11 +67,11 @@ jobs:
           name: linux-x64-appimage
           path: simpliplay/dist/*.AppImage
           
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-x64-flatpak
-          path: simpliplay/dist/*.flatpak
-        continue-on-error: true
+      #- uses: actions/upload-artifact@v4
+        #with:
+          #name: linux-x64-flatpak
+          #path: simpliplay/dist/*.flatpak
+        #continue-on-error: true
 
   build_arm64:
     runs-on: ubuntu-22.04-arm
@@ -90,38 +90,42 @@ jobs:
       - run: npm install
         working-directory: simpliplay
 
-      - name: Install Flatpak tooling
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder
-        continue-on-error: true
+      #- name: Install Flatpak tooling
+        #run: |
+          #sudo apt-get update
+          #sudo apt-get install -y flatpak flatpak-builder
+        #continue-on-error: true
 
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
 
-      - name: Prepare Flatpak package.json
-        run: |
-          # Save original
-          cp simpliplay/package.json simpliplay/package.json.orig
-          # Check if jq is installed; if not, install it
-          if ! command -v jq &> /dev/null
-          then
-            echo "jq not found, installing..."
-            sudo apt-get update
-            sudo apt-get install -y jq
-          fi
-          # Create patched package.json with older Electron
-          jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
-          # Replace package.json for Flatpak build
-          mv simpliplay/package.flatpak.json simpliplay/package.json
+      #- name: Prepare Flatpak package.json
+        #run: |
+          ## Save original
+          #cp simpliplay/package.json simpliplay/package.json.orig
+          ## Check if jq is installed; if not, install it
+          #if ! command -v jq &> /dev/null
+          #then
+            #echo "jq not found, installing..."
+            #sudo apt-get update
+            #sudo apt-get install -y jq
+          #fi
+          ## Create patched package.json with older Electron
+          #jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
+          ## Replace package.json for Flatpak build
+          #mv simpliplay/package.flatpak.json simpliplay/package.json
 
-      - name: Build Flatpak
-        run: npx electron-builder --linux flatpak --arm64
-        working-directory: simpliplay
-        continue-on-error: true
+      #- name: Create unpacked build for Flatpak
+        #run: npx electron-builder --linux --arm64 --dir
+        #working-directory: simpliplay
 
-      - name: Restore original package.json
-        run: mv simpliplay/package.json.orig simpliplay/package.json
+      #- name: Build Flatpak
+        #run: npx electron-builder --linux flatpak --arm64
+        #working-directory: simpliplay
+        #continue-on-error: true
+
+      #- name: Restore original package.json
+        #run: mv simpliplay/package.json.orig simpliplay/package.json
 
       - run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
 
@@ -146,8 +150,8 @@ jobs:
           name: linux-arm64-snap
           path: simpliplay/dist/*.snap
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: linux-arm64-flatpak
-          path: simpliplay/dist/*.flatpak
-        continue-on-error: true
+      #- uses: actions/upload-artifact@v4
+        #with:
+          #name: linux-arm64-flatpak
+          #path: simpliplay/dist/*.flatpak
+        #continue-on-error: true
