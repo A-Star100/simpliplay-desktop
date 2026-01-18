@@ -213,6 +213,8 @@ jobs:
       - name: Install electron-builder dependencies
         run: npm install
         working-directory: simpliplay
+
+      - run: sudo snap install snapcraft --classic
   
       - name: Build ARMv7 AppImage
         run: npx electron-builder --linux AppImage --armv7l
