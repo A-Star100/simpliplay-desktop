@@ -186,6 +186,8 @@ jobs:
   
       - run: npm install
         working-directory: simpliplay
+
+      - run: sudo snap install snapcraft --classic
   
       - name: Build Snap + AppImage i386
         run: npx electron-builder --linux snap AppImage --ia32
