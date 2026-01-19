@@ -238,7 +238,7 @@ jobs:
           printf "version: \"%s\"\n" "$APP_VERSION" >> snap/snapcraft.yaml
           printf "summary: SimpliPlay ARMv7 AppImage wrapper\n" >> snap/snapcraft.yaml
           printf "description: SimpliPlay ARMv7 AppImage wrapped as a Snap\n" >> snap/snapcraft.yaml
-          #printf "base: " >> snap/snapcraft.yaml
+          printf "base: core20" >> snap/snapcraft.yaml
           printf "confinement: classic\n\n" >> snap/snapcraft.yaml
   
           printf "parts:\n" >> snap/snapcraft.yaml
@@ -254,7 +254,7 @@ jobs:
           printf "    command: \$SNAP/%s\n" "$APPIMAGE_NAME" >> snap/snapcraft.yaml
   
       - name: Build ARMv7 wrapper Snap
-        run: snapcraft pack --destructive-mode
+        run: sudo snapcraft pack --destructive-mode --enable-experimental-target-arch --target-arch=armv7
         working-directory: snap
         continue-on-error: true
   
