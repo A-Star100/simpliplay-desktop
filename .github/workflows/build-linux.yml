@@ -196,8 +196,8 @@ jobs:
           name: linux-i386-appimage
           path: simpliplay/dist/*.AppImage
 
-  # #build_armv7:
-  #   #runs-on: ubuntu-22.04-arm
+  # #build_armv7_old:
+  #   #runs-on: ubuntu-22.04-arm #THIS IS THE OLD, REDUNDANT ARMV7 WORKFLOW - REMEMBER TO ALWAYS ACTIVATE QEMU VIRTUALIZATION AFTER INSTALLING IT SO IT IS OF USE!!!
   #   #steps:
   #     #- uses: actions/checkout@v4
   
@@ -300,7 +300,7 @@ jobs:
   #         path: snap/*.snap
   #       continue-on-error: true
 
-  build_armv7_snap:
+  build_armv7:
     runs-on: ubuntu-22.04-arm
     steps:
       - uses: actions/checkout@v4
@@ -320,6 +320,16 @@ jobs:
         run: npm install
         working-directory: simpliplay
 
+      - name: Build ARMv7 AppImage
+        run: npx electron-builder --linux AppImage --armv7l
+        working-directory: simpliplay
+  
+      - name: Upload ARMv7 AppImage
+        uses: actions/upload-artifact@v4
+        with:
+           name: linux-armv7-appimage
+           path: simpliplay/dist/*.AppImage
+
       - run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
 
       - run: sudo snap install snapcraft --classic
@@ -332,8 +342,9 @@ jobs:
 
       - run: npx electron-builder --linux snap --armv7l
         working-directory: simpliplay
-          
-      - uses: actions/upload-artifact@v4
+        
+      - name: Upload ARMv7 Snap         
+        uses: actions/upload-artifact@v4
         with:
           name: linux-armv7l-v2-snap
           path: simpliplay/dist/*.snap
