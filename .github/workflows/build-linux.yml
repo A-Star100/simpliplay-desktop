@@ -259,7 +259,7 @@ jobs:
           echo "name: simpliplay" > snap/snapcraft.yaml
           printf "version: \"%s\"\n" "$APP_VERSION" >> snap/snapcraft.yaml
           echo "summary: SimpliPlay ARMv7 AppImage wrapper" >> snap/snapcraft.yaml
-          echo "description: SimpliPlay ARMv7 AppImage wrapped as a Snap" >> snap/snapcraft.yaml
+          echo "description: SimpliPlay ARMv7 AppImage wrapped in a Snap" >> snap/snapcraft.yaml
           echo "base: core20" >> snap/snapcraft.yaml
           echo "confinement: strict" >> snap/snapcraft.yaml
           echo "grade: stable" >> snap/snapcraft.yaml
