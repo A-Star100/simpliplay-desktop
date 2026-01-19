@@ -288,8 +288,6 @@ jobs:
           echo "✅ Generated snap/snapcraft.yaml and staged AppImage: ${APPIMAGE_NAME}"
 
 
-
-  
       - name: Build ARMv7 wrapper Snap
         run: snapcraft pack --destructive-mode --enable-experimental-target-arch --target-arch=armhf
         working-directory: snap
@@ -301,3 +299,41 @@ jobs:
           name: linux-armv7-snap
           path: snap/*.snap
         continue-on-error: true
+
+  build_armv7_snap:
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v4
+  
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install QEMU for ARMv7 emulation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support
+          # Register ARM emulation so Snapcraft sees armhf/armv7
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: simpliplay
+
+      - run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
+
+      - run: sudo snap install snapcraft --classic
+
+      - run: sudo snap install gnome-3-28-1804
+
+      - run: sudo snap install gtk-common-themes
+
+      - run: sudo snap install core22
+
+      - run: npx electron-builder --linux snap --armv7l
+        working-directory: simpliplay
+          
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-armv7l-v2-snap
+          path: simpliplay/dist/*.snap
