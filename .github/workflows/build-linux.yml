@@ -204,13 +204,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-  
+
+      - name: Install QEMU for ARMv7 emulation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support
+          # Register ARM emulation so Snapcraft sees armhf/armv7
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
+
+       - name: Install snapcraft
+         run: sudo snap install snapcraft --classic
+        
       - name: Install dependencies
         run: npm install
         working-directory: simpliplay
-  
-      - name: Install snapcraft
-        run: sudo snap install snapcraft --classic
   
       - name: Build ARMv7 AppImage
         run: npx electron-builder --linux AppImage --armv7l
@@ -254,7 +261,7 @@ jobs:
           printf "    command: \$SNAP/%s\n" "$APPIMAGE_NAME" >> snap/snapcraft.yaml
   
       - name: Build ARMv7 wrapper Snap
-        run: sudo snapcraft pack --destructive-mode --enable-experimental-target-arch --target-arch=armv7
+        run: snapcraft pack --destructive-mode --enable-experimental-target-arch --target-arch=armv7
         working-directory: snap
         continue-on-error: true
   
