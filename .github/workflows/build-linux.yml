@@ -238,27 +238,30 @@ jobs:
   
       - name: Generate snapcraft.yaml (NO ARCH)
         run: |
-          APPIMAGE_NAME=$(basename simpliplay/dist/*.AppImage)
           APP_VERSION=$(jq -r '.version' simpliplay/package.json)
-  
+      
+          mkdir -p snap
           printf "name: simpliplay-armv7\n" > snap/snapcraft.yaml
           printf "version: \"%s\"\n" "$APP_VERSION" >> snap/snapcraft.yaml
           printf "summary: SimpliPlay ARMv7 AppImage wrapper\n" >> snap/snapcraft.yaml
           printf "description: SimpliPlay ARMv7 AppImage wrapped as a Snap\n" >> snap/snapcraft.yaml
           printf "base: core20\n" >> snap/snapcraft.yaml
           printf "confinement: classic\n\n" >> snap/snapcraft.yaml
-  
+      
           printf "parts:\n" >> snap/snapcraft.yaml
           printf "  appimage:\n" >> snap/snapcraft.yaml
           printf "    plugin: dump\n" >> snap/snapcraft.yaml
           printf "    source: parts/appimage\n" >> snap/snapcraft.yaml
           printf "    override-build: |\n" >> snap/snapcraft.yaml
-          printf "      cp -r . \"\$SNAPCRAFT_PART_INSTALL\"\n" >> snap/snapcraft.yaml
-          printf "      chmod +x \"\$SNAPCRAFT_PART_INSTALL\"/*.AppImage\n\n" >> snap/snapcraft.yaml
-  
+          printf "      mkdir -p \$SNAPCRAFT_PART_INSTALL\n" >> snap/snapcraft.yaml
+          printf "      cp *.AppImage \$SNAPCRAFT_PART_INSTALL/\n" >> snap/snapcraft.yaml
+          printf "      mv \$SNAPCRAFT_PART_INSTALL/*.AppImage \$SNAPCRAFT_PART_INSTALL/SimpliPlay.AppImage\n" >> snap/snapcraft.yaml
+          printf "      chmod +x \$SNAPCRAFT_PART_INSTALL/SimpliPlay.AppImage\n\n" >> snap/snapcraft.yaml
+      
           printf "apps:\n" >> snap/snapcraft.yaml
           printf "  simpliplay:\n" >> snap/snapcraft.yaml
-          printf "    command: \$SNAP/%s\n" "$APPIMAGE_NAME" >> snap/snapcraft.yaml
+          printf "    command: \$SNAP/SimpliPlay.AppImage\n" >> snap/snapcraft.yaml
+
   
       - name: Build ARMv7 wrapper Snap
         run: snapcraft pack --destructive-mode --enable-experimental-target-arch --target-arch=armhf
