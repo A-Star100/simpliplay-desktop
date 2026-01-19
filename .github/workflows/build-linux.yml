@@ -231,15 +231,34 @@ jobs:
   
       - name: Generate Snapcraft.yaml for ARMv7 wrapper
         run: |
+          # Ensure jq is installed
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+      
           APP_NAME="simpliplay-armv7"
           SNAP_DIR="snap"
           PART_DIR="$SNAP_DIR/parts/appimage-wrapper"
-          APPIMAGE_FILE=$(ls $PART_DIR/*.AppImage | head -n1)
-          APP_VERSION=$(jq -r '.version' simpliplay/package.json)
           mkdir -p "$SNAP_DIR"
-  
-          # Use printf to safely generate snapcraft.yaml without heredoc
-          printf "name: %s\nversion: \"%s\"\nsummary: \"Wrapper Snap for SimpliPlay ARMv7 AppImage\"\ndescription: |\n  This Snap contains the ARMv7 AppImage of SimpliPlay.\nbase: core22\nconfinement: strict\n\nparts:\n  appimage-wrapper:\n    plugin: dump\n    source: parts/appimage-wrapper\n    override-build: |\n      mkdir -p \$SNAPCRAFT_PART_INSTALL\n      cp * \$SNAPCRAFT_PART_INSTALL/\n      chmod +x \$SNAPCRAFT_PART_INSTALL/*.AppImage\n    stage-packages: []\n\napps:\n  simpliplay:\n    command: \$SNAP/$(basename $APPIMAGE_FILE)\n" > "$SNAP_DIR/snapcraft.yaml"
+      
+          # Find first AppImage file
+          APPIMAGE_FILE=$(ls $PART_DIR/*.AppImage 2>/dev/null | head -n1)
+          if [ -z "$APPIMAGE_FILE" ]; then
+            echo "❌ No AppImage found in $PART_DIR"
+            exit 1
+          fi
+      
+          # Parse version from package.json, fallback if empty
+          APP_VERSION=$(jq -r '.version // "0.0.0"' simpliplay/package.json)
+          if [ -z "$APP_VERSION" ] || [[ ! "$APP_VERSION" =~ ^[a-zA-Z0-9.+~:-]+$ ]]; then
+            echo "⚠️ Invalid version '$APP_VERSION', falling back to 0.0.0"
+            APP_VERSION="0.0.0"
+          fi
+      
+          # Generate snapcraft.yaml
+          printf "name: %s\nversion: \"%s\"\nsummary: \"Wrapper Snap for SimpliPlay ARMv7 AppImage\"\ndescription: |\n  This Snap contains the ARMv7 AppImage of SimpliPlay.\nbase: core22\nconfinement: strict\n\nparts:\n  appimage-wrapper:\n    plugin: dump\n    source: parts/appimage-wrapper\n    override-build: |\n      mkdir -p \$SNAPCRAFT_PART_INSTALL\n      cp * \$SNAPCRAFT_PART_INSTALL/\n      chmod +x \$SNAPCRAFT_PART_INSTALL/*.AppImage\n    stage-packages: []\n\napps:\n  simpliplay:\n    command: \$SNAP/$(basename "$APPIMAGE_FILE")\n" > "$SNAP_DIR/snapcraft.yaml"
+
   
       - name: Build ARMv7 wrapper Snap
         run: snapcraft pack --destructive-mode
