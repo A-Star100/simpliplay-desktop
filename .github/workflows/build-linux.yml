@@ -196,74 +196,74 @@ jobs:
           name: linux-i386-appimage
           path: simpliplay/dist/*.AppImage
 
-build_armv7:
-  runs-on: ubuntu-22.04-arm
-  steps:
-    - uses: actions/checkout@v4
-
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 22
-
-    - name: Install electron-builder dependencies
-      run: npm install
-      working-directory: simpliplay
-
-    - run: sudo snap install snapcraft --classic
-
-    - name: Build ARMv7 AppImage
-      run: npx electron-builder --linux AppImage --armv7l
-      working-directory: simpliplay
-      continue-on-error: true
-
-    - name: Upload ARMv7 AppImage
-      uses: actions/upload-artifact@v4
-      with:
-        name: linux-armv7-appimage
-        path: simpliplay/dist/*.AppImage
-      continue-on-error: true
-
-    - name: Prepare Snap wrapper folder
-      run: |
-        mkdir -p snap/parts/appimage-wrapper
-        cp simpliplay/dist/*.AppImage snap/parts/appimage-wrapper/
-        APPIMAGE_FILE=$(ls snap/parts/appimage-wrapper/*.AppImage | head -n1)
-        echo $APPIMAGE_FILE > snap/parts/appimage-wrapper/APPIMAGE_FILENAME.txt
-
-    - name: Generate minimal Snapcraft.yaml
-      run: |
-        APPIMAGE_FILE=$(cat snap/parts/appimage-wrapper/APPIMAGE_FILENAME.txt)
-        mkdir -p snap
-        echo "name: simpliplay-armv7" > snap/snapcraft.yaml
-        echo "version: \"2.2.0\"" >> snap/snapcraft.yaml
-        echo "summary: \"ARMv7 AppImage wrapper\"" >> snap/snapcraft.yaml
-        echo "description: |" >> snap/snapcraft.yaml
-        echo "  This Snap wraps the ARMv7 AppImage of SimpliPlay." >> snap/snapcraft.yaml
-        echo "base: core22" >> snap/snapcraft.yaml
-        echo "confinement: strict" >> snap/snapcraft.yaml
-        echo "architectures:" >> snap/snapcraft.yaml
-        echo "  - build-on: amd64" >> snap/snapcraft.yaml
-        echo "    run-on: armhf" >> snap/snapcraft.yaml
-        echo "parts:" >> snap/snapcraft.yaml
-        echo "  appimage-wrapper:" >> snap/snapcraft.yaml
-        echo "    plugin: dump" >> snap/snapcraft.yaml
-        echo "    source: parts/appimage-wrapper" >> snap/snapcraft.yaml
-        echo "    override-build: |" >> snap/snapcraft.yaml
-        echo "      mkdir -p \$SNAPCRAFT_PART_INSTALL" >> snap/snapcraft.yaml
-        echo "      cp * \$SNAPCRAFT_PART_INSTALL/" >> snap/snapcraft.yaml
-        echo "      chmod +x \$SNAPCRAFT_PART_INSTALL/*.AppImage" >> snap/snapcraft.yaml
-        echo "    stage-packages: []" >> snap/snapcraft.yaml
-        echo "apps:" >> snap/snapcraft.yaml
-        echo "  simpliplay:" >> snap/snapcraft.yaml
-        echo "    command: \$SNAP/$(basename $APPIMAGE_FILE)" >> snap/snapcraft.yaml
-
-    - name: Build ARMv7 wrapper Snap
-      run: snapcraft pack --destructive-mode
-      working-directory: snap
-      continue-on-error: true
-
-    - uses: actions/upload-artifact@v4
-      with:
-        name: linux-armv7-snap
-        path: snap/*.snap
-      continue-on-error: true
+  build_armv7:
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - uses: actions/checkout@v4
+  
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+  
+      - name: Install electron-builder dependencies
+        run: npm install
+        working-directory: simpliplay
+  
+      - run: sudo snap install snapcraft --classic
+  
+      - name: Build ARMv7 AppImage
+        run: npx electron-builder --linux AppImage --armv7l
+        working-directory: simpliplay
+        continue-on-error: true
+  
+      - name: Upload ARMv7 AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-armv7-appimage
+          path: simpliplay/dist/*.AppImage
+        continue-on-error: true
+  
+      - name: Prepare Snap wrapper folder
+        run: |
+          mkdir -p snap/parts/appimage-wrapper
+          cp simpliplay/dist/*.AppImage snap/parts/appimage-wrapper/
+          APPIMAGE_FILE=$(ls snap/parts/appimage-wrapper/*.AppImage | head -n1)
+          echo $APPIMAGE_FILE > snap/parts/appimage-wrapper/APPIMAGE_FILENAME.txt
+  
+      - name: Generate minimal Snapcraft.yaml
+        run: |
+          APPIMAGE_FILE=$(cat snap/parts/appimage-wrapper/APPIMAGE_FILENAME.txt)
+          mkdir -p snap
+          echo "name: simpliplay-armv7" > snap/snapcraft.yaml
+          echo "version: \"2.2.0\"" >> snap/snapcraft.yaml
+          echo "summary: \"ARMv7 AppImage wrapper\"" >> snap/snapcraft.yaml
+          echo "description: |" >> snap/snapcraft.yaml
+          echo "  This Snap wraps the ARMv7 AppImage of SimpliPlay." >> snap/snapcraft.yaml
+          echo "base: core22" >> snap/snapcraft.yaml
+          echo "confinement: strict" >> snap/snapcraft.yaml
+          echo "architectures:" >> snap/snapcraft.yaml
+          echo "  - build-on: amd64" >> snap/snapcraft.yaml
+          echo "    run-on: armhf" >> snap/snapcraft.yaml
+          echo "parts:" >> snap/snapcraft.yaml
+          echo "  appimage-wrapper:" >> snap/snapcraft.yaml
+          echo "    plugin: dump" >> snap/snapcraft.yaml
+          echo "    source: parts/appimage-wrapper" >> snap/snapcraft.yaml
+          echo "    override-build: |" >> snap/snapcraft.yaml
+          echo "      mkdir -p \$SNAPCRAFT_PART_INSTALL" >> snap/snapcraft.yaml
+          echo "      cp * \$SNAPCRAFT_PART_INSTALL/" >> snap/snapcraft.yaml
+          echo "      chmod +x \$SNAPCRAFT_PART_INSTALL/*.AppImage" >> snap/snapcraft.yaml
+          echo "    stage-packages: []" >> snap/snapcraft.yaml
+          echo "apps:" >> snap/snapcraft.yaml
+          echo "  simpliplay:" >> snap/snapcraft.yaml
+          echo "    command: \$SNAP/$(basename $APPIMAGE_FILE)" >> snap/snapcraft.yaml
+  
+      - name: Build ARMv7 wrapper Snap
+        run: snapcraft pack --destructive-mode
+        working-directory: snap
+        continue-on-error: true
+  
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-armv7-snap
+          path: snap/*.snap
+        continue-on-error: true
