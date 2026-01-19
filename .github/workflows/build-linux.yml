@@ -261,7 +261,7 @@ jobs:
           echo "summary: SimpliPlay ARMv7 AppImage wrapper" >> snap/snapcraft.yaml
           echo "description: SimpliPlay ARMv7 AppImage wrapped as a Snap" >> snap/snapcraft.yaml
           echo "base: core20" >> snap/snapcraft.yaml
-          echo "confinement: classic" >> snap/snapcraft.yaml
+          echo "confinement: strict" >> snap/snapcraft.yaml
           echo "grade: stable" >> snap/snapcraft.yaml
           echo "" >> snap/snapcraft.yaml
       
