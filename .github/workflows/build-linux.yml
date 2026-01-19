@@ -256,7 +256,7 @@ jobs:
       
           # Generate snapcraft.yaml safely (no heredoc)
           mkdir -p snap
-          echo "name: simpliplay-armv7" > snap/snapcraft.yaml
+          echo "name: simpliplay" > snap/snapcraft.yaml
           printf "version: \"%s\"\n" "$APP_VERSION" >> snap/snapcraft.yaml
           echo "summary: SimpliPlay ARMv7 AppImage wrapper" >> snap/snapcraft.yaml
           echo "description: SimpliPlay ARMv7 AppImage wrapped as a Snap" >> snap/snapcraft.yaml
