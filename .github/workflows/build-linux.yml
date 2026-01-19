@@ -236,18 +236,33 @@ jobs:
           mkdir -p snap/parts/appimage
           cp simpliplay/dist/*.AppImage snap/parts/appimage/
   
-      - name: Generate snapcraft.yaml (NO ARCH)
+      - name: Generate snapcraft.yaml (NO ARCH, bin wrapper)
         run: |
+          set -euo pipefail
+      
           APP_VERSION=$(jq -r '.version' simpliplay/package.json)
       
+          # Ensure we have an AppImage
+          if ! ls simpliplay/dist/*.AppImage >/dev/null 2>&1; then
+            echo "❌ No AppImage found in simpliplay/dist"
+            exit 1
+          fi
+      
+          APPIMAGE_NAME=$(basename simpliplay/dist/*.AppImage)
+      
+          # Prepare parts folder and copy AppImage there (idempotent)
+          mkdir -p snap/parts/appimage
+          cp -f "simpliplay/dist/${APPIMAGE_NAME}" snap/parts/appimage/
+      
+          # Generate snapcraft.yaml safely (no heredoc)
           mkdir -p snap
-          # we do these echoes simply because of the over sensitive YAML parser that hates EOFs
           echo "name: simpliplay-armv7" > snap/snapcraft.yaml
-          echo "version: \"$APP_VERSION\"" >> snap/snapcraft.yaml
+          printf "version: \"%s\"\n" "$APP_VERSION" >> snap/snapcraft.yaml
           echo "summary: SimpliPlay ARMv7 AppImage wrapper" >> snap/snapcraft.yaml
           echo "description: SimpliPlay ARMv7 AppImage wrapped as a Snap" >> snap/snapcraft.yaml
           echo "base: core20" >> snap/snapcraft.yaml
           echo "confinement: classic" >> snap/snapcraft.yaml
+          echo "grade: stable" >> snap/snapcraft.yaml
           echo "" >> snap/snapcraft.yaml
       
           echo "parts:" >> snap/snapcraft.yaml
@@ -255,15 +270,24 @@ jobs:
           echo "    plugin: dump" >> snap/snapcraft.yaml
           echo "    source: parts/appimage" >> snap/snapcraft.yaml
           echo "    override-build: |" >> snap/snapcraft.yaml
-          echo "      mkdir -p \$SNAPCRAFT_PART_INSTALL" >> snap/snapcraft.yaml
-          echo "      cp *.AppImage \$SNAPCRAFT_PART_INSTALL/" >> snap/snapcraft.yaml
-          echo "      mv \$SNAPCRAFT_PART_INSTALL/*.AppImage \$SNAPCRAFT_PART_INSTALL/SimpliPlay.AppImage" >> snap/snapcraft.yaml
-          echo "      chmod +x \$SNAPCRAFT_PART_INSTALL/SimpliPlay.AppImage" >> snap/snapcraft.yaml
+          # create bin, copy the AppImage into bin and rename it deterministically
+          echo "      mkdir -p \$SNAPCRAFT_PART_INSTALL/bin" >> snap/snapcraft.yaml
+          # use the literal filename (it exists in the part source)
+          echo "      cp \"${APPIMAGE_NAME}\" \$SNAPCRAFT_PART_INSTALL/bin/SimpliPlay.AppImage" >> snap/snapcraft.yaml
+          echo "      chmod +x \$SNAPCRAFT_PART_INSTALL/bin/SimpliPlay.AppImage" >> snap/snapcraft.yaml
+          # create a tiny launcher script in the snap's bin dir
+          echo "      echo '#!/bin/sh' > \$SNAPCRAFT_PART_INSTALL/bin/simpliplay" >> snap/snapcraft.yaml
+          echo "      echo 'exec \$SNAP/bin/SimpliPlay.AppImage \"\$@\"' >> \$SNAPCRAFT_PART_INSTALL/bin/simpliplay" >> snap/snapcraft.yaml
+          echo "      chmod +x \$SNAPCRAFT_PART_INSTALL/bin/simpliplay" >> snap/snapcraft.yaml
           echo "" >> snap/snapcraft.yaml
       
           echo "apps:" >> snap/snapcraft.yaml
           echo "  simpliplay:" >> snap/snapcraft.yaml
-          echo "    command: \$SNAP/SimpliPlay.AppImage" >> snap/snapcraft.yaml
+          echo "    command: bin/simpliplay" >> snap/snapcraft.yaml
+      
+          echo "✅ Generated snap/snapcraft.yaml and staged AppImage: ${APPIMAGE_NAME}"
+
+
 
   
       - name: Build ARMv7 wrapper Snap
