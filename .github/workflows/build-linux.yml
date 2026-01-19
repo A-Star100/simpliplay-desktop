@@ -261,7 +261,7 @@ jobs:
           printf "    command: \$SNAP/%s\n" "$APPIMAGE_NAME" >> snap/snapcraft.yaml
   
       - name: Build ARMv7 wrapper Snap
-        run: snapcraft pack --destructive-mode --enable-experimental-target-arch --target-arch=armv7
+        run: snapcraft pack --destructive-mode --enable-experimental-target-arch --target-arch=armhf
         working-directory: snap
         continue-on-error: true
   
