@@ -208,8 +208,9 @@ jobs:
       - name: Install electron-builder dependencies
         run: npm install
         working-directory: simpliplay
-
-      - run: sudo snap install snapcraft --classic
+  
+      - name: Install Snapcraft
+        run: sudo snap install snapcraft --classic
   
       - name: Build ARMv7 AppImage
         run: npx electron-builder --linux AppImage --armv7l
@@ -234,18 +235,19 @@ jobs:
           SNAP_DIR="snap"
           PART_DIR="$SNAP_DIR/parts/appimage-wrapper"
           APPIMAGE_FILE=$(ls $PART_DIR/*.AppImage | head -n1)
-          # Parse version from package.json
           APP_VERSION=$(jq -r '.version' simpliplay/package.json)
           mkdir -p "$SNAP_DIR"
-          printf "name: %s\nversion: \"%s\"\nsummary: \"Wrapper Snap for SimpliPlay ARMv7 AppImage\"\ndescription: |\n  This Snap contains the ARMv7 AppImage of SimpliPlay.\nbase: core22\nconfinement: strict\narchitectures:\n  - build-on: amd64\n    run-on: armhf\n\nparts:\n  appimage-wrapper:\n    plugin: dump\n    source: parts/appimage-wrapper\n    override-build: |\n      mkdir -p \$SNAPCRAFT_PART_INSTALL\n      cp * \$SNAPCRAFT_PART_INSTALL/\n      chmod +x \$SNAPCRAFT_PART_INSTALL/*.AppImage\n    stage-packages: []\n\napps:\n  simpliplay:\n    command: \$SNAP/$(basename $APPIMAGE_FILE)\n" > "$SNAP_DIR/snapcraft.yaml"
   
+          # Use printf to safely generate snapcraft.yaml without heredoc
+          printf "name: %s\nversion: \"%s\"\nsummary: \"Wrapper Snap for SimpliPlay ARMv7 AppImage\"\ndescription: |\n  This Snap contains the ARMv7 AppImage of SimpliPlay.\nbase: core22\nconfinement: strict\n\nparts:\n  appimage-wrapper:\n    plugin: dump\n    source: parts/appimage-wrapper\n    override-build: |\n      mkdir -p \$SNAPCRAFT_PART_INSTALL\n      cp * \$SNAPCRAFT_PART_INSTALL/\n      chmod +x \$SNAPCRAFT_PART_INSTALL/*.AppImage\n    stage-packages: []\n\napps:\n  simpliplay:\n    command: \$SNAP/$(basename $APPIMAGE_FILE)\n" > "$SNAP_DIR/snapcraft.yaml"
   
       - name: Build ARMv7 wrapper Snap
         run: snapcraft pack --destructive-mode
         working-directory: snap
         continue-on-error: true
   
-      - uses: actions/upload-artifact@v4
+      - name: Upload ARMv7 wrapper Snap
+        uses: actions/upload-artifact@v4
         with:
           name: linux-armv7-snap
           path: snap/*.snap
