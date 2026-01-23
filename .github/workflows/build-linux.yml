@@ -28,7 +28,14 @@ jobs:
       - name: Build Snap + AppImage
         run: npx electron-builder --linux snap AppImage --x64
         working-directory: simpliplay
-        
+
+      - name: Build unpacked
+        run: npx electron-builder --linux --x64 --dir
+        working-directory: simpliplay
+      - name: Compress unpacked
+        run: tar czf simpliplay-linux-x64.unpacked.tar.gz dist/linux-unpacked
+
+## what is below is OLD FLATPAK CODE there is a new flatpak being built in its own repository planned to be published on Flathub soon!
       #- name: Create unpacked build for Flatpak
         #run: npx electron-builder --linux --x64 --dir
         #working-directory: simpliplay
@@ -66,6 +73,11 @@ jobs:
         with:
           name: linux-x64-appimage
           path: simpliplay/dist/*.AppImage
+          
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64-unpacked
+          path: simpliplay/dist/*.unpacked.tar.gz
           
       #- uses: actions/upload-artifact@v4
         #with:
