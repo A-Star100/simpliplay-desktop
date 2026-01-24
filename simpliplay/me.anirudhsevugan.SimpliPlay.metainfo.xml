@@ -24,6 +24,8 @@
         <li>Take snapshots with Ctrl+S to capture perfect moments in your media, as well as any add-ons you've created</li>
         <li>Use DevTools (identical to what's in Chrome) to edit code for the player in realtime</li>
     </ul>
+
+    <p>App icon from Vector Stall - Flaticon</p>
     </description>
     <launchable type="desktop-id">me.anirudhsevugan.SimpliPlay.desktop</launchable>
     <screenshots>
