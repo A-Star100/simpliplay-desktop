@@ -58,7 +58,10 @@
     <releases>
         <release version="2.2.0" date="2026-01-18">
         <description>
-            <p>Release notes are on GitHub</p>
+         <ul>
+          <li>Initial Flathub release</li>
+          <li>Bug fixes regarding Wayland</li>
+         </ul>
         </description>
         </release>
     </releases>
