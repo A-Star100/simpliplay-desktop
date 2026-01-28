@@ -5,6 +5,11 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '.github/workflows/dependabot-bump.yml'
+      - '.github/workflows/dependabot.yml'
+      - 'README.md'             # Ignore documentation
+      - '.gitignore'            # Ignore git settings
 
 jobs:
   build:
