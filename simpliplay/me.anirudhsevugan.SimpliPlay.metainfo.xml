@@ -30,19 +30,19 @@
     <launchable type="desktop-id">me.anirudhsevugan.SimpliPlay.desktop</launchable>
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/0d33a19a5118dc02e55cebfe708bba62d606b727/screenshots/interface.jpg</image>
+            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/eb86785b3803a0431059618c9a68c62ecb99d77f/screenshots/png/interface.png</image>
             <caption>Main interface</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/0d33a19a5118dc02e55cebfe708bba62d606b727/screenshots/settings.jpg</image>
+            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/eb86785b3803a0431059618c9a68c62ecb99d77f/screenshots/png/settings.png</image>
             <caption>Additional settings</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/0d33a19a5118dc02e55cebfe708bba62d606b727/screenshots/addons.jpg</image>
+            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/eb86785b3803a0431059618c9a68c62ecb99d77f/screenshots/png/addons.png</image>
             <caption>Addons</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/0d33a19a5118dc02e55cebfe708bba62d606b727/screenshots/devtools.jpg</image>
+            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/eb86785b3803a0431059618c9a68c62ecb99d77f/screenshots/png/devtools.png</image>
             <caption>DevTools</caption>
         </screenshot>
     </screenshots>
