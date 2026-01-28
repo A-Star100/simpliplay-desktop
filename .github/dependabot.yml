@@ -9,7 +9,14 @@ updates:
     directory: "/simpliplay"
     schedule:
       interval: "daily"
-    # Filter to only the core Electron stack
+    versioning-strategy: increase
+    
+    # allow only these 2 dudes
     allow:
       - dependency-name: "electron"
       - dependency-name: "electron-builder"
+
+    # block major version updates for the builder cuz electron-builder *usually* has breaking changes with major version updates
+    ignore:
+      - dependency-name: "electron-builder"
+        update-types: ["version-update:semver-major"]
