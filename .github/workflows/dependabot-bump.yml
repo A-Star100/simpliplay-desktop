@@ -18,7 +18,6 @@ jobs:
 
       - name: Increment Main.js Version
         run: |
-          # The path to your main.js
           FILE_PATH="simpliplay/main.js"
           
           # 1. Find the current version (e.g., 2.2.0.0)
