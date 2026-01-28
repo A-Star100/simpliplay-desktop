@@ -1,0 +1,44 @@
+name: Dependabot Version Bump
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  bump-version:
+    # Only run if Dependabot opened the PR
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Increment Main.js Version
+        run: |
+          # The path to your main.js
+          FILE_PATH="simpliplay/main.js"
+          
+          # 1. Find the current version (e.g., 2.2.0.0)
+          CURRENT_VERSION=$(grep -oP 'let version = "\K[^"]+' $FILE_PATH)
+          echo "Current Version: $CURRENT_VERSION"
+          
+          # 2. Split it and increment the last digit
+          BASE_VERSION=$(echo $CURRENT_VERSION | cut -d. -f1-3)
+          LAST_DIGIT=$(echo $CURRENT_VERSION | cut -d. -f4)
+          NEW_LAST_DIGIT=$((LAST_DIGIT + 1))
+          NEW_VERSION="$BASE_VERSION.$NEW_LAST_DIGIT"
+          echo "New Version: $NEW_VERSION"
+          
+          # 3. Use sed to swap the old version with the new one in the file
+          sed -i "s/let version = \"$CURRENT_VERSION\"/let version = \"$NEW_VERSION\"/" $FILE_PATH
+
+      - name: Commit and Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add simpliplay/main.js
+          git commit -m "chore: auto-increment version in main.js for Electron update"
+          git push
