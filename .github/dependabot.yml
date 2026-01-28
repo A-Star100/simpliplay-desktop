@@ -8,7 +8,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/simpliplay"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     # Filter to only the core Electron stack
     allow:
       - dependency-name: "electron"
