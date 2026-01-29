@@ -5,7 +5,6 @@ on:
 
 jobs:
   bump-version:
-    # Only run if Dependabot opened the PR
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
@@ -19,25 +18,33 @@ jobs:
       - name: Increment Main.js Version
         run: |
           FILE_PATH="simpliplay/main.js"
-          
-          # 1. Find the current version (e.g., 2.2.0.0)
           CURRENT_VERSION=$(grep -oP 'let version = "\K[^"]+' $FILE_PATH)
-          echo "Current Version: $CURRENT_VERSION"
-          
-          # 2. Split it and increment the last digit
           BASE_VERSION=$(echo $CURRENT_VERSION | cut -d. -f1-3)
           LAST_DIGIT=$(echo $CURRENT_VERSION | cut -d. -f4)
           NEW_LAST_DIGIT=$((LAST_DIGIT + 1))
           NEW_VERSION="$BASE_VERSION.$NEW_LAST_DIGIT"
-          echo "New Version: $NEW_VERSION"
-          
-          # 3. Use sed to swap the old version with the new one in the file
           sed -i "s/let version = \"$CURRENT_VERSION\"/let version = \"$NEW_VERSION\"/" $FILE_PATH
+
+      - name: Sync Electron Versions to ARM64 JSON
+        run: |
+          # Extract the new versions Dependabot just put in the main package.json
+          NEW_ELECTRON=$(jq -r '.dependencies.electron' simpliplay/package.json)
+          NEW_BUILDER=$(jq -r '.dependencies["electron-builder"]' simpliplay/package.json)
+          
+          # Update ONLY those fields in the ARM64 file without touching other params
+          ARM_FILE="package-arm64-linux.json"
+          if [ -f "$ARM_FILE" ]; then
+            tmp=$(mktemp)
+            jq --arg env "$NEW_ELECTRON" --arg bld "$NEW_BUILDER" \
+               '.dependencies.electron = $env | .dependencies["electron-builder"] = $bld' \
+               "$ARM_FILE" > "$tmp" && mv "$tmp" "$ARM_FILE"
+            echo "✅ Synced Electron $NEW_ELECTRON and Builder $NEW_BUILDER to $ARM_FILE"
+          fi
 
       - name: Commit and Push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add simpliplay/main.js
-          git commit -m "chore: auto-increment version in main.js for Electron update"
+          git add simpliplay/main.js package-arm64-linux.json
+          git commit -m "chore: auto-increment version and sync linux arm64 json's dependencies"
           git push
