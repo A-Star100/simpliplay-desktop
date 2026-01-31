@@ -1,4 +1,4 @@
-name: Dependabot Version Bump
+name: Dependabot version Bump
 on:
   pull_request:
     branches: [ main ]
@@ -17,33 +17,31 @@ jobs:
 
       - name: increment ver in main.js
         run: |
-          FILE_PATH="simpliplay/main.js"
+          filepath="simpliplay/main.js"
           
-          CURRENT_VERSION=$(grep -oP 'let version = "\K[^"]+' $FILE_PATH)
+          currentversion=$(grep -oP 'let version = "\K[^"]+' $filepath)
           
-          V1=$(echo $CURRENT_VERSION | cut -d. -f1); V1=${V1:-0}
-          V2=$(echo $CURRENT_VERSION | cut -d. -f2); V2=${V2:-0}
-          V3=$(echo $CURRENT_VERSION | cut -d. -f3); V3=${V3:-0}
-          V4=$(echo $CURRENT_VERSION | cut -d. -f4); V4=${V4:-0}
+          v1=$(echo $currentversion | cut -d. -f1); v1=${v1:-0}
+          v2=$(echo $currentversion | cut -d. -f2); v2=${v2:-0}
+          v3=$(echo $currentversion | cut -d. -f3); v3=${v3:-0}
+          v4=$(echo $currentversion | cut -d. -f4); v4=${v4:-0}
           
-          V4=$((V4 + 1))
+          v4=$((v4 + 1))
+
+          fix_version_name() {
+            declare -n first=$1
+            declare -n second=$2
+            if [ "$first" -gt 9 ]; then
+               first=0
+               second=$((second + 1))
+            fi
+          }
+          fix_version_name v4 v3
+          fix_version_name v3 v2
+          fix_version_name v2 v1
+          newversion="$v1.$v2.$v3.$v4"
           
-          if [ "$V4" -gt 9 ]; then
-            V4=0
-            V3=$((V3 + 1))
-          fi
-          if [ "$V3" -gt 9 ]; then
-            V3=0
-            V2=$((V2 + 1))
-          fi
-          if [ "$V2" -gt 9 ]; then
-            V2=0
-            V1=$((V1 + 1))
-          fi
-          
-          NEW_VERSION="$V1.$V2.$V3.$V4"
-          
-          sed -i "s/let version = \"$CURRENT_VERSION\"/let version = \"$NEW_VERSION\"/" $FILE_PATH
+          sed -i "s/let version = \"$currentversion\"/let version = \"$newversion\"/" "$filepath"
 
       - name: sync electron versions to arm64 json
         run: |
