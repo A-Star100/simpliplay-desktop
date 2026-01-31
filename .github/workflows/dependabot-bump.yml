@@ -15,36 +15,55 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Increment Main.js Version
+      - name: increment ver in main.js
         run: |
           FILE_PATH="simpliplay/main.js"
+          
           CURRENT_VERSION=$(grep -oP 'let version = "\K[^"]+' $FILE_PATH)
-          BASE_VERSION=$(echo $CURRENT_VERSION | cut -d. -f1-3)
-          LAST_DIGIT=$(echo $CURRENT_VERSION | cut -d. -f4)
-          NEW_LAST_DIGIT=$((LAST_DIGIT + 1))
-          NEW_VERSION="$BASE_VERSION.$NEW_LAST_DIGIT"
+          
+          V1=$(echo $CURRENT_VERSION | cut -d. -f1); V1=${V1:-0}
+          V2=$(echo $CURRENT_VERSION | cut -d. -f2); V2=${V2:-0}
+          V3=$(echo $CURRENT_VERSION | cut -d. -f3); V3=${V3:-0}
+          V4=$(echo $CURRENT_VERSION | cut -d. -f4); V4=${V4:-0}
+          
+          V4=$((V4 + 1))
+          
+          if [ "$V4" -gt 9 ]; then
+            V4=0
+            V3=$((V3 + 1))
+          fi
+          if [ "$V3" -gt 9 ]; then
+            V3=0
+            V2=$((V2 + 1))
+          fi
+          if [ "$V2" -gt 9 ]; then
+            V2=0
+            V1=$((V1 + 1))
+          fi
+          
+          NEW_VERSION="$V1.$V2.$V3.$V4"
+          
           sed -i "s/let version = \"$CURRENT_VERSION\"/let version = \"$NEW_VERSION\"/" $FILE_PATH
 
-      - name: Sync Electron Versions to ARM64 JSON
+      - name: sync electron versions to arm64 json
         run: |
-          # Extract the new versions Dependabot just put in the main package.json
           NEW_ELECTRON=$(jq -r '.dependencies.electron' simpliplay/package.json)
           NEW_BUILDER=$(jq -r '.dependencies["electron-builder"]' simpliplay/package.json)
           
-          # Update ONLY those fields in the ARM64 file without touching other params
+          # update only that stuff in the ARM64 json without touching other params
           ARM_FILE="package-arm64-linux.json"
           if [ -f "$ARM_FILE" ]; then
             tmp=$(mktemp)
             jq --arg env "$NEW_ELECTRON" --arg bld "$NEW_BUILDER" \
                '.dependencies.electron = $env | .dependencies["electron-builder"] = $bld' \
                "$ARM_FILE" > "$tmp" && mv "$tmp" "$ARM_FILE"
-            echo "✅ Synced Electron $NEW_ELECTRON and Builder $NEW_BUILDER to $ARM_FILE"
+            echo "Synced Electron $NEW_ELECTRON and Builder $NEW_BUILDER to $ARM_FILE"
           fi
 
-      - name: Commit and Push
+      - name: commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add simpliplay/main.js package-arm64-linux.json
-          git commit -m "chore: auto-increment version and sync linux arm64 json's dependencies"
+          git commit -m "chore: auto-increment version and sync linux arm64 json dependencies"
           git push
