@@ -62,12 +62,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          main_code="simpliplay/main.js"
-          arm_manifest="simpliplay/package-arm64-linux.json"
-          git add "$main_code" "$arm_manifest" --force
+          
+          cd simpliplay
+          git add main.js package-arm64-linux.json
+          
+          cd ..
+          
           if ! git diff-index --quiet HEAD; then
             git commit -m "chore: auto-increment version and sync linux arm64 json dependencies"
             git push origin HEAD:${{ github.event.pull_request.head.ref }}
           else
-            echo "everything's up to date already"
+            echo "well, nothing was changed. bye i guess"
           fi
