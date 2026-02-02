@@ -63,14 +63,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          cd simpliplay
-          git add main.js package-arm64-linux.json
+          git update-index --refresh || true
+
+          REPO_ROOT=$(git rev-parse --show-toplevel)
           
-          cd ..
-          
+          git add "$REPO_ROOT/simpliplay/main.js" "$REPO_ROOT/simpliplay/package-arm64-linux.json"
+
           if ! git diff-index --quiet HEAD; then
             git commit -m "chore: auto-increment version and sync linux arm64 json dependencies"
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
+            git push origin HEAD:${{ github.ref_name }}
           else
-            echo "well, nothing was changed. bye i guess"
+            echo "there's nothing to commit - make a change and try again dude"
           fi
