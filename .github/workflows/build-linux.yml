@@ -257,7 +257,7 @@ jobs:
       
   #         APPIMAGE_NAME=$(basename simpliplay/dist/*.AppImage)
       
-  #         # Prepare parts folder and copy AppImage there (idempotent)
+  #         # commence the preperation, my friend
   #         mkdir -p snap/parts/appimage
   #         cp -f "simpliplay/dist/${APPIMAGE_NAME}" snap/parts/appimage/
       
@@ -347,7 +347,7 @@ jobs:
 
       - run: sudo snap install core22
 
-      - name: Build armv7 snap
+      - name: Build ARMv7 Snap
         run: npx electron-builder --linux snap --armv7l
         working-directory: simpliplay
         
