@@ -34,7 +34,7 @@ jobs:
         run: npx electron-builder --linux snap AppImage --x64
         working-directory: simpliplay
 
-## what is below is OLD FLATPAK CODE there is a new flatpak being built in its own repository planned to be published on Flathub soon!
+## what is below is OLD FLATPAK CODE there is a new flatpak on its own repository that is being published to Flathub
       #- name: Create unpacked build for Flatpak
         #run: npx electron-builder --linux --x64 --dir
         #working-directory: simpliplay
@@ -143,7 +143,8 @@ jobs:
 
       - run: sudo snap install core22
 
-      - run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
+      - name: build snap
+        run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
 
       - uses: actions/upload-artifact@v4
@@ -176,7 +177,7 @@ jobs:
           # Save original
           cp simpliplay/package.json simpliplay/package.json.orig
       
-          # Check if jq is installed; install if missing
+          # this is overly safe, but it checks if jq is installed on the runner (some runners may lack it)
           if ! command -v jq &> /dev/null
           then
             echo "jq not found, installing..."
@@ -184,10 +185,10 @@ jobs:
             sudo apt-get install -y jq
           fi
       
-          # Patch package.json to use Electron v3.1
+          # patch package.json to use Electron v3.1
           jq '.devDependencies.electron="3.1.13"' simpliplay/package.json.orig > simpliplay/package.i386.json
       
-          # Replace package.json for the i386 build
+          # replace package.json for the i386 build
           mv simpliplay/package.i386.json simpliplay/package.json
   
       - run: npm install
@@ -250,7 +251,7 @@ jobs:
       
   #         # Ensure we have an AppImage
   #         if ! ls simpliplay/dist/*.AppImage >/dev/null 2>&1; then
-  #           echo "❌ No AppImage found in simpliplay/dist"
+  #           echo "no AppImage found in simpliplay/dist"
   #           exit 1
   #         fi
       
@@ -291,7 +292,7 @@ jobs:
   #         echo "  simpliplay:" >> snap/snapcraft.yaml
   #         echo "    command: bin/simpliplay" >> snap/snapcraft.yaml
       
-  #         echo "✅ Generated snap/snapcraft.yaml and staged AppImage: ${APPIMAGE_NAME}"
+  #         echo "generated snap/snapcraft.yaml and staged AppImage: ${APPIMAGE_NAME}"
 
 
   #     - name: Build ARMv7 wrapper Snap
@@ -346,7 +347,8 @@ jobs:
 
       - run: sudo snap install core22
 
-      - run: npx electron-builder --linux snap --armv7l
+      - name: Build armv7 snap
+        run: npx electron-builder --linux snap --armv7l
         working-directory: simpliplay
         
       - name: Upload ARMv7 Snap         
