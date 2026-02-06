@@ -1,4 +1,4 @@
-name: Dependabot version Bump
+name: Dependabot Version Bump
 on:
   pull_request:
     branches: [ main ]
@@ -15,10 +15,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: increment ver in main.js
+      - name: Increment version in main.js
         run: |
           filepath="simpliplay/main.js"
-          
           currentversion=$(grep -oP 'let version = "\K[^"]+' $filepath)
           
           v1=$(echo $currentversion | cut -d. -f1); v1=${v1:-0}
@@ -28,50 +27,33 @@ jobs:
           
           v4=$((v4 + 1))
 
-          fix_version_name() {
-            declare -n first=$1
-            declare -n second=$2
-            if [ "$first" -gt 9 ]; then
-               first=0
-               second=$((second + 1))
-            fi
-          }
-          fix_version_name v4 v3
-          fix_version_name v3 v2
-          fix_version_name v2 v1
+          if [ "$v4" -gt 9 ]; then v4=0; v3=$((v3 + 1)); fi
+          if [ "$v3" -gt 9 ]; then v3=0; v2=$((v2 + 1)); fi
+          if [ "$v2" -gt 9 ]; then v2=0; v1=$((v1 + 1)); fi
+
           newversion="$v1.$v2.$v3.$v4"
-          
           sed -i "s/let version = \"$currentversion\"/let version = \"$newversion\"/" "$filepath"
 
-      - name: sync electron versions to arm64 json
+      - name: Sync electron versions
         run: |
           NEW_ELECTRON=$(jq -r '.dependencies.electron' simpliplay/package.json)
           NEW_BUILDER=$(jq -r '.dependencies["electron-builder"]' simpliplay/package.json)
-          
-          # update only that stuff in the ARM64 json without touching other params
           ARM_FILE="package-arm64-linux.json"
+          
           if [ -f "$ARM_FILE" ]; then
             tmp=$(mktemp)
             jq --arg env "$NEW_ELECTRON" --arg bld "$NEW_BUILDER" \
                '.dependencies.electron = $env | .dependencies["electron-builder"] = $bld' \
                "$ARM_FILE" > "$tmp" && mv "$tmp" "$ARM_FILE"
-            echo "Synced Electron $NEW_ELECTRON and Builder $NEW_BUILDER to $ARM_FILE"
           fi
 
-      - name: commit and push
+      - name: Commit and Push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add simpliplay/main.js package-arm64-linux.json || true
           
-          git update-index --refresh || true
-
-          REPO_ROOT=$(git rev-parse --show-toplevel)
-          
-          git add "$REPO_ROOT/simpliplay/main.js" "$REPO_ROOT/simpliplay/package-arm64-linux.json"
-
-          if ! git diff-index --quiet HEAD; then
-            git commit -m "chore: auto-increment version and sync linux arm64 json dependencies"
-            git push origin HEAD:${{ github.ref_name }}
-          else
-            echo "there's nothing to commit - make a change and try again dude"
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: auto-increment version and sync dependencies"
+            git push origin HEAD:${{ github.event.pull_request.head.ref }}
           fi
