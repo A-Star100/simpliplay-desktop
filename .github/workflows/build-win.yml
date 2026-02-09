@@ -73,6 +73,9 @@ jobs:
     needs: build-x64
     runs-on: windows-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Download x64 artifact
         shell: bash
         run: gh run download ${{ github.run_id }} --pattern "builds-x64" --dir test-dist
@@ -103,6 +106,9 @@ jobs:
     needs: build-arm64
     runs-on: windows-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Download arm64 artifact
         shell: bash
         run: gh run download ${{ github.run_id }} --pattern "builds-arm64" --dir test-dist
