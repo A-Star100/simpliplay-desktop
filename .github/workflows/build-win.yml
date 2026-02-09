@@ -100,7 +100,7 @@ jobs:
 
   test-windows-arm64:
     name: Test Windows arm64
-    needs: build-x64
+    needs: build-arm64
     runs-on: windows-latest
     steps:
       - name: Download arm64 artifact
