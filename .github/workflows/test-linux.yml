@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          LIB_ASOUND=$([[ "${{ matrix.arch }}" == "x64" ]] && echo "libasound2t64" || echo "libasound2")
+          LIB_ASOUND: ${{ matrix.arch == 'x86_64' && 'libasound2t64' || 'libasound2' }}
           sudo apt-get install -y xvfb libgbm1 $LIB_ASOUND
 
       - name: Download artifact
