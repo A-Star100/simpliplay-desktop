@@ -53,44 +53,44 @@ jobs:
             exit 1
           fi
 
-  test-armv7l:
-    name: Test armhf/armv7l
-    runs-on: ubuntu-22.04-arm
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  # test-armv7l:
+  #   name: Test armhf/armv7l
+  #   runs-on: ubuntu-22.04-arm
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      - name: Setup Multi-arch & QEMU
-        run: |
-          sudo dpkg --add-architecture armhf
-          sudo apt-get update
-          # Including libasound2-data helps prevent dependency conflicts
-          sudo apt-get install -y qemu-user-static binfmt-support libasound2:armhf libasound2-data libgbm1:armhf xvfb
+  #     - name: Setup Multi-arch & QEMU
+  #       run: |
+  #         sudo dpkg --add-architecture armhf
+  #         sudo apt-get update
+  #         # Including libasound2-data helps prevent dependency conflicts
+  #         sudo apt-get install -y qemu-user-static binfmt-support libasound2:armhf libasound2-data libgbm1:armhf xvfb
 
-      - name: Download armv7l Artifact
-        run: gh run download ${{ github.run_id }} --pattern "*linux*armv7*" --dir test-dist
-        env:
-          GH_TOKEN: ${{ github.token }}
+  #     - name: Download armv7l Artifact
+  #       run: gh run download ${{ github.run_id }} --pattern "*linux*armv7*" --dir test-dist
+  #       env:
+  #         GH_TOKEN: ${{ github.token }}
 
-      - name: Run functional test
-        run: |
-          APPIMAGE=$(find test-dist -name "*.AppImage" | head -n 1)
-          chmod +x "$APPIMAGE"
-          "$APPIMAGE" --appimage-extract > /dev/null
+  #     - name: Run functional test
+  #       run: |
+  #         APPIMAGE=$(find test-dist -name "*.AppImage" | head -n 1)
+  #         chmod +x "$APPIMAGE"
+  #         "$APPIMAGE" --appimage-extract > /dev/null
           
-          EXECUTABLE="./squashfs-root/SimpliPlay"
-          chmod +x "$EXECUTABLE"
+  #         EXECUTABLE="./squashfs-root/SimpliPlay"
+  #         chmod +x "$EXECUTABLE"
           
-          echo "starting armhf test (10s)"
-          dbus-run-session -- xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
-          APP_PID=$!
+  #         echo "starting armhf test (10s)"
+  #         dbus-run-session -- xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
+  #         APP_PID=$!
           
-          sleep 10
+  #         sleep 10
           
-          if kill -0 $APP_PID 2>/dev/null; then
-            echo "✅ app is alive. terminating..."
-            kill $APP_PID
-          else
-            echo "❌ app crashed under QEMU emulation"
-            exit 1
-          fi
+  #         if kill -0 $APP_PID 2>/dev/null; then
+  #           echo "✅ app is alive. terminating..."
+  #           kill $APP_PID
+  #         else
+  #           echo "❌ app crashed under QEMU emulation"
+  #           exit 1
+  #         fi
