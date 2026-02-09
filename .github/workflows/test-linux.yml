@@ -37,7 +37,7 @@ jobs:
           EXECUTABLE="./squashfs-root/SimpliPlay"
           chmod +x "$EXECUTABLE"
           
-          xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
+          dbus-run-session -- xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
           APP_PID=$!
           
           sleep 10
@@ -79,7 +79,7 @@ jobs:
           chmod +x "$EXECUTABLE"
           
           echo "starting armhf test (10s)"
-          xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
+          dbus-run-session -- xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
           APP_PID=$!
           
           sleep 10
