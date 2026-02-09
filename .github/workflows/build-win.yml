@@ -85,16 +85,30 @@ jobs:
       - name: Run functional test
         shell: bash
         run: |
-          EXE_PATH=$(find test-dist -name "*.exe" ! -name "*Setup*" ! -name "*Update*" | head -n 1)
+          EXE_PATH=$(find test-dist -ipath "*unpacked/*.exe" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
+
+          if [ -z "$EXE_PATH" ]; then
+            echo "unpacked binary not found, searching general dist..."
+            EXE_PATH=$(find test-dist -name "*.exe" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
+          fi
           
-          echo "found binary at: $EXE_PATH"
+          if [ -z "$EXE_PATH" ]; then
+            echo "❌ no binary was found"
+            exit 1
+          fi
+
+          echo "Testing binary at: $EXE_PATH"
+          
+          # Use the full path for PowerShell
+          FULL_PATH=$(realpath "$EXE_PATH")
           
           powershell -Command "& {
-            \$p = Start-Process '$EXE_PATH' -PassThru -ArgumentList '--no-sandbox';
+            \$p = Start-Process '$FULL_PATH' -PassThru -ArgumentList '--no-sandbox';
             Start-Sleep -Seconds 10;
             if (\$p -and !\$p.HasExited) {
               Write-Host '✅ app is alive. now terminating...';
-              Stop-Process -Id \$p.Id -Force
+              Stop-Process -Id \$p.Id -Force;
+              exit 0
             } else {
               Write-Error '❌ app crashed or closed too soon';
               exit 1
@@ -118,16 +132,30 @@ jobs:
       - name: Run functional test
         shell: bash
         run: |
-          EXE_PATH=$(find test-dist -name "*.exe" ! -name "*Setup*" ! -name "*Update*" | head -n 1)
+          EXE_PATH=$(find test-dist -ipath "*unpacked/*.exe" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
+
+          if [ -z "$EXE_PATH" ]; then
+            echo "unpacked binary not found, searching general dist..."
+            EXE_PATH=$(find test-dist -name "*.exe" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
+          fi
           
-          echo "found binary at: $EXE_PATH"
+          if [ -z "$EXE_PATH" ]; then
+            echo "❌ no binary was found"
+            exit 1
+          fi
+
+          echo "Testing binary at: $EXE_PATH"
+          
+          # Use the full path for PowerShell
+          FULL_PATH=$(realpath "$EXE_PATH")
           
           powershell -Command "& {
-            \$p = Start-Process '$EXE_PATH' -PassThru -ArgumentList '--no-sandbox';
+            \$p = Start-Process '$FULL_PATH' -PassThru -ArgumentList '--no-sandbox';
             Start-Sleep -Seconds 10;
             if (\$p -and !\$p.HasExited) {
               Write-Host '✅ app is alive. now terminating...';
-              Stop-Process -Id \$p.Id -Force
+              Stop-Process -Id \$p.Id -Force;
+              exit 0
             } else {
               Write-Error '❌ app crashed or closed too soon';
               exit 1
