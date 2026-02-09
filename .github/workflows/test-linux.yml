@@ -8,6 +8,9 @@ jobs:
     name: Test x86_64
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Download x64 Artifact
         run: gh run download ${{ github.run_id }} --pattern "*linux*x64*" --dir test-dist
         env:
@@ -22,9 +25,11 @@ jobs:
 
   test-arm64:
     name: Test arm64
-    # Note: Running on native ARM runners means we don't need QEMU
+    # no QEMU! native ARM! YEAAHHHHH
     runs-on: ubuntu-22.04-arm
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Download arm64 Artifact
         run: gh run download ${{ github.run_id }} --pattern "*linux*arm64*" --dir test-dist
         env:
@@ -39,8 +44,12 @@ jobs:
 
   test-armv7l:
     name: Test armhf/armv7l
+    # we need QEMU here for stability (sigh)
     runs-on: ubuntu-22.04-arm
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4'
+      
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Download armv7l Artifact
