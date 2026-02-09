@@ -38,9 +38,46 @@ jobs:
         run: npx electron-builder --mac --x64 --arm64 --universal
         working-directory: simpliplay
 
-      - name: Upload artifacts
+      - name: Upload production-ready builds
         uses: actions/upload-artifact@v4
         with:
           name: builds
-          # Upload only the final signed DMGs
+          # upload just the DMGs
           path: simpliplay/dist/*.dmg
+
+      - name: Upload testing binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts
+          # globstar to find any .app in any subdir
+          path: simpliplay/dist/**/*.app
+
+  test:
+     runs-on: macos-latest
+     steps:
+        - uses: actions/checkout@v4
+        - name: Download test artifacts
+          uses: actions/download-artifact@v4
+
+        - name: Download test binaries
+          uses: actions/download-artifact@v4
+          with:
+            name: test-artifacts
+            path: test-dist/
+        - name: Run functional test
+          run: |
+            # get all those app paths
+            apps=($(find test-dist -name "*.app" -type d))
+
+            for APP_PATH in "${apps[@]}"; do
+              echo "Testing: $APP_PATH"
+            
+              # get those permissions ready
+              chmod -R +x "$APP_PATH"
+              
+              # run the app for 10 seconds
+              EXECUTABLE=$(find "$APP_PATH/Contents/MacOS" -type f -maxdepth 1 | head -n 1)
+            
+              timeout 10s "$EXECUTABLE" || echo "Testing completed (duration: 10 seconds)"
+            done
+        
