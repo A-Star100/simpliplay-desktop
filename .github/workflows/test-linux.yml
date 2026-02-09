@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          LIB_ASOUND=$([[ "${{ matrix.arch }}" == "x86_64" ]] && echo "libasound2t64" || echo "libasound2")
+          LIB_ASOUND=$([[ "${{ matrix.arch }}" == "x64" ]] && echo "libasound2t64" || echo "libasound2")
           sudo apt-get install -y xvfb libgbm1 $LIB_ASOUND
 
       - name: Download artifact
@@ -64,7 +64,7 @@ jobs:
           sudo apt-get install -y qemu-user-static binfmt-support libasound2:armhf libasound2-data libgbm1:armhf xvfb
 
       - name: Download armv7l Artifact
-        run: gh run download ${{ github.run_id }} --pattern "*linux*armv7l*" --dir test-dist
+        run: gh run download ${{ github.run_id }} --pattern "*linux*armv7*" --dir test-dist
         env:
           GH_TOKEN: ${{ github.token }}
 
