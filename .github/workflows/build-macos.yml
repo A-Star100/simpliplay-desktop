@@ -45,20 +45,26 @@ jobs:
           # upload just the DMGs
           path: simpliplay/dist/*.dmg
 
+      - name: Prepare Test Archive
+        run: |
+          # Using ditto ensures macOS-specific metadata and symlinks are preserved
+          cd simpliplay/dist
+          # This finds the app and zips it into a single file
+          find . -name "*.app" -exec ditto -c -k --sequesterRsrc --keepParent "{}" test-app.zip \;
+
       - name: Upload testing binaries
         uses: actions/upload-artifact@v4
         with:
           name: test-artifacts
-          # globstar to find any .app in any subdir
-          path: simpliplay/dist/**/*.app
-
+          path: simpliplay/dist/test-app.zip
+      
   test:
-     runs-on: macos-latest
-     needs: [build]
-     steps:
+      runs-on: macos-latest
+      needs: [build]
+      steps:
         - name: Checkout repository
           uses: actions/checkout@v4
-
+      
         - name: Download test binaries
           uses: actions/download-artifact@v4
           with:
@@ -68,16 +74,16 @@ jobs:
           run: |
             # get all those app paths
             apps=($(find test-dist -name "*.app" -type d))
-
+      
             for APP_PATH in "${apps[@]}"; do
               echo "Testing: $APP_PATH"
-            
+                  
               # get those permissions ready
               chmod -R +x "$APP_PATH"
-              
+                    
               # run the app for 10 seconds
               EXECUTABLE=$(find "$APP_PATH/Contents/MacOS" -type f -maxdepth 1 | head -n 1)
-            
-              timeout 10s "$EXECUTABLE" || echo "Testing completed (duration: 10 seconds)"
-            done
-        
+                  
+                    timeout 10s "$EXECUTABLE" || echo "Testing completed (duration: 10 seconds)"
+                  done
+              
