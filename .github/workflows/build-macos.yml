@@ -56,9 +56,8 @@ jobs:
      runs-on: macos-latest
      needs: [build]
      steps:
-        - uses: actions/checkout@v4
-        - name: Download test artifacts
-          uses: actions/download-artifact@v4
+        - name: Checkout repository
+          uses: actions/checkout@v4
 
         - name: Download test binaries
           uses: actions/download-artifact@v4
