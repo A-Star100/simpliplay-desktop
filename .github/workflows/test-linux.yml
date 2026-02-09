@@ -4,54 +4,65 @@ on:
   workflow_call:
 
 jobs:
-  test-x86_64:
-    name: Test x86_64
-    runs-on: ubuntu-latest
+  test-linux:
+    name: Test ${{ matrix.arch }}
+    runs-on: ${{ matrix.arch == 'x86_64' && 'ubuntu-latest' || 'ubuntu-22.04-arm' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      - name: Download x64 Artifact
-        run: gh run download ${{ github.run_id }} --pattern "*linux*x64*" --dir test-dist
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          LIB_ASOUND=$([[ "${{ matrix.arch }}" == "x86_64" ]] && echo "libasound2t64" || echo "libasound2")
+          sudo apt-get install -y xvfb libgbm1 $LIB_ASOUND
+
+      - name: Download artifact
+        run: gh run download ${{ github.run_id }} --pattern "*linux*${{ matrix.arch }}*" --dir test-dist
         env:
           GH_TOKEN: ${{ github.token }}
 
       - name: Run functional test
+        shell: bash
         run: |
-          sudo apt-get update && sudo apt-get install -y xvfb libgbm1 libasound2t64
-          BIN=$(find test-dist -name "*.AppImage" | head -n 1)
-          chmod +x "$BIN"
-          xvfb-run --auto-servernum "$BIN" --no-sandbox & sleep 10; kill $! || true
-
-  test-arm64:
-    name: Test arm64
-    # no QEMU! native ARM! YEAAHHHHH
-    runs-on: ubuntu-22.04-arm
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Download arm64 Artifact
-        run: gh run download ${{ github.run_id }} --pattern "*linux*arm64*" --dir test-dist
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Run functional test
-        run: |
-          sudo apt-get update && sudo apt-get install -y xvfb libgbm1 libasound2t64
-          BIN=$(find test-dist -name "*.AppImage" | head -n 1)
-          chmod +x "$BIN"
-          xvfb-run --auto-servernum "$BIN" --no-sandbox & sleep 10; kill $! || true
+          APPIMAGE=$(find test-dist -name "*.AppImage" | head -n 1)
+          chmod +x "$APPIMAGE"
+          "$APPIMAGE" --appimage-extract
+          
+          EXECUTABLE="./squashfs-root/SimpliPlay"
+          chmod +x "$EXECUTABLE"
+          
+          xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
+          APP_PID=$!
+          
+          sleep 10
+          if kill -0 $APP_PID 2>/dev/null; then
+            echo "✅ app is alive. terminating..."
+            kill $APP_PID
+          else
+            echo "❌ app crashed or closed too soon"
+            exit 1
+          fi
 
   test-armv7l:
     name: Test armhf/armv7l
-    # we need QEMU here for stability (sigh)
     runs-on: ubuntu-22.04-arm
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+
+      - name: Setup Multi-arch & QEMU
+        run: |
+          sudo dpkg --add-architecture armhf
+          sudo apt-get update
+          # qemu-user-static allows the 64-bit kernel to run 32-bit binaries
+          sudo apt-get install -y qemu-user-static binfmt-support libasound2:armhf libgbm1:armhf xvfb
+
       - name: Download armv7l Artifact
         run: gh run download ${{ github.run_id }} --pattern "*linux*armv7l*" --dir test-dist
         env:
@@ -59,7 +70,20 @@ jobs:
 
       - name: Run functional test
         run: |
-          sudo apt-get update && sudo apt-get install -y xvfb libgbm1 libasound2
-          BIN=$(find test-dist -name "*.AppImage" | head -n 1)
-          chmod +x "$BIN"
-          xvfb-run --auto-servernum "$BIN" --no-sandbox & sleep 10; kill $! || true
+          APPIMAGE=$(find test-dist -name "*.AppImage" | head -n 1)
+          chmod +x "$APPIMAGE"
+          "$APPIMAGE" --appimage-extract
+          
+          echo "starting armhf test"
+          xvfb-run --auto-servernum ./squashfs-root/SimpliPlay --no-sandbox &
+          APP_PID=$!
+          
+          sleep 10
+          
+          if kill -0 $APP_PID 2>/dev/null; then
+            echo "✅ armhf app is alive. terminating..."
+            kill $APP_PID
+          else
+            echo "❌ app crashed under emulation"
+            exit 1
+          fi
