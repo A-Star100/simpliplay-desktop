@@ -72,16 +72,26 @@ jobs:
             path: test-dist/
         - name: Run functional test
           run: |
-              apps=($(find test-dist -name "*.app" -maxdepth 2 -type d))
+            find test-dist -name "*.app" -type d | while read -r APP_PATH; do
+              EXECUTABLE="$APP_PATH/Contents/MacOS/SimpliPlay"
               
-              for APP_PATH in "${apps[@]}"; do
-                EXECUTABLE="$APP_PATH/Contents/MacOS/SimpliPlay"
+              if [ -f "$EXECUTABLE" ]; then
                 chmod +x "$EXECUTABLE"
-                
                 echo "testing $EXECUTABLE"
-                "$EXECUTABLE" --no-sandbox & 
+                
+                "$EXECUTABLE" --no-sandbox &
                 APP_PID=$!
+                
                 sleep 10
-                kill $APP_PID || echo "App already exited"
-              done
-              
+                
+                if kill -0 $APP_PID 2>/dev/null; then
+                  echo "✅ app is alive. terminating..."
+                  kill -9 $APP_PID
+                else
+                  echo "❌ app crashed or closed too soon"
+                  exit 1
+                fi
+              else
+                echo "⚠️ Found .app at $APP_PATH but no binary at $EXECUTABLE"
+              fi
+            done
