@@ -72,18 +72,16 @@ jobs:
             path: test-dist/
         - name: Run functional test
           run: |
-            # get all those app paths
-            apps=($(find test-dist -name "*.app" -type d))
-      
-            for APP_PATH in "${apps[@]}"; do
-              echo "Testing: $APP_PATH"
-                  
-              # get those permissions ready
-              chmod -R +x "$APP_PATH"
-                    
-              # run the app for 10 seconds
-              EXECUTABLE=$(find "$APP_PATH/Contents/MacOS" -type f -maxdepth 1 | head -n 1)
-                  
-                    timeout 10s "$EXECUTABLE" || echo "Testing completed (duration: 10 seconds)"
-                  done
+              apps=($(find test-dist -name "*.app" -maxdepth 2 -type d))
+              
+              for APP_PATH in "${apps[@]}"; do
+                EXECUTABLE="$APP_PATH/Contents/MacOS/SimpliPlay"
+                chmod +x "$EXECUTABLE"
+                
+                echo "testing $EXECUTABLE"
+                "$EXECUTABLE" --no-sandbox & 
+                APP_PID=$!
+                sleep 10
+                kill $APP_PID || echo "App already exited"
+              done
               
