@@ -60,8 +60,8 @@ jobs:
         run: |
           sudo dpkg --add-architecture armhf
           sudo apt-get update
-          # qemu-user-static allows the 64-bit kernel to run 32-bit binaries
-          sudo apt-get install -y qemu-user-static binfmt-support libasound2:armhf libgbm1:armhf xvfb
+          # Including libasound2-data helps prevent dependency conflicts
+          sudo apt-get install -y qemu-user-static binfmt-support libasound2:armhf libasound2-data libgbm1:armhf xvfb
 
       - name: Download armv7l Artifact
         run: gh run download ${{ github.run_id }} --pattern "*linux*armv7l*" --dir test-dist
@@ -72,16 +72,20 @@ jobs:
         run: |
           APPIMAGE=$(find test-dist -name "*.AppImage" | head -n 1)
           chmod +x "$APPIMAGE"
-          "$APPIMAGE" --appimage-extract
+          "$APPIMAGE" --appimage-extract > /dev/null
           
-          echo "starting armhf test"
-          xvfb-run --auto-servernum ./squashfs-root/SimpliPlay --no-sandbox &
+          # Use a variable for consistency and ensure it is executable
+          EXECUTABLE="./squashfs-root/SimpliPlay"
+          chmod +x "$EXECUTABLE"
+          
+          echo "starting armhf test (10s)"
+          xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
           APP_PID=$!
           
           sleep 10
           
           if kill -0 $APP_PID 2>/dev/null; then
-            echo "✅ armhf app is alive. terminating..."
+            echo "✅ app is alive. terminating..."
             kill $APP_PID
           else
             echo "❌ app crashed under emulation"
