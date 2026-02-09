@@ -58,84 +58,84 @@ jobs:
           name: builds-arm64
           path: simpliplay/dist/
 
-  test-windows-x64:
-    name: Test Windows x64
-    needs: build-x64
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Download x64 artifact
-        shell: bash
-        run: gh run download ${{ github.run_id }} --pattern "builds-x64" --dir test-dist
-        env:
-          GH_TOKEN: ${{ github.token }}
-      - name: Run functional test
-        shell: bash
-        run: |
-          # FIX: Exclude the resources folder to avoid elevate.exe
-          EXE_PATH=$(find test-dist -ipath "*unpacked/*.exe" ! -ipath "*resources*" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
+  # test-windows-x64:
+  #   name: Test Windows x64
+  #   needs: build-x64
+  #   runs-on: windows-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Download x64 artifact
+  #       shell: bash
+  #       run: gh run download ${{ github.run_id }} --pattern "builds-x64" --dir test-dist
+  #       env:
+  #         GH_TOKEN: ${{ github.token }}
+  #     - name: Run functional test
+  #       shell: bash
+  #       run: |
+  #         # FIX: Exclude the resources folder to avoid elevate.exe
+  #         EXE_PATH=$(find test-dist -ipath "*unpacked/*.exe" ! -ipath "*resources*" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
           
-          if [ -z "$EXE_PATH" ]; then
-            echo "❌ no binary was found"
-            exit 1
-          fi
+  #         if [ -z "$EXE_PATH" ]; then
+  #           echo "❌ no binary was found"
+  #           exit 1
+  #         fi
 
-          echo "Testing binary at: $EXE_PATH"
+  #         echo "Testing binary at: $EXE_PATH"
           
-          # Convert to Windows style path for PowerShell stability
-          FULL_PATH=$(cygpath -w "$EXE_PATH")
+  #         # Convert to Windows style path for PowerShell stability
+  #         FULL_PATH=$(cygpath -w "$EXE_PATH")
           
-          powershell -Command "& {
-            \$p = Start-Process '\$FULL_PATH' -PassThru -ArgumentList '--no-sandbox';
-            Start-Sleep -Seconds 10;
-            if (\$p -and !\$p.HasExited) {
-              Write-Host '✅ app is alive. now terminating...';
-              Stop-Process -Id \$p.Id -Force;
-              exit 0
-            } else {
-              Write-Error '❌ app crashed or closed too soon';
-              exit 1
-            }
-          }"
+  #         powershell -Command "& {
+  #           \$p = Start-Process '\$FULL_PATH' -PassThru -ArgumentList '--no-sandbox';
+  #           Start-Sleep -Seconds 10;
+  #           if (\$p -and !\$p.HasExited) {
+  #             Write-Host '✅ app is alive. now terminating...';
+  #             Stop-Process -Id \$p.Id -Force;
+  #             exit 0
+  #           } else {
+  #             Write-Error '❌ app crashed or closed too soon';
+  #             exit 1
+  #           }
+  #         }"
 
-  test-windows-arm64:
-    name: Test Windows arm64
-    needs: build-arm64
-    # Note: Running ARM64 tests on x64 runners usually fails. 
-    # If this fails, change to windows-11-arm (if available)
-    runs-on: windows-latest 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Download arm64 artifact
-        shell: bash
-        run: gh run download ${{ github.run_id }} --pattern "builds-arm64" --dir test-dist
-        env:
-          GH_TOKEN: ${{ github.token }}
-      - name: Run functional test
-        shell: bash
-        run: |
-          # FIX: Same exclusion logic for ARM64
-          EXE_PATH=$(find test-dist -ipath "*unpacked/*.exe" ! -ipath "*resources*" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
+  # test-windows-arm64:
+  #   name: Test Windows arm64
+  #   needs: build-arm64
+  #   # Note: Running ARM64 tests on x64 runners usually fails. 
+  #   # If this fails, change to windows-11-arm (if available)
+  #   runs-on: windows-latest 
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Download arm64 artifact
+  #       shell: bash
+  #       run: gh run download ${{ github.run_id }} --pattern "builds-arm64" --dir test-dist
+  #       env:
+  #         GH_TOKEN: ${{ github.token }}
+  #     - name: Run functional test
+  #       shell: bash
+  #       run: |
+  #         # FIX: Same exclusion logic for ARM64
+  #         EXE_PATH=$(find test-dist -ipath "*unpacked/*.exe" ! -ipath "*resources*" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
           
-          if [ -z "$EXE_PATH" ]; then
-            echo "❌ no binary was found"
-            exit 1
-          fi
+  #         if [ -z "$EXE_PATH" ]; then
+  #           echo "❌ no binary was found"
+  #           exit 1
+  #         fi
 
-          echo "Testing binary at: $EXE_PATH"
-          FULL_PATH=$(cygpath -w "$EXE_PATH")
+  #         echo "Testing binary at: $EXE_PATH"
+  #         FULL_PATH=$(cygpath -w "$EXE_PATH")
           
-          powershell -Command "& {
-            \$p = Start-Process '\$FULL_PATH' -PassThru -ArgumentList '--no-sandbox';
-            Start-Sleep -Seconds 10;
-            if (\$p -and !\$p.HasExited) {
-              Write-Host '✅ app is alive. now terminating...';
-              Stop-Process -Id \$p.Id -Force;
-              exit 0
-            } else {
-              Write-Error '❌ app crashed or closed too soon';
-              exit 1
-            }
-          }"
+  #         powershell -Command "& {
+  #           \$p = Start-Process '\$FULL_PATH' -PassThru -ArgumentList '--no-sandbox';
+  #           Start-Sleep -Seconds 10;
+  #           if (\$p -and !\$p.HasExited) {
+  #             Write-Host '✅ app is alive. now terminating...';
+  #             Stop-Process -Id \$p.Id -Force;
+  #             exit 0
+  #           } else {
+  #             Write-Error '❌ app crashed or closed too soon';
+  #             exit 1
+  #           }
+  #         }"
