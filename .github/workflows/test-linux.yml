@@ -88,6 +88,6 @@ jobs:
             echo "✅ app is alive. terminating..."
             kill $APP_PID
           else
-            echo "❌ app crashed under emulation"
+            echo "❌ app crashed under QEMU emulation"
             exit 1
           fi
