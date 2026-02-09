@@ -1,0 +1,56 @@
+name: Test on Linux
+
+on:
+  workflow_call:
+
+jobs:
+  test-x86_64:
+    name: Test x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download x64 Artifact
+        run: gh run download ${{ github.run_id }} --pattern "*linux*x64*" --dir test-dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Run functional test
+        run: |
+          sudo apt-get update && sudo apt-get install -y xvfb libgbm1 libasound2
+          BIN=$(find test-dist -name "*.AppImage" | head -n 1)
+          chmod +x "$BIN"
+          xvfb-run --auto-servernum "$BIN" --no-sandbox & sleep 10; kill $! || true
+
+  test-arm64:
+    name: Test arm64
+    # Note: Running on native ARM runners means we don't need QEMU
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - name: Download arm64 Artifact
+        run: gh run download ${{ github.run_id }} --pattern "*linux*arm64*" --dir test-dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Run functional test
+        run: |
+          sudo apt-get update && sudo apt-get install -y xvfb libgbm1 libasound2
+          BIN=$(find test-dist -name "*.AppImage" | head -n 1)
+          chmod +x "$BIN"
+          xvfb-run --auto-servernum "$BIN" --no-sandbox & sleep 10; kill $! || true
+
+  test-armv7l:
+    name: Test armhf/armv7l
+    runs-on: ubuntu-22.04-arm
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Download armv7l Artifact
+        run: gh run download ${{ github.run_id }} --pattern "*linux*armv7l*" --dir test-dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Run functional test
+        run: |
+          sudo apt-get update && sudo apt-get install -y xvfb libgbm1 libasound2
+          BIN=$(find test-dist -name "*.AppImage" | head -n 1)
+          chmod +x "$BIN"
+          xvfb-run --auto-servernum "$BIN" --no-sandbox & sleep 10; kill $! || true
