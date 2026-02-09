@@ -41,7 +41,7 @@ jobs:
           path: simpliplay/dist/
 
   build-arm64:
-    runs-on: windows-latest
+    runs-on: windows-11-arm
 
     steps:
       - name: Checkout repository
@@ -67,3 +67,63 @@ jobs:
         with:
           name: builds-arm64
           path: simpliplay/dist/
+
+  test-windows-x64:
+    name: Test Windows x64
+    needs: build-x64
+    runs-on: windows-latest
+    steps:
+      - name: Download x64 artifact
+        shell: bash
+        run: gh run download ${{ github.run_id }} --pattern "builds-x64" --dir test-dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Run functional test
+        shell: bash
+        run: |
+          EXE_PATH=$(find test-dist -name "*.exe" ! -name "*Setup*" ! -name "*Update*" | head -n 1)
+          
+          echo "found binary at: $EXE_PATH"
+          
+          powershell -Command "& {
+            \$p = Start-Process '$EXE_PATH' -PassThru -ArgumentList '--no-sandbox';
+            Start-Sleep -Seconds 10;
+            if (\$p -and !\$p.HasExited) {
+              Write-Host '✅ app is alive. now terminating...';
+              Stop-Process -Id \$p.Id -Force
+            } else {
+              Write-Error '❌ app crashed or closed too soon';
+              exit 1
+            }
+          }"
+
+  test-windows-arm64:
+    name: Test Windows arm64
+    needs: build-x64
+    runs-on: windows-latest
+    steps:
+      - name: Download arm64 artifact
+        shell: bash
+        run: gh run download ${{ github.run_id }} --pattern "builds-arm64" --dir test-dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Run functional test
+        shell: bash
+        run: |
+          EXE_PATH=$(find test-dist -name "*.exe" ! -name "*Setup*" ! -name "*Update*" | head -n 1)
+          
+          echo "found binary at: $EXE_PATH"
+          
+          powershell -Command "& {
+            \$p = Start-Process '$EXE_PATH' -PassThru -ArgumentList '--no-sandbox';
+            Start-Sleep -Seconds 10;
+            if (\$p -and !\$p.HasExited) {
+              Write-Host '✅ app is alive. now terminating...';
+              Stop-Process -Id \$p.Id -Force
+            } else {
+              Write-Error '❌ app crashed or closed too soon';
+              exit 1
+            }
+          }"
