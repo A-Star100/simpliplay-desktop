@@ -24,9 +24,11 @@ jobs:
           sudo apt-get install -y xvfb libgbm1 $PKG_ASOUND
 
       - name: Download artifact
-        run: gh run download ${{ github.run_id }} --pattern "*linux*${{ matrix.arch }}*" --dir test-dist
         env:
+          SEARCH_ARCH: ${{ matrix.arch == 'x86_64' && 'x64' || matrix.arch }}
           GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run download ${{ github.run_id }} --pattern "*linux*${SEARCH_ARCH}*" --dir test-dist
 
       - name: Run functional test
         shell: bash
