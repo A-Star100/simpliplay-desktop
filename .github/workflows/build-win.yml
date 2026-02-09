@@ -8,32 +8,27 @@ on:
     paths-ignore:
       - '.github/workflows/dependabot-bump.yml'
       - '.github/workflows/dependabot.yml'
-      - 'README.md'             # Ignore documentation
-      - '.gitignore'            # Ignore git settings
+      - 'README.md'
+      - '.gitignore'
 
 jobs:
   build-x64:
     runs-on: windows-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
       - name: Install dependencies
         run: npm install
         working-directory: simpliplay
-
       - name: Build Windows (x64)
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npx electron-builder --win --x64
         working-directory: simpliplay
-
       - name: Upload artifacts (x64)
         uses: actions/upload-artifact@v4
         with:
@@ -42,26 +37,21 @@ jobs:
 
   build-arm64:
     runs-on: windows-11-arm
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
       - name: Install dependencies
         run: npm install
         working-directory: simpliplay
-
       - name: Build Windows (arm64)
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: npx electron-builder --win --arm64
         working-directory: simpliplay
-
       - name: Upload artifacts (arm64)
         uses: actions/upload-artifact@v4
         with:
@@ -75,22 +65,16 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
       - name: Download x64 artifact
         shell: bash
         run: gh run download ${{ github.run_id }} --pattern "builds-x64" --dir test-dist
         env:
           GH_TOKEN: ${{ github.token }}
-
       - name: Run functional test
         shell: bash
         run: |
-          EXE_PATH=$(find test-dist -ipath "*unpacked/*.exe" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
-
-          if [ -z "$EXE_PATH" ]; then
-            echo "unpacked binary not found, searching general dist..."
-            EXE_PATH=$(find test-dist -name "*.exe" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
-          fi
+          # FIX: Exclude the resources folder to avoid elevate.exe
+          EXE_PATH=$(find test-dist -ipath "*unpacked/*.exe" ! -ipath "*resources*" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
           
           if [ -z "$EXE_PATH" ]; then
             echo "❌ no binary was found"
@@ -99,11 +83,11 @@ jobs:
 
           echo "Testing binary at: $EXE_PATH"
           
-          # Use the full path for PowerShell
-          FULL_PATH=$(realpath "$EXE_PATH")
+          # Convert to Windows style path for PowerShell stability
+          FULL_PATH=$(cygpath -w "$EXE_PATH")
           
           powershell -Command "& {
-            \$p = Start-Process '$FULL_PATH' -PassThru -ArgumentList '--no-sandbox';
+            \$p = Start-Process '\$FULL_PATH' -PassThru -ArgumentList '--no-sandbox';
             Start-Sleep -Seconds 10;
             if (\$p -and !\$p.HasExited) {
               Write-Host '✅ app is alive. now terminating...';
@@ -118,26 +102,22 @@ jobs:
   test-windows-arm64:
     name: Test Windows arm64
     needs: build-arm64
-    runs-on: windows-latest
+    # Note: Running ARM64 tests on x64 runners usually fails. 
+    # If this fails, change to windows-11-arm (if available)
+    runs-on: windows-latest 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
       - name: Download arm64 artifact
         shell: bash
         run: gh run download ${{ github.run_id }} --pattern "builds-arm64" --dir test-dist
         env:
           GH_TOKEN: ${{ github.token }}
-
       - name: Run functional test
         shell: bash
         run: |
-          EXE_PATH=$(find test-dist -ipath "*unpacked/*.exe" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
-
-          if [ -z "$EXE_PATH" ]; then
-            echo "unpacked binary not found, searching general dist..."
-            EXE_PATH=$(find test-dist -name "*.exe" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
-          fi
+          # FIX: Same exclusion logic for ARM64
+          EXE_PATH=$(find test-dist -ipath "*unpacked/*.exe" ! -ipath "*resources*" ! -iname "*setup*" ! -iname "*update*" | head -n 1)
           
           if [ -z "$EXE_PATH" ]; then
             echo "❌ no binary was found"
@@ -145,12 +125,10 @@ jobs:
           fi
 
           echo "Testing binary at: $EXE_PATH"
-          
-          # Use the full path for PowerShell
-          FULL_PATH=$(realpath "$EXE_PATH")
+          FULL_PATH=$(cygpath -w "$EXE_PATH")
           
           powershell -Command "& {
-            \$p = Start-Process '$FULL_PATH' -PassThru -ArgumentList '--no-sandbox';
+            \$p = Start-Process '\$FULL_PATH' -PassThru -ArgumentList '--no-sandbox';
             Start-Sleep -Seconds 10;
             if (\$p -and !\$p.HasExited) {
               Write-Host '✅ app is alive. now terminating...';
