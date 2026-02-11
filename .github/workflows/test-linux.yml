@@ -40,11 +40,11 @@ jobs:
           EXECUTABLE="./squashfs-root/SimpliPlay"
           chmod +x "$EXECUTABLE"
 
-          echo "starting x64/arm64 test (10s)"
+          echo "starting x64/arm64 test (15s)"
           dbus-run-session -- xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
           APP_PID=$!
           
-          sleep 10
+          sleep 15
           if kill -0 $APP_PID 2>/dev/null; then
             echo "✅ app is alive. terminating..."
             kill $APP_PID
@@ -81,11 +81,11 @@ jobs:
   #         EXECUTABLE="./squashfs-root/SimpliPlay"
   #         chmod +x "$EXECUTABLE"
           
-  #         echo "starting armhf test (10s)"
+  #         echo "starting armhf test (15s)"
   #         dbus-run-session -- xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
   #         APP_PID=$!
           
-  #         sleep 10
+  #         sleep 15
           
   #         if kill -0 $APP_PID 2>/dev/null; then
   #           echo "✅ app is alive. terminating..."
