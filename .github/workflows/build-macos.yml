@@ -47,10 +47,10 @@ jobs:
 
       - name: Prepare Test Archive
         run: |
-          # Using ditto ensures macOS-specific metadata and symlinks are preserved
+          # ditto to preserve all that mac metadata stuff
           cd simpliplay/dist
-          # This finds the app and zips it into a single file
-          find . -name "*.app" -exec ditto -c -k --sequesterRsrc --keepParent "{}" test-app.zip \;
+          # zip the app into an uncomfy backpack
+          find . -name "SimpliPlay.app" -exec ditto -c -k --sequesterRsrc --keepParent "{}" test-app.zip \;
 
       - name: Upload testing binaries
         uses: actions/upload-artifact@v4
@@ -72,7 +72,7 @@ jobs:
             path: test-dist/
         - name: Run functional test
           run: |
-            find test-dist -name "*.app" -type d | while read -r APP_PATH; do
+            find test-dist -name "SimpliPlay.app" -type d | while read -r APP_PATH; do
               EXECUTABLE="$APP_PATH/Contents/MacOS/SimpliPlay"
               
               if [ -f "$EXECUTABLE" ]; then
