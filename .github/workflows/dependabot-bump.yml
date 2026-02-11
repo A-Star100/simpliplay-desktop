@@ -36,24 +36,34 @@ jobs:
 
       - name: Sync electron versions
         run: |
-          NEW_ELECTRON=$(jq -r '.dependencies.electron' simpliplay/package.json)
-          NEW_BUILDER=$(jq -r '.dependencies["electron-builder"]' simpliplay/package.json)
-          ARM_FILE="package-arm64-linux.json"
+          NEW_ELECTRON=$(jq -r '.dependencies.electron // .devDependencies.electron' simpliplay/package.json)
+          NEW_BUILDER=$(jq -r '.dependencies["electron-builder"] // .devDependencies["electron-builder"]' simpliplay/package.json)
           
-          if [ -f "$ARM_FILE" ]; then
+          ARM_FILE="simpliplay/package-arm64-linux.json"
+          
+          if [ -f "$ARM_FILE" ] && [ "$NEW_ELECTRON" != "null" ]; then
             tmp=$(mktemp)
             jq --arg env "$NEW_ELECTRON" --arg bld "$NEW_BUILDER" \
                '.dependencies.electron = $env | .dependencies["electron-builder"] = $bld' \
                "$ARM_FILE" > "$tmp" && mv "$tmp" "$ARM_FILE"
+            echo "synced electron ($NEW_ELECTRON) to $ARM_FILE"
+          else
+            echo "error: Could not find versions in package.json or $ARM_FILE is missing"
+            exit 1
           fi
 
       - name: Commit and Push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add simpliplay/main.js package-arm64-linux.json || true
           
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: auto-increment version and sync dependencies"
+          # Use the same exact path here
+          git add simpliplay/main.js simpliplay/package-arm64-linux.json
+
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "chore: auto-increment version and sync linux arm64 json"
+            # Explicitly push to the Dependabot branch
             git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          else
+            echo "Nothing changed, skipping commit."
           fi
