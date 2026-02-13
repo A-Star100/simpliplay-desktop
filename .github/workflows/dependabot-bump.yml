@@ -58,7 +58,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
           # Use the same exact path here
-          git add simpliplay/main.js simpliplay/package-arm64-linux.json
+          git add simpliplay/main.js
 
           if ! git diff-index --quiet HEAD; then
             git commit -m "chore: auto-increment version and sync linux arm64 json"
