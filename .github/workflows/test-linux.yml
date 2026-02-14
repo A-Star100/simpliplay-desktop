@@ -30,7 +30,7 @@ jobs:
         run: |
           gh run download ${{ github.run_id }} --pattern "*linux*${SEARCH_ARCH}*" --dir test-dist
 
-      - name: Run functional test
+      - name: Run launch test
         shell: bash
         run: |
           APPIMAGE=$(find test-dist -name "*.AppImage" | head -n 1)
