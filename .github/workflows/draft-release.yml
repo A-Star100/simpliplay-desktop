@@ -62,8 +62,13 @@ jobs:
           done
 
           rm -f upload-files.txt
-          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.AppImage' \) | grep 'SimpliPlay' > upload-files.txt
 
+          # omit the win-unpacked dirs from getting uploaded
+          find all-artifacts -path '*/win-unpacked' -prune -o \
+          -type f \( -iname '*SimpliPlay*.exe' -o -iname '*SimpliPlay*.dmg' -o -iname '*SimpliPlay*.AppImage' \) \
+          -print > upload-files.txt
+          # bye bye manually filtering them out (man i should have done this sooner...)
+          
           echo "Filtered files to upload:"
           cat upload-files.txt
 
