@@ -8,6 +8,7 @@ let gpuAccel = "";
 let didRegisterShortcuts = false;
 let version = "2.2.0.1"
 
+
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
     app.commandLine.appendSwitch('disable-features', 'Metal');
