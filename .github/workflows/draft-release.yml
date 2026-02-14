@@ -10,23 +10,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare artifacts folder
+      - name: Prepare folder
         run: mkdir -p all-artifacts
 
-      - name: Poll for expected artifacts (this might take a while!)
+      - name: Poll for expected artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # TODO: make this process way better so it doesn't poll inefficiently (right now it takes a while)
           set -e
-          echo "Polling for all the artifacts (15s)"
+          echo "Polling (every 15 seconds) until all required artifacts are available..."
 
-          # the snap artifacts aren't required for releases on github
-          REQUIRED=("linux-x64-appimage" "linux-arm64-appimage" "linux-i386-appimage" "builds" "builds-x64" "builds-arm64" "linux-armv7-appimage")
-          # but unfortunately a long list of appimages are...
+          REQUIRED=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64" "linux-armv7-snap" "linux-armv7-appimage")
 
           while true; do
-            echo "Checking artifacts (this might take  a while)..."
+            echo "⏳ Checking artifacts..."
 
             rm -rf all-artifacts
             mkdir -p all-artifacts
@@ -36,24 +33,24 @@ jobs:
             missing=0
             for ARTIFACT in "${REQUIRED[@]}"; do
               if [ ! -d "all-artifacts/$ARTIFACT" ]; then
-                echo "❌ MISSING: $ARTIFACT"
+                echo "❌ Missing: $ARTIFACT"
                 missing=1
               fi
             done
 
             if [ "$missing" -eq 0 ]; then
-              echo "✅ all required artifacts were found - preparing to upload for draft release"
+              echo "✅ All required artifacts found."
               break
             fi
 
-            echo "🔁 not all artifacts were found, retrying in 15s..."
+            echo "🔁 Not all artifacts were found. Retrying in 15 seconds..."
             sleep 15
           done
 
       - name: Extract ZIP files and prepare list of files to upload
         run: |
           set -e
-          echo "Extracting artifacts and uploading"
+          echo "🔍 Extracting ZIP files and collecting allowed SimpliPlay files..."
 
           find all-artifacts -type f -name '*.zip' | while read -r zipfile; do
             extract_dir="${zipfile%.zip}"
@@ -62,13 +59,8 @@ jobs:
           done
 
           rm -f upload-files.txt
+          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.AppImage' \) | grep 'SimpliPlay' > upload-files.txt
 
-          # omit the win-unpacked dirs from getting uploaded
-          find all-artifacts -path '*/win-unpacked' -prune -o \
-          -type f \( -iname '*SimpliPlay*.exe' -o -iname '*SimpliPlay*.dmg' -o -iname '*SimpliPlay*.AppImage' \) \
-          -print > upload-files.txt
-          # bye bye manually filtering them out (man i should have done this sooner...)
-          
           echo "Filtered files to upload:"
           cat upload-files.txt
 
@@ -85,7 +77,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # TODO: make this cleaner
           set -e
           sanitize_filename() {
             echo "$1" | tr ' ' '-'
