@@ -70,28 +70,25 @@ jobs:
           with:
             name: test-artifacts
             path: test-dist/
-        - name: Run functional test
+        - name: Run launch test
           run: |
             find test-dist -name "SimpliPlay.app" -type d | while read -r APP_PATH; do
-              EXECUTABLE="$APP_PATH/Contents/MacOS/SimpliPlay"
-              
-              if [ -f "$EXECUTABLE" ]; then
-                chmod +x "$EXECUTABLE"
-                echo "testing $EXECUTABLE"
-                
-                "$EXECUTABLE" --no-sandbox &
-                APP_PID=$!
-                
-                sleep 10
-                
-                if kill -0 $APP_PID 2>/dev/null; then
-                  echo "✅ app is alive. terminating..."
-                  kill -9 $APP_PID
-                else
-                  echo "❌ app crashed or closed too soon"
-                  exit 1
-                fi
+              BIN="$APP_PATH/Contents/MacOS/SimpliPlay"
+            
+              echo "launching $BIN"
+            
+              "$BIN" --no-sandbox &
+              PID=$!
+            
+              sleep 15
+            
+              if kill -0 "$PID" 2>/dev/null; then
+                echo "✅ app is alive. terminating..."
+                kill "$PID"
               else
-                echo "⚠️ Found .app at $APP_PATH but no binary at $EXECUTABLE"
+                echo "❌ app crashed or closed too soon"
+                exit 1
               fi
             done
+
+
