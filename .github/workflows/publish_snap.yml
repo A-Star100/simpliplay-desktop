@@ -25,13 +25,15 @@ jobs:
           mkdir -p final-snaps
           # pulls all the snaps
           gh run download --dir final-snaps --pattern "*-snap"
-
+          
+      - name: Install snapcraft CLI
+        run: sudo snap install snapcraft --classic
+        
       - name: Publish to Snap Store
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         run: |
           # well, if no snaps are found, everything will freak out
-          export PATH="/snap/bin:$PATH" # export snapcraft to PATH to avoid a bunch of stupid not found errors...
           shopt -s globstar nullglob
 
           snaps=(final-snaps/**/*.snap)
