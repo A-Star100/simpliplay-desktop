@@ -1,0 +1,34 @@
+name: Manual Snap Upload (Stable)
+on:
+  workflow_dispatch:
+    # pulls latest successful artifacts, for anyone who's reading this anyway
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts for all arches
+        uses: actions/download-artifact@v4
+        with:
+          # matches all the snap artifacts
+          pattern: "*-snap"
+          merge-multiple: true
+          # this MUST be changed if artifact names are changed to not include "-snap"
+
+      - name: Install snapcraft CLI
+        run: sudo snap install snapcraft --classic
+
+      - name: Upload to stable
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+        run: |
+          # verify credentials
+          snapcraft whoami || (echo "Credentials have expired! To renew, run 'snapcraft export-login --snaps simpliplay --expires $(date -v+1y +%Y-%m-%d) snapcraft.login' and update any necessary secrets" && exit 1)
+
+          # get all the snaps and upload to stable!!!
+          for snap_file in *.snap; do
+            echo "Publishing $snap_file to stable channel..."
+            snapcraft upload "$snap_file" --release stable
+          done
+
+          echo "Snap was successfully uploaded, see ya! :D"
