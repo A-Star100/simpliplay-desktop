@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: snap-upload
     steps:
+     # this stops git from whining (phew)
+      - name: Checkout repository
+        uses: actions/checkout@v4
       - name: Download all Snaps
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
