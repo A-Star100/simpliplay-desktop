@@ -21,7 +21,6 @@ jobs:
       - name: Download all Snaps
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        uses: snapcore/action-publish@v1 # REMEMBER thisssss!!!!!!!!
         run: |
           mkdir -p final-snaps
           # pulls all the snaps
@@ -31,6 +30,7 @@ jobs:
         run: sudo snap install snapcraft --classic
         
       - name: Publish to Snap Store
+        uses: snapcore/action-publish@v1 # REMEMBER thisssss!!!!!!!!
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         run: |
