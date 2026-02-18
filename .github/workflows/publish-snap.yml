@@ -32,8 +32,10 @@ jobs:
       - name: Publish to Snap Store
         shell: bash
         env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+          STORE_LOGIN: ${{ secrets.STORE_LOGIN }}
         run: |
+          export SNAPCRAFT_STORE_CREDENTIALS=$(echo "$STORE_LOGIN" | tr -d '\n\r ' | base64 -d) # fix formatting issues
+          # so builds DONT fail
           SNAPS=$(find final-snaps -name "*.snap")
 
           if [ -z "$SNAPS" ]; then
