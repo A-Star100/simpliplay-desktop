@@ -8,7 +8,7 @@ on:
         required: true
         default: 'edge'
         type: choice
-        options: [edge, stable]
+        options: [edge, stable, beta]
 
 jobs:
   publish:
