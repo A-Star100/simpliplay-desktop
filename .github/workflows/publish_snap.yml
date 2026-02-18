@@ -27,12 +27,18 @@ jobs:
           gh run download --dir final-snaps --pattern "*-snap"
 
       - name: Publish to Snap Store
-        # use the official snapcore action
-        uses: snapcore/action-publish@v1
-        # its way better btw
+        shell: bash
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
-        with:
-          # find all the snaps
-          snap: final-snaps/**/*.snap
-          release: ${{ github.event.inputs.channel }}
+        run: |
+          # well, if no snaps are found, everything will freak out
+          shopt -s globstar
+          # nullglob helps this become more graceful
+          
+          # find every single needed .snap
+          for snap_file in final-snaps/**/*.snap; do
+            if [ -f "$snap_file" ]; then
+              echo "Uploading: $snap_file"
+              snapcraft upload "$snap_file" --release ${{ github.event.inputs.channel }} # pick edge or stable, remember that!!!
+            fi
+          done
