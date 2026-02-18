@@ -1,4 +1,4 @@
-name: Manual Snap Upload (Stable)
+name: Upload Snap to stable
 on:
   workflow_dispatch:
     # pulls latest successful artifacts, for anyone who's reading this anyway
