@@ -31,14 +31,17 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         run: |
           # well, if no snaps are found, everything will freak out
-          shopt -s globstar
-          # nullglob helps this become more graceful
+          export PATH="/snap/bin:$PATH" # export snapcraft to PATH to avoid a bunch of stupid not found errors...
+          shopt -s globstar nullglob
+
+          snaps=(final-snaps/**/*.snap)
+
+          if [ ${#snaps[@]} -eq 0 ]; then
+            echo "No snaps found in final-snaps/, this is probably an issue with the yaml"
+            exit 0
+          fi
           
-          # find every single needed .snap
-          for snap_file in final-snaps/**/*.snap; do
-            if [ -f "$snap_file" ]; then
+          for snap_file in "${snaps[@]}"; do
               echo "Uploading: $snap_file"
-              # snapcraft ain't in PATH sometimes in bash...
-              /snap/bin/snapcraft upload "$snap_file" --release ${{ github.event.inputs.channel }} # pick edge or stable, remember that!!!
-            fi
+              snapcraft upload "$snap_file" --release ${{ github.event.inputs.channel }}
           done
