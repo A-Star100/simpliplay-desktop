@@ -27,7 +27,9 @@ jobs:
           gh run download --dir final-snaps --pattern "*-snap"
 
       - name: Setup Snapcraft
-        run: sudo snap install snapcraft --classic --channel=latest/stable
+        run: | 
+          sudo snap install snapcraft --classic --channel=latest/stable
+          echo "/snap/bin" >> $GITHUB_PATH
 
       - name: Publish to Snap Store
         shell: bash
@@ -35,7 +37,7 @@ jobs:
           SNAPCRAFT_STORE_AUTH: candid
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         run: |
-          /snap/bin/snapcraft whoami
+          snapcraft whoami
           TARGET_CHANNEL="${{ github.event.inputs.channel }}" # in case this step becomes larger
           # i'll remember the env name
 
@@ -48,5 +50,5 @@ jobs:
 
           for snap_file in $SNAPS; do
             echo "Uploading: $snap_file to $TARGET_CHANNEL"
-            /snap/bin/snapcraft upload "$snap_file" --release "$TARGET_CHANNEL"
+            snapcraft upload "$snap_file" --release "$TARGET_CHANNEL"
           done
