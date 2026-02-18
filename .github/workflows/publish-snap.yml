@@ -30,9 +30,19 @@ jobs:
         run: sudo snap install snapcraft --classic
         
       - name: Publish to Snap Store
-        uses: snapcore/action-publish@v1
+        shell: bash
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
-        with:
-          snap: final-snaps/**/*.snap # loop through all the snaps with... a globstar
-          release: ${{ github.event.inputs.channel }} 
+        run: |
+          SNAPS=$(find final-snaps -name "*.snap")
+
+          if [ -z "$SNAPS" ]; then
+            echo "No .snap files found in final-snaps/"
+            ls -R final-snaps/
+            exit 1
+          fi
+
+          for snap_file in $SNAPS; do
+            echo "Uploading: $snap_file"
+            /snap/bin/snapcraft upload "$snap_file" --release ${{ github.event.inputs.channel }}
+          done
