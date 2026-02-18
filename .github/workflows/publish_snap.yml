@@ -31,7 +31,7 @@ jobs:
         uses: snapcore/action-publish@v1
         # its way better btw
         env:
-          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_TOKEN }}
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         with:
           # find all the snaps
           snap: final-snaps/**/*.snap
