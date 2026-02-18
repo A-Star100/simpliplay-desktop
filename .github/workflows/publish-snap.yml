@@ -37,17 +37,9 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         run: |
           snapcraft whoami
-          TARGET_CHANNEL="${{ github.event.inputs.channel }}" # in case this step becomes larger
-          # i'll remember the env name
 
-          SNAPS=$(find final-snaps -name "*.snap")
-          
-          if [ -z "$SNAPS" ]; then
-            echo "Whoops! No .snap files were found, unfortunately... Check the yaml or the assets."
-            exit 1
-          fi
-
-          for snap_file in $SNAPS; do
+          TARGET_CHANNEL="${{ github.event.inputs.channel }}"
+          for snap_file in $(find final-snaps -name "*.snap"); do
             echo "Uploading: $snap_file to $TARGET_CHANNEL"
             snapcraft upload "$snap_file" --release "$TARGET_CHANNEL"
           done
