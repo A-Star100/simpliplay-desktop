@@ -21,6 +21,7 @@ jobs:
       - name: Download all Snaps
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: snapcore/action-publish@v1 # REMEMBER thisssss!!!!!!!!
         run: |
           mkdir -p final-snaps
           # pulls all the snaps
