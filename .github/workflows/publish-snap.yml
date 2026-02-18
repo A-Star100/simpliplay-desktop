@@ -13,7 +13,6 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    environment: snap-upload
     steps:
      # this stops git from whining (phew)
       - name: Checkout repository
