@@ -24,7 +24,7 @@ jobs:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         run: |
           # verify credentials
-          snapcraft whoami || (echo "Credentials have expired! To renew, run 'SNAPCRAFT_STORE_AUTH=candid snapcraft export-login --snaps simpliplay --expires $(date -v+1y +%Y-%m-%d) snapcraft.login' and update any necessary secrets" && exit 1)
+          snapcraft whoami || (echo "Credentials have expired or are invalid! To renew, run 'EXPIRY_DATE=$(date -v+1y +%Y-%m-%d) SNAPCRAFT_STORE_AUTH=candid snapcraft export-login --snaps simpliplay --expires $EXPIRY_DATE' and update any necessary secrets" && exit 1)
 
           # get all the snaps and upload to stable!!!
           for snap_file in *.snap; do
