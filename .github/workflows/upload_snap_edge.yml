@@ -26,9 +26,9 @@ jobs:
           # verify credentials
           snapcraft whoami || (echo "Credentials have expired! To renew, run 'SNAPCRAFT_STORE_AUTH=candid snapcraft export-login --snaps simpliplay --expires $(date -v+1y +%Y-%m-%d) snapcraft.login' and update any necessary secrets" && exit 1)
 
-          # get all the snaps and upload to stable!!!
+          # get all the snaps and upload to edge!!!
           for snap_file in *.snap; do
-            echo "Publishing $snap_file to stable channel..."
+            echo "Publishing $snap_file to edge channel..."
             snapcraft upload "$snap_file" --release edge
           done
 
