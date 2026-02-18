@@ -27,22 +27,26 @@ jobs:
           gh run download --dir final-snaps --pattern "*-snap"
 
       - name: Setup Snapcraft
-        run: sudo snap install snapcraft --classic
-        
+        run: sudo snap install snapcraft --classic --channel=latest/stable
+
       - name: Publish to Snap Store
+        shell: bash
         env:
+          SNAPCRAFT_STORE_AUTH: candid
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         run: |
-          # so builds DONT fail
-          SNAPS=$(find final-snaps -name "*.snap")
+          /snap/bin/snapcraft whoami
+          TARGET_CHANNEL="${{ github.event.inputs.channel }}" # in case this step becomes larger
+          # i'll remember the env name
 
+          SNAPS=$(find final-snaps -name "*.snap")
+          
           if [ -z "$SNAPS" ]; then
-            echo "No .snap files found in final-snaps/"
-            ls -R final-snaps/
+            echo "Whoops! No .snap files were found, unfortunately... Check the yaml or the assets."
             exit 1
           fi
 
           for snap_file in $SNAPS; do
-            echo "Uploading: $snap_file"
-            /snap/bin/snapcraft upload "$snap_file" --release ${{ github.event.inputs.channel }}
+            echo "Uploading: $snap_file to $TARGET_CHANNEL"
+            /snap/bin/snapcraft upload "$snap_file" --release "$TARGET_CHANNEL"
           done
