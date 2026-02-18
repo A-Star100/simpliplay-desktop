@@ -27,7 +27,6 @@ jobs:
           gh run download --dir final-snaps --pattern "*-snap"
 
       - name: Publish to Snap Store
-        shell: bash
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         run: |
@@ -39,6 +38,7 @@ jobs:
           for snap_file in final-snaps/**/*.snap; do
             if [ -f "$snap_file" ]; then
               echo "Uploading: $snap_file"
-              snapcraft upload "$snap_file" --release ${{ github.event.inputs.channel }} # pick edge or stable, remember that!!!
+              # snapcraft ain't in PATH sometimes in bash...
+              /snap/bin/snapcraft upload "$snap_file" --release ${{ github.event.inputs.channel }} # pick edge or stable, remember that!!!
             fi
           done
