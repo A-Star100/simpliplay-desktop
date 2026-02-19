@@ -23,7 +23,7 @@ jobs:
           REQUIRED=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64" "linux-armv7-snap" "linux-armv7-appimage")
 
           while true; do
-            echo "⏳ Checking artifacts..."
+            echo "Checking artifacts..."
 
             rm -rf all-artifacts
             mkdir -p all-artifacts
@@ -33,7 +33,7 @@ jobs:
             missing=0
             for ARTIFACT in "${REQUIRED[@]}"; do
               if [ ! -d "all-artifacts/$ARTIFACT" ]; then
-                echo "❌ Missing: $ARTIFACT"
+                echo "MISSING: $ARTIFACT"
                 missing=1
               fi
             done
@@ -43,18 +43,18 @@ jobs:
               break
             fi
 
-            echo "🔁 Not all artifacts were found. Retrying in 15 seconds..."
+            echo "Not all artifacts were found. Retrying in 15 seconds..."
             sleep 15
           done
 
       - name: Extract ZIP files and prepare list of files to upload
         run: |
           set -e
-          echo "🔍 Extracting ZIP files and collecting allowed SimpliPlay files..."
+          echo "Extracting ZIP files and collecting the correct assets..."
 
           find all-artifacts -type f -name '*.zip' | while read -r zipfile; do
             extract_dir="${zipfile%.zip}"
-            echo "📦 Extracting $zipfile to $extract_dir"
+            echo "Extracting $zipfile to $extract_dir"
             unzip -o "$zipfile" -d "$extract_dir"
           done
 
