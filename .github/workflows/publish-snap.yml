@@ -36,10 +36,18 @@ jobs:
           SNAPCRAFT_STORE_AUTH: candid
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
         run: |
-          snapcraft whoami
-
           TARGET_CHANNEL="${{ github.event.inputs.channel }}"
-          for snap_file in $(find final-snaps -name "*.snap"); do
-            echo "Uploading: $snap_file to $TARGET_CHANNEL"
-            snapcraft upload "$snap_file" --release "$TARGET_CHANNEL"
+          VALID_FOLDERS=("linux-x64-snap" "linux-arm64-snap" "linux-armv7l-v2-snap")
+
+          for folder in "${VALID_FOLDERS[@]}"; do
+            if [ -d "all-artifacts/$folder" ]; then
+              echo "Processing $folder..."
+              find "all-artifacts/$folder" -name "*.snap" | while read -r snap_file; do
+                echo "Uploading: $snap_file"
+                snapcraft upload "$snap_file" --release "$TARGET_CHANNEL"
+              done
+            else
+              echo "Skipping $folder (not found)"
+            fi
           done
+
