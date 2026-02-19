@@ -35,19 +35,24 @@ jobs:
         env:
           SNAPCRAFT_STORE_AUTH: candid
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+          CUSTOM_CHANNEL: ${{ github.event.inputs.channel }}
         run: |
-          TARGET_CHANNEL="${{ github.event.inputs.channel }}"
+          TARGET_CHANNEL="${CUSTOM_CHANNEL:-edge}"
+          echo "Target channel (to upload to) is: $TARGET_CHANNEL"
+
+          BASE_DIR="final-snaps"
           VALID_FOLDERS=("linux-x64-snap" "linux-arm64-snap" "linux-armv7l-v2-snap")
 
           for folder in "${VALID_FOLDERS[@]}"; do
-            if [ -d "all-artifacts/$folder" ]; then
+            FULL_PATH="$BASE_DIR/$folder"
+            if [ -d "$FULL_PATH" ]; then
               echo "Processing $folder..."
-              find "all-artifacts/$folder" -name "*.snap" | while read -r snap_file; do
-                echo "Uploading: $snap_file"
+              find "$FULL_PATH" -name "*.snap" | while read -r snap_file; do
+                echo "Uploading: $snap_file to $TARGET_CHANNEL"
                 snapcraft upload "$snap_file" --release "$TARGET_CHANNEL"
               done
             else
-              echo "Skipping $folder (not found)"
+              echo "Skipping $folder (Not found at $FULL_PATH)"
             fi
           done
 
