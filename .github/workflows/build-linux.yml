@@ -8,8 +8,8 @@ on:
     paths-ignore:
       - '.github/workflows/dependabot-bump.yml'
       - '.github/workflows/dependabot.yml'
-      - 'README.md'             # Ignore documentation
-      - '.gitignore'            # Ignore git settings
+      - 'README.md' #ignore readme
+      - '.gitignore' #ignore the gitignore that is the file that ignores other files
 
 jobs:
   build_x64:
@@ -104,34 +104,6 @@ jobs:
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
 
-      - name: Patch package.json
-        run: |
-          # Save og
-          cp simpliplay/package.json simpliplay/package.json.orig
-          # Check if jq is installed; if not, install it
-          if ! command -v jq &> /dev/null
-          then
-            echo "jq not found, installing..."
-            sudo apt-get update
-            sudo apt-get install -y jq
-          fi
-          # patch the json to use older electron for compat
-          jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
-          # Replace package.json for Flatpak build
-          mv simpliplay/package.flatpak.json simpliplay/package.json
-
-      - name: Create unpacked build for Flatpak
-        run: npx electron-builder --linux --arm64 --dir
-        working-directory: simpliplay
-
-      - name: Build Flatpak
-        run: npx electron-builder --linux flatpak --arm64
-        working-directory: simpliplay
-        continue-on-error: true
-
-      - name: Restore package.json
-        run: mv simpliplay/package.json.orig simpliplay/package.json
-
       # the below is to prevent snapcraft from crashing
       # for some reason it does not cope without these deps
       # on arm64 and armv7 anyway
@@ -154,6 +126,46 @@ jobs:
       - name: Build Snap
         run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
+
+      - name: Patch package.json for Flatpak
+        run: |
+          # Save og
+          cp simpliplay/package.json simpliplay/package.json.orig
+          # Check if jq is installed; if not, install it
+          if ! command -v jq &> /dev/null
+          then
+            echo "jq not found, installing..."
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+          # patch the json to use older electron for compat
+          jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
+          # replace package.json for flatpak build cuz electron-builder is unfortunately
+          # picky regarding flatpaks
+          mv simpliplay/package.flatpak.json simpliplay/package.json
+
+      - name: Restore package.json
+        run: mv simpliplay/package.json.orig simpliplay/package.json
+
+      - name: Create unpacked build for Flatpak
+        run: npx electron-builder --linux --arm64 --dir
+        working-directory: simpliplay
+
+      - name: Build Flatpak
+        run: | 
+          echo "file struct below:"
+          ls
+          
+          #if ! pwd | grep -q "simpliplay"; then
+            #cd simpliplay
+          #fi
+          if [ ! -d node_modules ]; then
+            echo "node_modules wasn't found, will install deps now"
+            npm install
+          fi
+          npx electron-builder --linux flatpak --arm64
+        working-directory: simpliplay
+        continue-on-error: true
 
       - uses: actions/upload-artifact@v4
         with:
