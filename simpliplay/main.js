@@ -23,7 +23,7 @@ if (process.argv.includes('--disable-gpu')) {
   gpuAccel = "disabled";
 }
 
-// Handle file opening from Finder or File Explorer
+// handle file open events
 app.on('open-file', (event, filePath) => {
   event.preventDefault();
   openFile(filePath);
@@ -90,7 +90,7 @@ const createWindow = (onReadyCallback) => {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
       enableRemoteModule: false,
-      nodeIntegration: false, // Keep this false for security
+      nodeIntegration: false, // anyone debugging this: keep this false for security pls
       sandbox: true,
     },
   });
@@ -130,7 +130,7 @@ const createWindow = (onReadyCallback) => {
 };
 
 
-// Set up context menu (prevents errors if `mainWindow` is undefined)
+// set up context menu (if mainWindow's gone nothing will crash here)
 const setupContextMenu = () => {
   if (!mainWindow) return;
 
@@ -146,7 +146,7 @@ const setupContextMenu = () => {
 };
 
 
-// Set up application menu
+// set up application menu
 const setupMenu = () => {
   const menu = Menu.getApplicationMenu();
   if (!menu) return;
@@ -169,10 +169,10 @@ if (appMenu && !appMenu.submenu.items.some(item => item.label === 'Check for Upd
   });
 
   if (separatorIndex === -1) {
-    // No separator found — just append
+    // if no separator, just append
     submenu.append(updateMenuItem);
   } else {
-    // Insert right before the separator
+    // insert riiiight before the separator
     submenu.insert(separatorIndex, updateMenuItem);
   }
 }
@@ -213,7 +213,7 @@ const newMenuItems = menu ? [...menu.items] : [];
 
 let addonsMenu;
 
-// Check if Add-ons menu already exists
+// check if menu was already created
 const existingAddonsMenuItem = newMenuItems.find(item => item.label === 'Add-ons');
 
 if (existingAddonsMenuItem) {
@@ -221,7 +221,6 @@ if (existingAddonsMenuItem) {
 } else {
   addonsMenu = new Menu();
 
-  // "Load Add-on" menu item
   addonsMenu.append(new MenuItem({
     label: 'Load Add-on',
     accelerator: 'CommandOrControl+Shift+A',
@@ -237,7 +236,7 @@ if (existingAddonsMenuItem) {
         const fileName = path.basename(filePath);
         const fileURL = pathToFileURL(filePath).href;
 
-        // Check if an addon with the same filename is already loaded
+        // any addons already loaded? check here
         const alreadyLoaded = [...loadedAddons.keys()].some(
           loadedPath => path.basename(loadedPath) === fileName
         );
@@ -245,7 +244,7 @@ if (existingAddonsMenuItem) {
         if (alreadyLoaded) {
           await dialog.showMessageBox(mainWindow, {
             type: 'error',
-            title: 'Could not load addon',
+            title: `Failed to load an addon`,
             message: `An add-on named "${fileName}" has already been loaded before.`,
             buttons: ['OK']
           });
@@ -268,10 +267,11 @@ if (existingAddonsMenuItem) {
                       dialog.showMessageBox(mainWindow, {
                         type: 'error',
                         title: 'Could not load addon',
-                        message: `The add-on "${fileName}" could not be found or doesn't exist anymore.`,
+                        message: `The add-on "${fileName}" could not be found or doesn't exist anymore, unfortunately.`,
                         buttons: ['OK']
                       }).then(() => {
-                        // Delay unchecking to ensure dialog closes first
+                        // delay any unchecking to make sure the dialog closes first
+                        // and doesn't cause errors...
                       setTimeout(() => {
                           menuItem.checked = false;
                       }, 100);
@@ -294,14 +294,13 @@ if (existingAddonsMenuItem) {
           addonsMenu.append(addonMenuItem);
           loadedAddons.set(filePath, addonMenuItem);
 
-          // Rebuild the menu after adding the new addon item
+          // rebuild menu after changes
           Menu.setApplicationMenu(Menu.buildFromTemplate(newMenuItems));
         }
       }
     }
   }));
 
-// "About Addons" menu item (info dialog version)
 addonsMenu.append(new MenuItem({
   label: 'About Addons',
   click: async () => {
@@ -310,8 +309,8 @@ addonsMenu.append(new MenuItem({
       buttons: ['OK'],
       defaultId: 0,
       title: 'About Addons',
-      message: 'Addons can do almost anything from adding features to the media player to adding an entire game within the app!',
-      detail: 'Addons are regular, client-side JavaScript files with the [.simpliplay] extension.'
+      message: 'Addons are regular, client-side JavaScript files with the [.simpliplay] extension.',
+      detail: 'Addons can do almost anything from adding features to the media player to adding an entire game within the app!'
     });
 
     if (result.response === 0) {
@@ -321,7 +320,6 @@ addonsMenu.append(new MenuItem({
   }
 }));
 
-  // "Store" menu item (info dialog version)
 addonsMenu.append(new MenuItem({
   label: 'Store',
   click: () => {
@@ -329,15 +327,12 @@ addonsMenu.append(new MenuItem({
   }
 }));
 
-  // Add the Add-ons menu only once here:
   newMenuItems.push(new MenuItem({ label: 'Add-ons', submenu: addonsMenu }));
 
-  // Set the application menu after adding Add-ons menu
   Menu.setApplicationMenu(Menu.buildFromTemplate(newMenuItems));
 }
 
 
-// Re-apply the full menu if you add newMenuItems outside of the if above
 //Menu.setApplicationMenu(Menu.buildFromTemplate(newMenuItems));
 
 
@@ -347,9 +342,9 @@ addonsMenu.append(new MenuItem({
 const setupShortcuts = () => {
 if (didRegisterShortcuts === false) {
   globalShortcut.register('CommandOrControl+Q', () => {
-    const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the currently focused window
+    const focusedWindow = BrowserWindow.getFocusedWindow(); // get the currently focused window
 
-    if (!focusedWindow) return; // Do nothing if no window is focused
+    if (!focusedWindow) return; // if no window's focused then just quit
 
     dialog.showMessageBox(focusedWindow, {
       type: 'question',
@@ -364,18 +359,18 @@ if (didRegisterShortcuts === false) {
 
   globalShortcut.register('CommandOrControl+Shift+S', () => {
 
-    const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the currently focused window
+    const focusedWindow = BrowserWindow.getFocusedWindow(); // get the focused window
 
-    if (!focusedWindow) return; // Do nothing if no window is focused
+    if (!focusedWindow) return; // if no window's focused then just quit
 
     takeSnapshot();
   });
 
   globalShortcut.register('CommandOrControl+S', () => {
 
-    const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the currently focused window
+    const focusedWindow = BrowserWindow.getFocusedWindow(); // Get the current focused window
 
-    if (!focusedWindow) return; // Do nothing if no window is focused
+    if (!focusedWindow) return; // if no window's focused then just quit
 
     takeSnapshot();
   });
@@ -438,7 +433,7 @@ function openFileSafely(filePath) {
     const absPath = path.resolve(filePath); // ensure absolute path
 
     if (mainWindow?.webContents) {
-        const winFileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
+        const winFileURL = pathToFileURL(filePath).href; // encode path so no special characters cause really bad errors
         mainWindow.webContents.send("play-media", winFileURL);
     }
 
@@ -452,7 +447,7 @@ function isValidFileArg(arg) {
   const resolvedPath = path.resolve(arg);
   if (!fs.existsSync(resolvedPath)) return false;
 
-  // Reject known executable/script extensions
+  // reject known bad extensions
   const badExtensions = ['.exe', '.bat', '.cmd', '.sh', '.msi', '.com', '.vbs', '.ps1', '.jar', '.scr'];
   const ext = path.extname(resolvedPath).toLowerCase();
 
