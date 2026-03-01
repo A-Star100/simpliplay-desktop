@@ -24,11 +24,11 @@ jobs:
       - run: npm install
         working-directory: simpliplay
 
-      #- name: Install Flatpak tools
-        #run: |
-          #sudo apt-get update
-          #sudo apt-get install -y flatpak flatpak-builder
-        #continue-on-error: true
+      - name: Install Flatpak tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+        continue-on-error: true
 
       - name: Build Snap and AppImage
         run: npx electron-builder --linux snap AppImage --x64
