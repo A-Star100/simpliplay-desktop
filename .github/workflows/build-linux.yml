@@ -24,15 +24,15 @@ jobs:
       - run: npm install
         working-directory: simpliplay
 
-      - name: Install Flatpak tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder
-        continue-on-error: true
-
       - name: Build Snap and AppImage
         run: npx electron-builder --linux snap AppImage --x64
         working-directory: simpliplay
+
+      - name: Install Flatpak tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential flatpak flatpak-builder
+        continue-on-error: true
 
       - name: Create unpacked build for Flatpak
         run: npx electron-builder --linux --x64 --dir
@@ -95,12 +95,6 @@ jobs:
       - run: npm install
         working-directory: simpliplay
 
-      - name: Install Flatpak tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder
-        continue-on-error: true
-
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
 
@@ -126,6 +120,12 @@ jobs:
       - name: Build Snap
         run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
+
+      - name: Install Flatpak tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential flatpak flatpak-builder
+        continue-on-error: true
 
       - name: Patch package.json for Flatpak
         run: |
@@ -153,8 +153,8 @@ jobs:
 
       - name: Build Flatpak
         run: | 
-          echo "file struct below:"
-          ls
+          #echo "file struct below:"
+          #ls
           
           #if ! pwd | grep -q "simpliplay"; then
             #cd simpliplay
@@ -236,7 +236,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y qemu-user-static binfmt-support
-          # Register ARM emulation so Snapcraft sees armhf/armv7
+          # register arm emulation to FOOL snapcraft cli
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
 
       - name: Install dependencies
