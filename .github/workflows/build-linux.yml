@@ -30,38 +30,37 @@ jobs:
           #sudo apt-get install -y flatpak flatpak-builder
         #continue-on-error: true
 
-      - name: Build Snap + AppImage
+      - name: Build Snap and AppImage
         run: npx electron-builder --linux snap AppImage --x64
         working-directory: simpliplay
 
-## what is below is OLD FLATPAK CODE there is a new flatpak on its own repository that is being published to Flathub
-      #- name: Create unpacked build for Flatpak
-        #run: npx electron-builder --linux --x64 --dir
-        #working-directory: simpliplay
+      - name: Create unpacked build for Flatpak
+        run: npx electron-builder --linux --x64 --dir
+        working-directory: simpliplay
         
-      #- name: Prepare Flatpak package.json
-        #run: |
-          ## Save original
-          #cp simpliplay/package.json simpliplay/package.json.orig
-          ## Check if jq is installed; if not, install it
-          #if ! command -v jq &> /dev/null
-          #then
-            #echo "jq not found, installing..."
-            #sudo apt-get update
-            #sudo apt-get install -y jq
-          #fi
-          ## Create patched package.json with older Electron
-          #jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
-          ## Replace package.json for Flatpak build
-          #mv simpliplay/package.flatpak.json simpliplay/package.json
+      - name: Patch package.json
+        run: |
+          # save OG package json
+          cp simpliplay/package.json simpliplay/package.json.orig
+          # Check if jq is installed; if not, install it
+          if ! command -v jq &> /dev/null
+          then
+            echo "jq not found, installing..."
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+          # patch package.json for older electron for compat
+          jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
+          # Replace package.json for Flatpak build
+          mv simpliplay/package.flatpak.json simpliplay/package.json
 
-      #- name: Build Flatpak
-        #run: npx electron-builder --linux flatpak --x64
-        #working-directory: simpliplay
-        #continue-on-error: true
+      - name: Build Flatpak
+        run: npx electron-builder --linux flatpak --x64
+        working-directory: simpliplay
+        continue-on-error: true
 
-      #- name: Restore original package.json
-        #run: mv simpliplay/package.json.orig simpliplay/package.json
+      - name: Restore package.json
+        run: mv simpliplay/package.json.orig simpliplay/package.json # redundant for now but might be useful in future
 
       - uses: actions/upload-artifact@v4
         with:
@@ -73,11 +72,11 @@ jobs:
           name: linux-x64-appimage
           path: simpliplay/dist/*.AppImage
           
-      #- uses: actions/upload-artifact@v4
-        #with:
-          #name: linux-x64-flatpak
-          #path: simpliplay/dist/*.flatpak
-        #continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64-flatpak
+          path: simpliplay/dist/*.flatpak
+        continue-on-error: true
 
   build_arm64:
     runs-on: ubuntu-22.04-arm
@@ -88,7 +87,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Use ARM64 package.json
+      - name: Use arm64 package.json instead of x64
         run: |
           mv simpliplay/package.json simpliplay/package-unused.json
           mv simpliplay/package-arm64-linux.json simpliplay/package.json
@@ -96,54 +95,63 @@ jobs:
       - run: npm install
         working-directory: simpliplay
 
-      #- name: Install Flatpak tooling
-        #run: |
-          #sudo apt-get update
-          #sudo apt-get install -y flatpak flatpak-builder
-        #continue-on-error: true
+      - name: Install Flatpak tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
+        continue-on-error: true
 
       - run: npx electron-builder --linux AppImage --arm64
         working-directory: simpliplay
 
-      #- name: Prepare Flatpak package.json
-        #run: |
-          ## Save original
-          #cp simpliplay/package.json simpliplay/package.json.orig
-          ## Check if jq is installed; if not, install it
-          #if ! command -v jq &> /dev/null
-          #then
-            #echo "jq not found, installing..."
-            #sudo apt-get update
-            #sudo apt-get install -y jq
-          #fi
-          ## Create patched package.json with older Electron
-          #jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
-          ## Replace package.json for Flatpak build
-          #mv simpliplay/package.flatpak.json simpliplay/package.json
+      - name: Patch package.json
+        run: |
+          # Save og
+          cp simpliplay/package.json simpliplay/package.json.orig
+          # Check if jq is installed; if not, install it
+          if ! command -v jq &> /dev/null
+          then
+            echo "jq not found, installing..."
+            sudo apt-get update
+            sudo apt-get install -y jq
+          fi
+          # patch the json to use older electron for compat
+          jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
+          # Replace package.json for Flatpak build
+          mv simpliplay/package.flatpak.json simpliplay/package.json
 
-      #- name: Create unpacked build for Flatpak
-        #run: npx electron-builder --linux --arm64 --dir
-        #working-directory: simpliplay
+      - name: Create unpacked build for Flatpak
+        run: npx electron-builder --linux --arm64 --dir
+        working-directory: simpliplay
 
-      #- name: Build Flatpak
-        #run: npx electron-builder --linux flatpak --arm64
-        #working-directory: simpliplay
-        #continue-on-error: true
+      - name: Build Flatpak
+        run: npx electron-builder --linux flatpak --arm64
+        working-directory: simpliplay
+        continue-on-error: true
 
-      #- name: Restore original package.json
-        #run: mv simpliplay/package.json.orig simpliplay/package.json
+      - name: Restore package.json
+        run: mv simpliplay/package.json.orig simpliplay/package.json
 
-      - run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
+      # the below is to prevent snapcraft from crashing
+      # for some reason it does not cope without these deps
+      # on arm64 and armv7 anyway
 
-      - run: sudo snap install snapcraft --classic
+      - name: Update package listings and install libgdk-pixbuf
+        run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
 
-      - run: sudo snap install gnome-3-28-1804
+      - name: Install Snapcraft CLI
+        run: sudo snap install snapcraft --classic
 
-      - run: sudo snap install gtk-common-themes
+      - name: Install GNOME packages
+        run: sudo snap install gnome-3-28-1804
 
-      - run: sudo snap install core22
+      - name: Install GTK theme stuff
+        run: sudo snap install gtk-common-themes
 
-      - name: build snap
+      - name: Install core22 snap
+        run: sudo snap install core22
+
+      - name: Build Snap
         run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
 
@@ -157,11 +165,11 @@ jobs:
           name: linux-arm64-snap
           path: simpliplay/dist/*.snap
 
-      #- uses: actions/upload-artifact@v4
-        #with:
-          #name: linux-arm64-flatpak
-          #path: simpliplay/dist/*.flatpak
-        #continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64-flatpak
+          path: simpliplay/dist/*.flatpak
+        continue-on-error: true
 
   build_i386:
     runs-on: ubuntu-latest
@@ -174,10 +182,10 @@ jobs:
 
       - name: Prepare i386 package.json
         run: |
-          # Save original
+          # save og package.json
           cp simpliplay/package.json simpliplay/package.json.orig
       
-          # this is overly safe, but it checks if jq is installed on the runner (some runners may lack it)
+          # is jq installed?
           if ! command -v jq &> /dev/null
           then
             echo "jq not found, installing..."
@@ -202,110 +210,6 @@ jobs:
         with:
           name: linux-i386-appimage
           path: simpliplay/dist/*.AppImage
-
-  # #build_armv7_old:
-  #   #runs-on: ubuntu-22.04-arm #THIS IS THE OLD, REDUNDANT ARMV7 WORKFLOW - REMEMBER TO ALWAYS ACTIVATE QEMU VIRTUALIZATION AFTER INSTALLING IT SO IT IS OF USE!!!
-  #   #steps:
-  #     #- uses: actions/checkout@v4
-  
-  #     #- uses: actions/setup-node@v4
-  #       #with:
-  #         #node-version: 22
-
-  #     #- name: Install QEMU for ARMv7 emulation
-  #       #run: |
-  #         #sudo apt-get update
-  #         #sudo apt-get install -y qemu-user-static binfmt-support
-  #         # Register ARM emulation so Snapcraft sees armhf/armv7
-  #         #docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
-
-  #     #- name: Install snapcraft
-  #       #run: sudo snap install snapcraft --classic
-        
-  #     #- name: Install dependencies
-  #       #run: npm install
-  #       #working-directory: simpliplay
-  
-  #     - name: Build ARMv7 AppImage
-  #       run: npx electron-builder --linux AppImage --armv7l
-  #       working-directory: simpliplay
-  #       continue-on-error: true
-  
-  #     - name: Upload ARMv7 AppImage
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: linux-armv7-appimage
-  #         path: simpliplay/dist/*.AppImage
-  #       continue-on-error: true
-  
-  #     - name: Prepare Snap wrapper files
-  #       run: |
-  #         mkdir -p snap/parts/appimage
-  #         cp simpliplay/dist/*.AppImage snap/parts/appimage/
-  
-  #     - name: Generate snapcraft.yaml (NO ARCH, bin wrapper)
-  #       run: |
-  #         set -euo pipefail
-      
-  #         APP_VERSION=$(jq -r '.version' simpliplay/package.json)
-      
-  #         # Ensure we have an AppImage
-  #         if ! ls simpliplay/dist/*.AppImage >/dev/null 2>&1; then
-  #           echo "no AppImage found in simpliplay/dist"
-  #           exit 1
-  #         fi
-      
-  #         APPIMAGE_NAME=$(basename simpliplay/dist/*.AppImage)
-      
-  #         # commence the preperation, my friend
-  #         mkdir -p snap/parts/appimage
-  #         cp -f "simpliplay/dist/${APPIMAGE_NAME}" snap/parts/appimage/
-      
-  #         # Generate snapcraft.yaml safely (no heredoc)
-  #         mkdir -p snap
-  #         echo "name: simpliplay" > snap/snapcraft.yaml
-  #         printf "version: \"%s\"\n" "$APP_VERSION" >> snap/snapcraft.yaml
-  #         echo "summary: SimpliPlay ARMv7 AppImage wrapper" >> snap/snapcraft.yaml
-  #         echo "description: SimpliPlay ARMv7 AppImage wrapped in a Snap" >> snap/snapcraft.yaml
-  #         echo "base: core20" >> snap/snapcraft.yaml
-  #         echo "confinement: strict" >> snap/snapcraft.yaml
-  #         echo "grade: stable" >> snap/snapcraft.yaml
-  #         echo "" >> snap/snapcraft.yaml
-      
-  #         echo "parts:" >> snap/snapcraft.yaml
-  #         echo "  appimage:" >> snap/snapcraft.yaml
-  #         echo "    plugin: dump" >> snap/snapcraft.yaml
-  #         echo "    source: parts/appimage" >> snap/snapcraft.yaml
-  #         echo "    override-build: |" >> snap/snapcraft.yaml
-  #         # create bin, copy the AppImage into bin and rename it deterministically
-  #         echo "      mkdir -p \$SNAPCRAFT_PART_INSTALL/bin" >> snap/snapcraft.yaml
-  #         # use the literal filename (it exists in the part source)
-  #         echo "      cp \"${APPIMAGE_NAME}\" \$SNAPCRAFT_PART_INSTALL/bin/SimpliPlay.AppImage" >> snap/snapcraft.yaml
-  #         echo "      chmod +x \$SNAPCRAFT_PART_INSTALL/bin/SimpliPlay.AppImage" >> snap/snapcraft.yaml
-  #         # create a tiny launcher script in the snap's bin dir
-  #         echo "      echo '#!/bin/sh' > \$SNAPCRAFT_PART_INSTALL/bin/simpliplay" >> snap/snapcraft.yaml
-  #         echo "      echo 'exec \$SNAP/bin/SimpliPlay.AppImage \"\$@\"' >> \$SNAPCRAFT_PART_INSTALL/bin/simpliplay" >> snap/snapcraft.yaml
-  #         echo "      chmod +x \$SNAPCRAFT_PART_INSTALL/bin/simpliplay" >> snap/snapcraft.yaml
-  #         echo "" >> snap/snapcraft.yaml
-      
-  #         echo "apps:" >> snap/snapcraft.yaml
-  #         echo "  simpliplay:" >> snap/snapcraft.yaml
-  #         echo "    command: bin/simpliplay" >> snap/snapcraft.yaml
-      
-  #         echo "generated snap/snapcraft.yaml and staged AppImage: ${APPIMAGE_NAME}"
-
-
-  #     - name: Build ARMv7 wrapper Snap
-  #       run: snapcraft pack --destructive-mode --enable-experimental-target-arch --target-arch=armhf
-  #       working-directory: snap
-  #       continue-on-error: true
-  
-  #     - name: Upload ARMv7 Snap
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: linux-armv7-snap
-  #         path: snap/*.snap
-  #       continue-on-error: true
 
   build_armv7:
     runs-on: ubuntu-22.04-arm
@@ -337,15 +241,24 @@ jobs:
            name: linux-armv7-appimage
            path: simpliplay/dist/*.AppImage
 
-      - run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
+      # the below is to prevent snapcraft from crashing
+      # for some reason it does not cope without these deps
+      # on arm64 and armv7 anyway
 
-      - run: sudo snap install snapcraft --classic
+      - name: Update package listings and install libgdk-pixbuf
+        run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
 
-      - run: sudo snap install gnome-3-28-1804
+      - name: Install Snapcraft CLI
+        run: sudo snap install snapcraft --classic
 
-      - run: sudo snap install gtk-common-themes
+      - name: Install GNOME packages
+        run: sudo snap install gnome-3-28-1804
 
-      - run: sudo snap install core22
+      - name: Install GTK theme stuff
+        run: sudo snap install gtk-common-themes
+
+      - name: Install core22 snap
+        run: sudo snap install core22
 
       - name: Build ARMv7 Snap
         run: npx electron-builder --linux snap --armv7l
