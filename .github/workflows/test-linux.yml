@@ -33,23 +33,23 @@ jobs:
       - name: Run launch test
         shell: bash
         run: |
-          APPIMAGE=$(find test-dist -name "*.AppImage" | head -n 1)
-          chmod +x "$APPIMAGE"
-          "$APPIMAGE" --appimage-extract
+          appimage=$(find test-dist -name "*.AppImage" | head -n 1)
+          chmod +x "$appimage"
+          "$appimage" --appimage-extract
           
-          EXECUTABLE="./squashfs-root/SimpliPlay"
-          chmod +x "$EXECUTABLE"
+          exec_path="./squashfs-root/SimpliPlay"
+          chmod +x "$exec_path"
 
           echo "starting x64/arm64 test (15s)"
-          dbus-run-session -- xvfb-run --auto-servernum "$EXECUTABLE" --no-sandbox &
-          APP_PID=$!
+          dbus-run-session -- xvfb-run --auto-servernum "$exec_path" --no-sandbox &
+          our_pid=$!
           
           sleep 15
-          if kill -0 $APP_PID 2>/dev/null; then
-            echo "✅ app is alive. terminating..."
-            kill $APP_PID
+          if kill -0 $our_pid 2>/dev/null; then
+            echo "app is alive. terminating..."
+            kill $our_pid
           else
-            echo "❌ app crashed or closed too soon"
+            echo "app crashed or closed too soon"
             exit 1
           fi
 
@@ -88,9 +88,9 @@ jobs:
   #         sleep 15
           
   #         if kill -0 $APP_PID 2>/dev/null; then
-  #           echo "✅ app is alive. terminating..."
+  #           echo "app is alive. terminating..."
   #           kill $APP_PID
   #         else
-  #           echo "❌ app crashed under QEMU emulation"
+  #           echo "app crashed under QEMU emulation"
   #           exit 1
   #         fi
