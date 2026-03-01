@@ -8,8 +8,8 @@ on:
     paths-ignore:
       - '.github/workflows/dependabot-bump.yml'
       - '.github/workflows/dependabot.yml'
-      - 'README.md'             # Ignore documentation
-      - '.gitignore'            # Ignore git settings
+      - 'README.md' # ignore readme changes
+      - '.gitignore' # ignore gitignore changes
 
 jobs:
   build:
@@ -83,10 +83,10 @@ jobs:
               sleep 15
             
               if kill -0 "$PID" 2>/dev/null; then
-                echo "✅ app is alive. terminating..."
+                echo "app is alive. terminating..."
                 kill "$PID"
               else
-                echo "❌ app crashed or closed too soon"
+                echo "app crashed or closed too soon"
                 exit 1
               fi
             done
