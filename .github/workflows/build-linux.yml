@@ -52,13 +52,13 @@ jobs:
           fi
 
           # patch the json to use older electron for compat
-          jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
-          jq '.devDependencies.electron-builder="26.0.1"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
-
+          jq '.devDependencies.electron="39.0.0" | .devDependencies["electron-builder"]="26.0.1"' \
+              simpliplay/package.json.orig > simpliplay/package.flatpak.json
+              
           # print the json to double check if jq actually worked...
-          # just in case y'know
-          echo "electron $(jq -r '.devDependencies."electron"' package.json)"
-          echo "electron-builder $(jq -r '.devDependencies."electron-builder"' package.json)"
+          echo "electron $(jq -r '.devDependencies.electron' simpliplay/package.flatpak.json)"
+          echo "electron-builder $(jq -r '.devDependencies["electron-builder"]' simpliplay/package.flatpak.json)"
+          
           # replace package.json for flatpak build
           mv simpliplay/package.flatpak.json simpliplay/package.json
 
@@ -147,13 +147,13 @@ jobs:
             sudo apt-get install -y jq
           fi
           # patch the json to use older electron for compat
-          jq '.devDependencies.electron="39.0.0"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
-          jq '.devDependencies.electron-builder="26.0.1"' simpliplay/package.json.orig > simpliplay/package.flatpak.json
-
+          jq '.devDependencies.electron="39.0.0" | .devDependencies["electron-builder"]="26.0.1"' \
+              simpliplay/package.json.orig > simpliplay/package.flatpak.json
+              
           # print the json to double check if jq actually worked...
-          # just in case y'know
-          echo "electron $(jq -r '.devDependencies."electron"' package.json)"
-          echo "electron-builder $(jq -r '.devDependencies."electron-builder"' package.json)"
+          echo "electron $(jq -r '.devDependencies.electron' simpliplay/package.flatpak.json)"
+          echo "electron-builder $(jq -r '.devDependencies["electron-builder"]' simpliplay/package.flatpak.json)"
+          
           # replace package.json for flatpak build cuz electron-builder is unfortunately
           # picky regarding flatpaks
           mv simpliplay/package.flatpak.json simpliplay/package.json
