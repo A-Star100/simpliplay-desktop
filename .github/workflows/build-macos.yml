@@ -10,6 +10,7 @@ on:
       - '.github/workflows/dependabot.yml'
       - 'README.md' # ignore readme changes
       - '.gitignore' # ignore gitignore changes
+  workflow_dispatch:
 
 jobs:
   build:
