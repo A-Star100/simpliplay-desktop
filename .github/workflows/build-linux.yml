@@ -246,6 +246,9 @@ jobs:
         with:
           node-version: 22
 
+      #TODO: remove qemu emulation step cuz
+      #apparently snapcraft v8 has better platforms handling
+
       - name: Install QEMU for ARMv7 emulation
         run: |
           sudo apt-get update
