@@ -51,8 +51,8 @@ jobs:
             sudo apt-get install -y jq
           fi
 
-          # patch the json to use older electron for compat
-          jq '.devDependencies.electron="39.0.0" | .devDependencies["electron-builder"]="26.0.1"' \
+          # patch the json to use select electron for compat
+          jq '.devDependencies.electron="40.0.0" | .devDependencies["electron-builder"]="26.0.1"' \
               simpliplay/package.json.orig > simpliplay/package.flatpak.json
               
           # print the json to double check if jq actually worked...
@@ -63,7 +63,7 @@ jobs:
           mv simpliplay/package.flatpak.json simpliplay/package.json
 
       - name: Build Flatpak
-        run: npx electron-builder --linux flatpak --x64
+        run: npx electron-builder --linux flatpak --x64 --electron-version 40.0.0
         working-directory: simpliplay
         continue-on-error: true
 
@@ -146,8 +146,8 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y jq
           fi
-          # patch the json to use older electron for compat
-          jq '.devDependencies.electron="39.0.0" | .devDependencies["electron-builder"]="26.0.1"' \
+          # patch the json to use select electron and electron-builder for compat
+          jq '.devDependencies.electron="40.0.0" | .devDependencies["electron-builder"]="26.0.1"' \
               simpliplay/package.json.orig > simpliplay/package.flatpak.json
               
           # print the json to double check if jq actually worked...
@@ -174,7 +174,8 @@ jobs:
             echo "node_modules wasn't found, will install deps now"
             npm install
           fi
-          npx electron-builder --linux flatpak --arm64
+          npx electron-builder --linux flatpak --arm64 --electron-version 40.0.0
+          
         working-directory: simpliplay
         continue-on-error: true
 
