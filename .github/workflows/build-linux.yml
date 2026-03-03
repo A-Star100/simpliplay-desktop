@@ -158,9 +158,6 @@ jobs:
           # picky regarding flatpaks
           mv simpliplay/package.flatpak.json simpliplay/package.json
 
-      - name: Restore package.json
-        run: mv simpliplay/package.json.orig simpliplay/package.json
-
       - name: Create unpacked build for Flatpak
         run: npx electron-builder --linux --arm64 --dir
         working-directory: simpliplay
@@ -180,6 +177,9 @@ jobs:
           npx electron-builder --linux flatpak --arm64
         working-directory: simpliplay
         continue-on-error: true
+
+      - name: Restore package.json
+        run: mv simpliplay/package.json.orig simpliplay/package.json
 
       - uses: actions/upload-artifact@v4
         with:
