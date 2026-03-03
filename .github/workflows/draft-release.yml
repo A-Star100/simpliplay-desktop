@@ -10,17 +10,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Prepare folder
+      - name: Prepare folder(s)
         run: mkdir -p all-artifacts
 
-      - name: Poll for expected artifacts
+      - name: Wait for artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          echo "Polling (every 15 seconds) until all required artifacts are available..."
+          echo "Polling until all required artifacts are available..."
 
-          REQUIRED=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64" "linux-armv7-snap" "linux-armv7-appimage")
+          required=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64" "linux-armv7-snap" "linux-armv7-appimage")
 
           while true; do
             echo "Checking artifacts..."
@@ -31,26 +31,26 @@ jobs:
             gh run download --dir all-artifacts || true
 
             missing=0
-            for ARTIFACT in "${REQUIRED[@]}"; do
-              if [ ! -d "all-artifacts/$ARTIFACT" ]; then
-                echo "MISSING: $ARTIFACT"
+            for artifact in "${required[@]}"; do
+              if [ ! -d "all-artifacts/$artifact" ]; then
+                echo "MISSING: $artifact"
                 missing=1
               fi
             done
 
             if [ "$missing" -eq 0 ]; then
-              echo "✅ All required artifacts found."
+              echo "All the required artifacts were found!"
               break
             fi
 
-            echo "Not all artifacts were found. Retrying in 15 seconds..."
+            echo "Unfortunately, not all the needed artifacts were found. Gonna retry in 15s"
             sleep 15
           done
 
-      - name: Extract ZIP files and prepare list of files to upload
+      - name: Extract ZIP files and prepare allowed files list
         run: |
           set -e
-          echo "Extracting ZIP files and collecting the correct assets..."
+          echo "Extracting ZIP files and collecting all needed assets..."
 
           find all-artifacts -type f -name '*.zip' | while read -r zipfile; do
             extract_dir="${zipfile%.zip}"
@@ -61,10 +61,10 @@ jobs:
           rm -f upload-files.txt
           find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.AppImage' \) | grep 'SimpliPlay' > upload-files.txt
 
-          echo "Filtered files to upload:"
+          echo "Unfiltered list of files to upload:"
           cat upload-files.txt
 
-      - name: Create empty draft release
+      - name: Create an empty draft release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "draft-${{ github.run_number }}"
@@ -72,7 +72,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Rename files if duplicates exist on release
+      - name: Rename files if duplicates exist on the release
         id: rename
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -114,10 +114,10 @@ jobs:
             fi
           done < upload-files.txt
 
-          echo "Final list of files to upload:"
+          echo "Filtered list of files to upload:"
           cat upload-files-renamed.txt
 
-      - name: Upload assets to draft release
+      - name: Upload assets to the draft release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -127,3 +127,5 @@ jobs:
             echo "Uploading $filepath"
             gh release upload "$release_tag" "$filepath" --clobber
           done < upload-files-renamed.txt
+
+      - run: 'echo "Successfully uploaded files to release!"'
