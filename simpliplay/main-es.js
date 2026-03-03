@@ -1,3 +1,5 @@
+// this is scrapped; here for archival purposes
+
 const { app, BrowserWindow, Menu, MenuItem, shell, dialog, globalShortcut } = require('electron');
 const path = require('path');
 const fs = require('fs');
