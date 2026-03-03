@@ -6,6 +6,8 @@ on:
 jobs:
   create-draft-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -61,8 +63,7 @@ jobs:
           rm -f upload-files.txt
           find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.AppImage' \) | grep 'SimpliPlay' > upload-files.txt
 
-          echo "Unfiltered list of files to upload:"
-          cat upload-files.txt
+          echo "Successfully set up unfiltered list of files to upload:"
 
       - name: Create an empty draft release
         uses: softprops/action-gh-release@v2
@@ -123,9 +124,14 @@ jobs:
         run: |
           set -e
           release_tag="draft-${{ github.run_number }}"
-          while IFS= read -r filepath; do
-            echo "Uploading $filepath"
-            gh release upload "$release_tag" "$filepath" --clobber
-          done < upload-files-renamed.txt
-
-      - run: 'echo "Successfully uploaded files to release!"'
+          
+          if while IFS= read -r filepath; do
+               echo "Uploading $filepath..."
+               gh release upload "$release_tag" "$filepath" --clobber
+             done < upload-files-renamed.txt
+          then
+            echo "Successfully uploaded files to release!"
+          else
+            echo "Something went wrong during the upload process."
+            exit 1
+          fi
