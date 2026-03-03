@@ -35,24 +35,24 @@ jobs:
         env:
           SNAPCRAFT_STORE_AUTH: candid
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
-          TARGET_CHANNEL: ${{ github.event.inputs.channel }}
+          target_channel: ${{ github.event.inputs.channel }}
         run: |
-          echo "Target channel: $TARGET_CHANNEL"
+          echo "Target channel: $target_channel"
           
-          BASE_DIR="final-snaps"
+          base="final-snaps"
           
-          VALID_ARTIFACTS=("linux-x64-snap" "linux-arm64-snap" "linux-armv7l-v2-snap")
+          valid=("linux-x64-snap" "linux-arm64-snap" "linux-armv7l-v2-snap")
 
-          for artifact in "${VALID_ARTIFACTS[@]}"; do
-            SUBDIR="$BASE_DIR/$artifact"
+          for artifact in "${valid[@]}"; do
+            subdir="$base/$artifact"
             
-            if [ -d "$SUBDIR" ]; then
-              echo "Checking artifact folder: $SUBDIR"
-              find "$SUBDIR" -name "*.snap" | while read -r snap_file; do
-                echo "Uploading: $snap_file to $TARGET_CHANNEL"
-                snapcraft upload "$snap_file" --release "$TARGET_CHANNEL"
+            if [ -d "$subdir" ]; then
+              echo "Checking artifact folder: $subdir"
+              find "$subdir" -name "*.snap" | while read -r snap_file; do
+                echo "Uploading $snap_file to $target_channel"
+                snapcraft upload "$snap_file" --release "$target_channel"
               done
             else
-              echo "Artifact not found: $artifact (Expected at $SUBDIR)"
+              echo "An artifact wasn't found: $artifact (was expected at $subdir)"
             fi
           done
