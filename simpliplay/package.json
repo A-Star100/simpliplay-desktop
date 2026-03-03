@@ -41,7 +41,7 @@
         "--socket=x11",
         "--device=dri",
         "--socket=pulseaudio",
-        "--filesystem=home:ro"
+        "--filesystem=~/simpliplay-snapshots"
       ]
     },
     "mac": {
