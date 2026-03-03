@@ -34,8 +34,8 @@
         "--share=ipc",
         "--socket=x11",
         "--device=dri",
-        "--filesystem=xdg-run/pipewire-0",
-        "--filesystem=home:ro"
+        "--socket=pulseaudio",
+        "--filesystem=~/simpliplay-snapshots"
       ]
     },
     "mac": {
