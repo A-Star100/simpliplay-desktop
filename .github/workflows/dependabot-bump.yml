@@ -10,7 +10,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.ref }}
@@ -34,28 +34,16 @@ jobs:
           newversion="$v1.$v2.$v3.$v4"
           sed -i "s/let version = \"$currentversion\"/let version = \"$newversion\"/" "$filepath"
 
-      # - name: Sync electron versions
+      # - name: Increment version package-arm64-linux.json
       #   run: |
-      #     NEW_ELECTRON=$(jq -r '.dependencies.electron // .devDependencies.electron' simpliplay/package.json)
-      #     NEW_BUILDER=$(jq -r '.dependencies["electron-builder"] // .devDependencies["electron-builder"]' simpliplay/package.json)
-          
-      #     ARM_FILE="simpliplay/package-arm64-linux.json"
-          
-      #     if [ -f "$ARM_FILE" ] && [ "$NEW_ELECTRON" != "null" ]; then
-      #       tmp=$(mktemp)
-      #       jq --arg env "$NEW_ELECTRON" --arg bld "$NEW_BUILDER" \
-      #          '.dependencies.electron = $env | .dependencies["electron-builder"] = $bld' \
-      #          "$ARM_FILE" > "$tmp" && mv "$tmp" "$ARM_FILE"
-      #       echo "synced electron ($NEW_ELECTRON) to $ARM_FILE"
-      #     else
-      #       echo "error: Could not find versions in package.json or $ARM_FILE is missing"
-      #       exit 1
-      #     fi
+      #     arm_json="simpliplay/package-arm64-linux.json"
+      #     normal_json="package.json"
+      #     jq -r '.devDependencies.electron // "not found"' $normal_json
 
-      - name: Commit and Push
+      - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add simpliplay/main.js
-          git commit -m "chore: auto-increment version in main.js for Electron update"
+          git commit -m "chore: auto-increment version in main.js for dependency update"
           git push
