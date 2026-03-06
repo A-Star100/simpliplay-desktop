@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Target platform'
+        required: true
+        default: 'All'
+        type: choice
+        options:
+          - All
+          - Linux
+          - macOS
+          - Windows
+      snap_channel:
+        description: 'Snap Store release channel'
+        required: true
+        default: 'edge'
+        type: choice
+        options: [edge, stable, beta, canary]
+
+jobs:
+  build-linux:
+    if: github.event.inputs.platform == 'All' || github.event.inputs.platform == 'Linux'
+    uses: ./.github/workflows/build_linux.yml
+
+  build-macos:
+    if: github.event.inputs.platform == 'All' || github.event.inputs.platform == 'macOS'
+    uses: ./.github/workflows/build_macos.yml
+
+  build-windows:
+    if: github.event.inputs.platform == 'All' || github.event.inputs.platform == 'Windows'
+    uses: ./.github/workflows/build_windows.yml
+
+  publish-snap:
+    needs: [build-linux]
+    if: always() && needs.build-linux.result == 'success'
+    uses: ./.github/workflows/publish_snap.yml
+    with:
+      channel: ${{ github.event.inputs.snap_channel }}
+    secrets: inherit
+
+  draft-release:
+    needs: [build-linux, build-macos, build-windows]
+    if: |
+      always() && 
+      !contains(needs.*.result, 'failure') && 
+      !contains(needs.*.result, 'cancelled')
+    permissions:
+      contents: write
+    uses: ./.github/workflows/draft_release.yml
+    secrets: inherit
