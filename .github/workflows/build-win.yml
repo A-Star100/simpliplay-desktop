@@ -11,6 +11,7 @@ on:
       - 'README.md'
       - '.gitignore'
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build-x64:
