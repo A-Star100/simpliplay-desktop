@@ -117,8 +117,7 @@ submitUrlBtn.addEventListener('click', async () => {
 
   // Check if URL is a valid URL and doesn't contain "http" or "https"
   if (url && !url.startsWith('http') && !url.startsWith('https')) {
-    // Assuming it's a URL and needs the protocol added
-    url = 'http://' + url;  // You can also choose 'https://' if preferred
+    url = 'http://' + url; 
   }
 
 const { isHLS, isDASH } = await detectStreamType(url);
