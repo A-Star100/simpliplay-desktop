@@ -164,8 +164,7 @@ submitUrlBtn.addEventListener('click', async () => {
 
   // Check if URL is a valid URL and doesn't contain "http" or "https"
   if (url && !url.startsWith('http') && !url.startsWith('https')) {
-    // Assuming it's a URL and needs the protocol added
-    url = 'http://' + url;  // You can also choose 'https://' if preferred
+    url = 'http://' + url;  // Choose 'https://' when needed and make a PR
   }
 
 const { isHLS, isDASH } = await detectStreamType(url);
@@ -184,9 +183,9 @@ const { isHLS, isDASH } = await detectStreamType(url);
       window.dash = player
     }
     if (url.toLowerCase().endsWith('.m3u8') || url.toLowerCase().endsWith('.m3u') || isHLS) {
-      // HLS stream
+      // Use hls.js is supported method
       if (Hls.isSupported()) {
-        mediaPlayer.style.display = 'flex'; // Hide the native video player
+        mediaPlayer.style.display = 'flex';
         hls = new Hls();
         window.hls = hls
         mediaPlayer.pause();
@@ -206,7 +205,7 @@ const { isHLS, isDASH } = await detectStreamType(url);
         urlInput.value = "";
       }
     } else if (url.toLowerCase().endsWith('.mpd') || isDASH) {
-      mediaPlayer.style.display = 'flex'; // Hide the native video player
+      mediaPlayer.style.display = 'flex';
       mediaPlayer.pause();
       player = dashjs.MediaPlayer().create();
       window.dash = player
@@ -219,7 +218,7 @@ const { isHLS, isDASH } = await detectStreamType(url);
       }
       window.dash = player
     } else {
-      mediaPlayer.style.display = 'flex'; // Hide the native video player
+      mediaPlayer.style.display = 'flex';
       mediaPlayer.pause();
       mediaPlayer.src = url;
       customControls.style.display = 'flex';
@@ -290,18 +289,18 @@ const { isHLS, isDASH } = await detectStreamType(url);
     
         clearSubtitles(); // Remove any previously loaded subtitles
     
-        // Revoke the previous Object URL if it exists
+        // Revoke old objectURL if it exists
         if (previousObjectURL) {
             URL.revokeObjectURL(previousObjectURL);
             window.objectURL = previousObjectURL
         }
 
-        // Revoke previous file picker Object URL
+        // Revoke a drag-and-dropped file's object URL
     if (window.previousDropURL) {
         URL.revokeObjectURL(window.previousDropURL);
     }
     
-        // Create a new Object URL for the selected file
+        // Create a new object URL for a new file
         const fileURL = URL.createObjectURL(file);
         mediaPlayer.src = fileURL;
         mediaPlayer.load();
@@ -309,7 +308,7 @@ const { isHLS, isDASH } = await detectStreamType(url);
         mediaPlayer.play();
         }
     
-        // Store the new Object URL for future cleanup
+        // Store the new one for future cleanup
         previousObjectURL = fileURL;
         fileInput.value = "";
     
