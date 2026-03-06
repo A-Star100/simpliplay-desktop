@@ -22,44 +22,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlInput = document.getElementById('urlInput');
     const submitUrlBtn = document.getElementById('submitUrlBtn');
     const cancelUrlBtn = document.getElementById('cancelUrlBtn');
-    const ccBtn = document.getElementById('ccBtn'); // CC button
+    const ccBtn = document.getElementById('ccBtn');
     const subtitlesOverlay = document.getElementById('subtitlesOverlay');
     const subtitlesInput = document.getElementById('subtitlesInput');
     const submitSubtitlesBtn = document.getElementById('submitSubtitlesBtn');
     const cancelSubtitlesBtn = document.getElementById('cancelSubtitlesBtn');
     const customControls = document.getElementById('customControls');
 
-// Function to add subtitles dynamically (e.g., after URL input)
 function addSubtitles(url) {
-  // Remove any existing subtitle tracks
+  // remove any already-there subtitle tracks
   const existingTracks = mediaPlayer.getElementsByTagName('track');
   for (let track of existingTracks) {
     track.remove();
   }
 
-  // Create a new track for subtitles
+  // create new subtitles track
   const track = document.createElement('track');
   track.kind = 'subtitles';
   track.label = 'English';
   track.srclang = 'en';
   track.src = url;
 
-  // Append the new track
+  // add new track
   mediaPlayer.appendChild(track);
 
-  // Optionally, enable subtitles by default
-  track.track.mode = 'showing'; // Enable subtitles by default
+  track.track.mode = 'showing'; // enable subtitles by default
 }
 
-// Handle submit subtitle URL
+// handle submit subtitle URL
 function clearSubtitles() {
   const tracks = mediaPlayer.getElementsByTagName('track');
   for (let i = tracks.length - 1; i >= 0; i--) {
     tracks[i].remove();
   }
 }
-
-// Use this function when a new video is loaded
 
 submitSubtitlesBtn.addEventListener('click', () => {
   const subtitleUrl = subtitlesInput.value;
@@ -75,14 +71,13 @@ submitSubtitlesBtn.addEventListener('click', () => {
     let autoplayEnabled = true;
     let loopEnabled = false;
 
-    // Handle submit URL button in custom dialog
+    // handle submit URL button in custom dialog
 submitUrlBtn.addEventListener('click', () => {
   let url = urlInput.value;
 
-  // Check if URL is a valid URL and doesn't contain "http" or "https"
+  // is the URL valid?
   if (url && !url.startsWith('http') && !url.startsWith('https')) {
-    // Assuming it's a URL and needs the protocol added
-    url = 'http://' + url;  // You can also choose 'https://' if preferred
+    url = 'http://' + url;  // change to 'https://' when needed
   }
 
   if (url) {
