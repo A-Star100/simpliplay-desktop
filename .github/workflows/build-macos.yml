@@ -11,6 +11,7 @@ on:
       - 'README.md' # ignore readme changes
       - '.gitignore' # ignore gitignore changes
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
