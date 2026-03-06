@@ -11,6 +11,7 @@ on:
       - 'README.md' #ignore readme
       - '.gitignore' #ignore the gitignore that is the file that ignores other files
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build_x64:

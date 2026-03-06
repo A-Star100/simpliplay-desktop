@@ -9,6 +9,11 @@ on:
         default: 'edge'
         type: choice
         options: [edge, stable, beta, canary]
+  workflow_call:
+    inputs:
+      channel:
+        type: string
+        required: true
 
 jobs:
   publish:

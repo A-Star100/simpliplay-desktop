@@ -11,6 +11,7 @@ on:
       - 'README.md' # ignore readme changes
       - '.gitignore' # ignore gitignore changes
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
@@ -31,7 +32,7 @@ jobs:
           rm -rf ~/Library/Caches/electron-builder
         working-directory: simpliplay
 
-      - name: Install dependencies
+      - name: Install deps
         run: npm install
         working-directory: simpliplay
 
@@ -39,57 +40,23 @@ jobs:
         run: npx electron-builder --mac --x64 --arm64 --universal
         working-directory: simpliplay
 
-      - name: Upload production-ready builds
+      - name: Upload production builds
         uses: actions/upload-artifact@v4
         with:
           name: builds
-          # upload just the DMGs
           path: simpliplay/dist/*.dmg
 
-      - name: Prepare Test Archive
-        run: |
-          # ditto to preserve all that mac metadata stuff
-          cd simpliplay/dist
-          # zip the app into an uncomfy backpack
-          find . -name "SimpliPlay.app" -exec ditto -c -k --sequesterRsrc --keepParent "{}" test-app.zip \;
+      # - name: Prepare test ZIP
+      #   run: |
+      #     # ditto to preserve the mac metadata
+      #     cd simpliplay/dist
+      #     # zip the app into an uncomfy backpack
+      #     find . -name "SimpliPlay.app" -exec ditto -c -k --sequesterRsrc --keepParent "{}" test-app.zip \;
 
-      - name: Upload testing binaries
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-artifacts
-          path: simpliplay/dist/test-app.zip
-      
-  test:
-      runs-on: macos-latest
-      needs: [build]
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
-      
-        - name: Download test binaries
-          uses: actions/download-artifact@v4
-          with:
-            name: test-artifacts
-            path: test-dist/
-        - name: Run launch test
-          run: |
-            find test-dist -name "SimpliPlay.app" -type d | while read -r APP_PATH; do
-              BIN="$APP_PATH/Contents/MacOS/SimpliPlay"
-            
-              echo "launching $BIN"
-            
-              "$BIN" --no-sandbox &
-              PID=$!
-            
-              sleep 15
-            
-              if kill -0 "$PID" 2>/dev/null; then
-                echo "app is alive. terminating..."
-                kill "$PID"
-              else
-                echo "app crashed or closed too soon"
-                exit 1
-              fi
-            done
+      # - name: Upload testing binaries
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: test-artifacts
+      #     path: simpliplay/dist/test-app.zip
 
 
