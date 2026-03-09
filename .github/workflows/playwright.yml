@@ -10,9 +10,6 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./simpliplay
     steps:
     - uses: actions/checkout@v5
     - uses: actions/setup-node@v5
@@ -20,13 +17,13 @@ jobs:
         node-version: lts/*
     - name: Install deps
       run: npm install && npm install playwright
+      working-directory: simpliplay
     - name: Install Playwright browser(s)
       run: npx playwright install --with-deps
+      working-directory: simpliplay
     - name: Run Playwright tests
-      run: |
-          echo "$(ls)" && npx playwright test
-          # TODO: use ./simpliplay/tests/basic-test.spec.js
-      working-directory: '..'
+      run: npx playwright test
+      working-directory: simpliplay
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
