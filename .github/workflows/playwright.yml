@@ -23,7 +23,9 @@ jobs:
     - name: Install Playwright browser(s)
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: echo "$(ls)" && npx playwright test tests/basic-test.spec.js
+      run: |
+          echo "$(ls)" && npx playwright test tests/basic-test.spec.js
+      working-directory: '..'
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
