@@ -19,12 +19,11 @@ jobs:
       with:
         node-version: lts/*
     - name: Install deps
-      run: npm install && npm install playwright && npm install -D @playwright/test
+      run: npm install && npm install playwright
     - name: Install Playwright browser(s)
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test ./basic-test.spec.js
-      working-directory: ./simpliplay/tests/
+      run: echo "$(ls)" && npx playwright test tests/basic-test.spec.js
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
