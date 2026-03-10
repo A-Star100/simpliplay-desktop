@@ -29,6 +29,7 @@ const { _electron: electron } = require('playwright');
   // click a button
   // TODO: change this later
   await window.click('text=Go back');
+  await window.screenshot({ path: 'clicked_back.png' }); // do another screenshot to see if button click worked
   // exit
   await electronApp.close();
 })();
