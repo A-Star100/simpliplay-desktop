@@ -10,9 +10,6 @@ const { _electron: electron } = require('playwright');
       '--disable-gpu'
     ] 
   });
-  function delay(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
 
   // do evaluation expression in the context of electron
   const appPath = await electronApp.evaluate(async ({ app }) => {
@@ -30,10 +27,14 @@ const { _electron: electron } = require('playwright');
   // direct electron console to node terminal.
   window.on('console', console.log);
   await window.click('text=Enter a URL')
-  await window.fill('input[name="urlInput"]', 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8');
+  await window.getByRole('textbox').fill('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8');
   await window.click('text=Submit')
-  await delay(3000);
-  
+  await window.waitForFunction(() => {
+    const video = document.querySelector('video');
+    return video && video.currentTime > 0 && !video.paused;
+  }, { timeout: 15000 });
+
+  await new Promise(r => setTimeout(r, 1000));  
   await window.screenshot({ path: 'played_media.png' }); // do another screenshot to see if playback worked
   // exit
   await electronApp.close();
