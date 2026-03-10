@@ -29,9 +29,11 @@ const { _electron: electron } = require('playwright');
   await window.screenshot({ path: 'intro.png' });
   // direct electron console to node terminal.
   window.on('console', console.log);
-  await window.fill('text=Enter a URL', 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8');
-  await window.click('Submit');
-  await delay(5000)
+  await window.click('text=Enter a URL')
+  await window.fill('#urlInput', 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')
+  await window.click('text=Submit')
+  await delay(3000);
+  await window.screenshot({ path: 'played_media.png' });
   
   await window.screenshot({ path: 'played_media.png' }); // do another screenshot to see if playback worked
   // exit
