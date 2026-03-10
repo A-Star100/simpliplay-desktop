@@ -2,7 +2,14 @@ const { _electron: electron } = require('playwright');
 
 (async () => {
   // launch
-  const electronApp = await electron.launch({ args: ['main.js'] });
+  const electronApp = await electron.launch({ 
+    args: [
+      'main.js', 
+      '--no-sandbox', 
+      '--disable-setuid-sandbox', 
+      '--disable-gpu'
+    ] 
+  });
 
   // do evaluation expression in the context of electron
   const appPath = await electronApp.evaluate(async ({ app }) => {
