@@ -29,5 +29,5 @@ jobs:
         name: test-screenshots
         path: |
           simpliplay/intro.png
-          simpliplay/clicked_back.png
+          simpliplay/played_media.png
         retention-days: 7
