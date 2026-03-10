@@ -34,6 +34,7 @@ jobs:
       if: ${{ always() }}
       with:
         name: test-screenshots
-        path: simpliplay/*.png # it'll also upload the icons
-        # but i guess its better to upload something than nothing?
+        path: |
+          simpliplay/intro.png
+          simpliplay/clicked_back.png
         retention-days: 7
