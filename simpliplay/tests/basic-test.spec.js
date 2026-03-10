@@ -10,6 +10,9 @@ const { _electron: electron } = require('playwright');
       '--disable-gpu'
     ] 
   });
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
   // do evaluation expression in the context of electron
   const appPath = await electronApp.evaluate(async ({ app }) => {
@@ -26,10 +29,11 @@ const { _electron: electron } = require('playwright');
   await window.screenshot({ path: 'intro.png' });
   // direct electron console to node terminal.
   window.on('console', console.log);
-  // click a button
-  // TODO: change this later
-  await window.click('text=Go back');
-  await window.screenshot({ path: 'clicked_back.png' }); // do another screenshot to see if button click worked
+  await window.fill('text=Enter a URL', 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8');
+  await window.click('Submit');
+  await delay(5000)
+  
+  await window.screenshot({ path: 'played_media.png' }); // do another screenshot to see if playback worked
   // exit
   await electronApp.close();
 })();
