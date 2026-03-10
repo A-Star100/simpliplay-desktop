@@ -51,3 +51,6 @@ jobs:
       contents: write
     uses: ./.github/workflows/draft_release.yml
     secrets: inherit
+
+  playwright-test:
+    uses: ./.github/workflows/playwright.yml
