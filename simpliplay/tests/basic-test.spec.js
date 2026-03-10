@@ -33,7 +33,6 @@ const { _electron: electron } = require('playwright');
   await window.fill('#urlInput', 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8')
   await window.click('text=Submit')
   await delay(3000);
-  await window.screenshot({ path: 'played_media.png' });
   
   await window.screenshot({ path: 'played_media.png' }); // do another screenshot to see if playback worked
   // exit
