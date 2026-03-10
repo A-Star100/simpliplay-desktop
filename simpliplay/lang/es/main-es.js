@@ -432,7 +432,7 @@ function openFileSafely(filePath) {
     const absPath = path.resolve(filePath); // ensure absolute path
 
     if (mainWindow?.webContents) {
-        const winFileURL = pathToFileURL(filePath).href; // ✅ Convert and encode file path
+        const winFileURL = pathToFileURL(filePath).href; // encode the path now
         mainWindow.webContents.send("play-media", winFileURL);
     }
 
