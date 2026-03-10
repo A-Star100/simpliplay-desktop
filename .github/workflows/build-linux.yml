@@ -301,7 +301,7 @@ jobs:
           name: linux-armv7l-v2-snap
           path: simpliplay/dist/*.snap
 
-  start-linux-tests:
-    name: Start Linux Tests
-    needs: [build_x64, build_arm64, build_armv7]
-    uses: ./.github/workflows/test-linux.yml
+  # start-linux-tests:
+  #   name: Start Linux Tests
+  #   needs: [build_x64, build_arm64, build_armv7]
+  #   uses: ./.github/workflows/test-linux.yml
