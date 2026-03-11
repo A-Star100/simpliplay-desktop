@@ -410,11 +410,17 @@ jobs:
           # full_bin_path="$(pwd)/$bin_path"
           # echo "found at: $full_bin_path"
           
-          # move back to the app dir to run the build
-           cd ..
+          echo "setting up redirects..."
+          mkdir -p packages/electron-builder/out/cli
+          ln -sf "$(pwd)/packages/electron-builder/src/cli/cli.ts" "packages/electron-builder/out/cli/cli.js"
+
+          # stay inside builder dir
+          echo "attempting build now..."
           
-          echo "attempting application build now..."
-          node "./custom-builder/packages/electron-builder/cli.js" --project ./ --linux appimage --arch riscv64
+          node "packages/electron-builder/cli.js" \
+            --project "../../" \
+            --linux appimage \
+            --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
