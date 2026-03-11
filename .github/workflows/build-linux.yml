@@ -387,7 +387,12 @@ jobs:
           ln -sf "$(pwd)/packages/app-builder-lib" "node_modules/app-builder-lib"
 
           # install the builder's own deps inside custom-builder
-          yarn install --ignore-engines --ignore-scripts
+          yarn install --ignore-engines
+          # not using --ignore-scripts anymore
+          # cuz it breaks the cli when we run it
+          # and it tries to find its deps
+          # but the scripts were the ones that added them
+          # and by skipping them it causes that error
 
           # compile with npm instead of tsc
           echo "Compiling electron-builder source..."
