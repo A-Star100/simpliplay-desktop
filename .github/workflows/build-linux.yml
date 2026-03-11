@@ -327,7 +327,6 @@ jobs:
           # --force just, well, forces the install operation through most failures (like the EBADPLATFORM one)
           # so if there is a failure, we'll hear about it instead of getting a stop.... good i guess
           # and --legacy-peer-deps helps prevent dep conflicts due to forked monorepos (ehh)
-          # i think this should fix the error in last CI run
         working-directory: simpliplay
 
       - name: Swap Electron ver.
@@ -346,7 +345,13 @@ jobs:
           ELECTRON_MIRROR: "https://github.com/riscv-forks/electron-riscv-releases/releases/download/"
           ELECTRON_CUSTOM_DIR: "v${version}"
           ELECTRON_CUSTOM_FILENAME: "electron-v${version}-linux-riscv64.zip"
-        run: npx electron-builder --linux AppImage --riscv64
+        run: |
+          # the custom binary lives in the apartment node_modules
+          # using npx just means it'll get the standard electron-builder from upstream (nuh uh)
+          # which is, well, against the whole purpose of this shebang
+          # to anyone contributing, don't change this snippet in the build_riscv job to use npx
+          # because it will cause RISC-V build failures
+          ./node_modules/.bin/electron-builder --linux AppImage --riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
