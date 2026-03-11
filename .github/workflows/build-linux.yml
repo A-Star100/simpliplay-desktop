@@ -361,9 +361,14 @@ jobs:
           echo "available branches:"
           git branch -a | head -n 10
 
+          # use yarn v4
+          # cuz it natively supports workspace protocol
+          # that yarn v1 hates
+          yarn set version berry
+
           # patch out pnpm
           # so we can just use yarn without any conflicts
-          jq '.packageManager = "yarn@1.22.22"' package.json > package.json.tmp && mv package.json.tmp package.json
+          jq '.packageManager = "yarn@4.0.0"' package.json > package.json.tmp && mv package.json.tmp package.json
 
           # patch out dmg-license
           # it's darwin-only and freaks out linux compiler
@@ -387,7 +392,7 @@ jobs:
           ln -sf "$(pwd)/packages/app-builder-lib" "node_modules/app-builder-lib"
 
           # install the builder's own deps inside custom-builder
-          yarn install --ignore-engines
+          yarn install
           yarn add ts-node typescript --dev --ignore-engines
           # not using --ignore-scripts anymore
           # cuz it breaks the cli when we run it
@@ -401,8 +406,7 @@ jobs:
           npx tsc --skipLibCheck --noEmitOnError false || echo "tsc finished, checking for output..."
 
           echo "yarn adding missing deps"
-          yarn --cwd packages/electron-builder add is-ci yargs read-config-file --ignore-engines
-          # avoid workspace: errors
+          yarn workspace electron-builder add is-ci yargs read-config-file ts-node typescript
 
           echo "setting up redirects..."
           mkdir -p packages/electron-builder/out/cli
