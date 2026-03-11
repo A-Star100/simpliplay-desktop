@@ -401,7 +401,7 @@ jobs:
           npx tsc --skipLibCheck --noEmitOnError false || echo "tsc finished, checking for output..."
 
           echo "yarn adding missing deps"
-          yarn workspace electron-builder add is-ci yargs read-config-file ts-node typescript --ignore-engines
+          yarn --cwd packages/electron-builder add is-ci yargs read-config-file --ignore-engines
           # avoid workspace: errors
 
           echo "setting up redirects..."
