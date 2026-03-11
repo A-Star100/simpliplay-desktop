@@ -320,9 +320,10 @@ jobs:
       - name: Swap to the electron-builder fork (for RISC-V support)
         run: |
           npm config set engine-strict false # no platform checks
-          npm install electron-builder@git+https://git.spacemit.com/electron/electron-builder.git#riscv --force --ignore-scripts --no-save --legacy-peer-deps
+          npm install builder-riscv@git+https://git.spacemit.com/electron/electron-builder.git#riscv --force --ignore-scripts --no-save
           # always use spacemit's fork, not standard electron-builder; it currently lacks risc-v support
-          # --ignore-scripts means that no silly multi-OS-dep-install (is this even a word???)
+          # also using an alias just to validate if we are really using the fork or not
+          # --ignore-scripts means that no silly specific-OS-dep-install (is this even a word???)
           # scripts will run
           # --no-save forces the new dep to not be saved to the package.json
           # --force just, well, forces the install operation through most failures (like the EBADPLATFORM one)
@@ -352,9 +353,9 @@ jobs:
           # which is, well, against the whole purpose of this shebang
           # to anyone contributing, don't change this snippet in the build_riscv job to use npx
           # because it will cause RISC-V build failures
-          fork="./node_modules/electron-builder/packages/electron-builder/out/cli/cli.js"
-          node $fork --help | grep -q "riscv64" || (echo "fork mismatch detected" && exit 1)          
-          node $fork --linux AppImage --riscv64
+          ./node_modules/.bin/builder-riscv --help | grep -i "risc" || (echo "CLI might be wrong" && exit 1)
+          
+          ./node_modules/.bin/builder-riscv --linux AppImage --riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
