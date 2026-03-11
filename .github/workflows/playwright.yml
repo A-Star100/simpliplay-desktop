@@ -23,7 +23,7 @@ jobs:
       run: |
         xvfb-run node tests/basic-test.spec.js
       working-directory: simpliplay
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v6
       if: ${{ always() }}
       with:
         name: test-screenshots
