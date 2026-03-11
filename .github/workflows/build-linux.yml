@@ -417,7 +417,9 @@ jobs:
           npx tsc --skipLibCheck --noEmitOnError false || echo "tsc finished, checking for output..."
 
           echo "yarn adding missing deps"
-          yarn workspace electron-builder add is-ci yargs read-config-file ts-node typescript
+          workspace_name_from_json=$(jq -r '.name' packages/electron-builder/package.json)
+          echo "targeting workspace $workspace_name_from_json"
+          yarn workspace "$workspace_name_from_json" add is-ci yargs read-config-file ts-node typescript
 
           echo "setting up redirects..."
           mkdir -p packages/electron-builder/out/cli
