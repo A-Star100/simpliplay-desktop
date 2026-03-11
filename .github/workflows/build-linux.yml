@@ -339,6 +339,11 @@ jobs:
           ELECTRON_CUSTOM_FILENAME: 'electron-v${version}-linux-riscv64.zip'
           # same here as well
         run: |
+          # enable corepack cuz
+          # electron builder wants us to use it to
+          # manage versions for yarn and pnpm
+          corepack enable
+          
           # clone the repo
           echo "cloning electron-builder fork..."
           
@@ -355,6 +360,10 @@ jobs:
           # list branches
           echo "available branches:"
           git branch -a | head -n 10
+
+          # patch out pnpm
+          # so we can just use yarn without any conflicts
+          jq '.packageManager = "yarn@1.22.22"' package.json > package.json.tmp && mv package.json.tmp package.json
 
           # patch out dmg-license
           # it's darwin-only and freaks out linux compiler
