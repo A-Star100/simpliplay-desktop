@@ -428,10 +428,16 @@ jobs:
           yarn add is-ci yargs read-config-file ts-node typescript
           cd ../..
           
-          echo "setting up redirects..."
+          echo "setting up extra symlinks..."
           mkdir -p packages/electron-builder/out/cli
           # redirects .ts to use .js with a symlink
           ln -sf "$(pwd)/packages/electron-builder/src/cli/cli.ts" "packages/electron-builder/out/cli/cli.js"
+
+          mkdir -p packages/app-builder-lib/out
+          ln -sf "$(pwd)/packages/app-builder-lib/src/"* "packages/app-builder-lib/out/"
+          
+          mkdir -p packages/builder-util/out
+          ln -sf "$(pwd)/packages/builder-util/src/"* "packages/builder-util/out/"
 
           # stay inside builder dir
           echo "attempting build now..."
