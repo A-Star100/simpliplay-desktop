@@ -342,39 +342,34 @@ jobs:
       - name: Build AppImage
         env:
           npm_config_arch: riscv64
-          ELECTRON_MIRROR: "https://github.com/riscv-forks/electron-riscv-releases/releases/download/"
-          ELECTRON_CUSTOM_DIR: "v${version}"
-          ELECTRON_CUSTOM_FILENAME: "electron-v${version}-linux-riscv64.zip"
+          qemu_ld_prefix: /usr/riscv64-linux-gnu/
+          electron_mirror: "https://github.com/riscv-forks/electron-riscv-releases/releases/download/"
+          electron_custom_dir: "v${version}"
+          electron_custom_filename: "electron-v${version}-linux-riscv64.zip"
         run: |
-          # the custom binary lives in the apartment node_modules
-          # using npx just means it'll get the standard electron-builder from upstream (nuh uh)
-          # unless we use the --package args and stuff
-          # which is, well, against the whole purpose of this shebang
-          # to anyone contributing, don't change this snippet in the build_riscv job to use npx
-          # because it will cause RISC-V build failures
-          #rm -rf ./node_modules/.bin/electron-builder
-          # now, it is time to point to the monorepo
-          # ik we installed it earlier, but whatever, we have to get something working
+          # setup compiler and qemu
+          sudo apt-get update && sudo apt-get install -y qemu-user-static binfmt-support libc6-riscv64-cross
+          sudo npm install -g typescript
+          
+          # move to package and compile to avoid workspace protocol errors
           cd node_modules/electron-builder/packages/electron-builder
+          echo "compiling fork..."
+          tsc --outdir out --skiplibcheck --target esnext --module commonjs src/cli/cli.ts || true
           
-          npm install --include=dev
-          npm run build || true # some forks have weird build scripts, continue anyway
+          # locate the compiled js
+          found_cli=$(find out -name "cli.js" | head -n 1)
           
-          real=$(jq -r '.bin."electron-builder" // .bin' package.json) # hopefully allegedly real
-          
-          abs="$(pwd)/$real" # absolute
-          
-          if [ ! -f "$abs" ]; then
-            echo "binary path from the package.json ($abs) was not found. now checking for any js in out/:"
-            find out -name "*.js" | head -n 5
-            exit 1
+          if [ -z "$found_cli" ]; then
+             echo "cli.js not found. dumping files:"
+             find . -maxdepth 4 -name "*.js"
+             exit 1
           fi
 
-          echo "Found real binary at: $abs"
-          cd ../../../.. # go back to simpliplay/ now
-          # man, how much have we dug into the rabbit hole
+          echo "found at: $found_cli"
+          cd ../../../..
           
-          node "simpliplay/node_modules/electron-builder/packages/electron-builder/$real" --linux AppImage --arch riscv64
+          # execute
+          node "simpliplay/node_modules/electron-builder/packages/electron-builder/$found_cli" --linux appimage --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
