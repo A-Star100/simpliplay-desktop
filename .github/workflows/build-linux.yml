@@ -311,15 +311,17 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install global deps (qemu, jq, and risc-v libs)
+      - name: Install global deps (qemu, jq, risc-v libs and ts-node)
         run: |
           sudo apt-get update
           # the libc6-riscv64-cross package gives us the dynamic loader and base libs
           # which will definitely help
-          # we just have to hope the package doesn't get damaged in "shipping" though.... lol
-          sudo apt-get install -y jq qemu-user-static binfmt-support libc6-riscv64-cross
+          # we just have to hope the package doesn't get damaged in shipping though
+          sudo apt-get update && sudo apt-get install -y qemu-user-static binfmt-support libc6-riscv64-cross
           # qemu, please register at the front desk
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
+          # ts-node, have a good flight to here
+          npm install -g ts-node typescript
 
       - name: Install Node project deps
         run: npm install
@@ -347,29 +349,19 @@ jobs:
           electron_custom_dir: "v${version}"
           electron_custom_filename: "electron-v${version}-linux-riscv64.zip"
         run: |
-          # setup compiler and qemu
-          sudo apt-get update && sudo apt-get install -y qemu-user-static binfmt-support libc6-riscv64-cross
-          sudo npm install -g typescript
+          cd node_modules/electron-builder
           
-          # move to package and compile to avoid workspace protocol errors
-          cd node_modules/electron-builder/packages/electron-builder
-          echo "compiling fork..."
-          tsc --outdir out --skiplibcheck --target esnext --module commonjs src/cli/cli.ts || true
+          # to do the link to @electron/builder-util to packages/builder-util
+          yarn install
+          # no more silly symlink-like problems anymore
           
-          # locate the compiled js
-          found_cli=$(find out -name "cli.js" | head -n 1)
-          
-          if [ -z "$found_cli" ]; then
-             echo "cli.js not found. dumping files:"
-             find . -maxdepth 4 -name "*.js"
-             exit 1
-          fi
-
-          echo "found at: $found_cli"
-          cd ../../../..
-          
-          # execute
-          node "simpliplay/node_modules/electron-builder/packages/electron-builder/$found_cli" --linux appimage --arch riscv64
+          # run via ts-node, not regular node, cuz apparently ts-node
+          # cooperates more...
+          # --transpile-only ignores type errors
+          # which is really the whole point of typescript
+          # but not for us
+          echo "executing via ts-node..."
+          npx ts-node --transpile-only packages/electron-builder/src/cli/cli.ts --linux appimage --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
