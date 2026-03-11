@@ -17,6 +17,8 @@ jobs:
         run: mkdir -p all-artifacts
 
       - name: Check for required artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
             set -e
             echo "Downloading available artifacts..."
