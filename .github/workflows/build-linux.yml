@@ -319,8 +319,9 @@ jobs:
 
       - name: Swap to the electron-builder fork (for RISC-V support)
         run: |
-          # SpaceMIT's fork is cool
+          npm config set engine-strict false # no platform checks
           npm install electron-builder@git+https://git.spacemit.com/electron/electron-builder.git#riscv --force --ignore-scripts --no-save --legacy-peer-deps
+          # always use spacemit's fork, not standard electron-builder; it currently lacks risc-v support
           # --ignore-scripts means that no silly multi-OS-dep-install (is this even a word???)
           # scripts will run
           # --no-save forces the new dep to not be saved to the package.json
@@ -351,7 +352,9 @@ jobs:
           # which is, well, against the whole purpose of this shebang
           # to anyone contributing, don't change this snippet in the build_riscv job to use npx
           # because it will cause RISC-V build failures
-          ./node_modules/.bin/electron-builder --linux AppImage --riscv64
+          fork="./node_modules/electron-builder/packages/electron-builder/out/cli/cli.js"
+          node $fork --help | grep -q "riscv64" || (echo "fork mismatch detected" && exit 1)          
+          node $fork --linux AppImage --riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
