@@ -388,6 +388,7 @@ jobs:
 
           # install the builder's own deps inside custom-builder
           yarn install --ignore-engines
+          yarn add ts-node typescript --dev --ignore-engines
           # not using --ignore-scripts anymore
           # cuz it breaks the cli when we run it
           # and it tries to find its deps
@@ -395,28 +396,13 @@ jobs:
           # and by skipping them it causes that error
 
           # compile with npm instead of tsc
-          echo "Compiling electron-builder source..."
+          echo "compiling electron-builder source..."
           # try tsc build
           npx tsc --skipLibCheck --noEmitOnError false || echo "tsc finished, checking for output..."
 
-          echo "scanning for compiled source..."
-          # search for cli.js
-          # bin_path=$(find packages/electron-builder -name "cli.js" -type f | grep -E "out|dist" | head -n 1)
-
-          # # do a basic scan for the cli.js
-          # if [ -z "$bin_path" ]; then
-          #   echo "ERROR: cli.js not found after build."
-          #   echo "current dir struct for debugs:"
-          #   find packages/electron-builder -maxdepth 3
-          #   exit 1
-          # fi
-
-          # # use absolute path
-          # full_bin_path="$(pwd)/$bin_path"
-          # echo "found at: $full_bin_path"
-
           echo "yarn adding missing deps"
-          (cd packages/electron-builder && yarn add is-ci yargs read-config-file --ignore-engines)
+          yarn workspace electron-builder add is-ci yargs read-config-file ts-node typescript --ignore-engines
+          # avoid workspace: errors
 
           echo "setting up redirects..."
           mkdir -p packages/electron-builder/out/cli
@@ -426,7 +412,8 @@ jobs:
           # stay inside builder dir
           echo "attempting build now..."
           
-          node "packages/electron-builder/cli.js" \
+          echo "attempting build now..."
+          npx ts-node --transpile-only "packages/electron-builder/cli.js" \
             --project "../../" \
             --linux appimage \
             --arch riscv64
