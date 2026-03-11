@@ -327,21 +327,7 @@ jobs:
         run: npm install
         working-directory: simpliplay
 
-      - name: Swap to the electron-builder fork (for RISC-V support)
-        run: |
-          npm config set engine-strict false # no platform checks
-          #npm uninstall electron-builder # uninstall the standard one installed via npm install
-          npm install electron-builder@git+https://git.spacemit.com/electron/electron-builder.git#riscv --force --ignore-scripts --no-save
-          # always use spacemit's fork, not standard electron-builder; it currently lacks risc-v support
-          # --ignore-scripts means that no silly specific-OS-dep-install (is this even a word???)
-          # scripts will run
-          # --no-save forces the new dep to not be saved to the package.json
-          # --force just, well, forces the install operation through most failures (like the EBADPLATFORM one)
-          # so if there is a failure, we'll hear about it instead of getting a stop.... good i guess
-          # and --legacy-peer-deps helps prevent dep conflicts due to forked monorepos (ehh)
-        working-directory: simpliplay
-
-      - name: Build AppImage
+      - name: Swap to electron-builder fork and build
         env:
           npm_config_arch: riscv64
           QEMU_LD_PREFIX: /usr/riscv64-linux-gnu/
@@ -353,49 +339,26 @@ jobs:
           ELECTRON_CUSTOM_FILENAME: 'electron-v${version}-linux-riscv64.zip'
           # same here as well
         run: |
-          cd node_modules/electron-builder
-
-          # delete the dependencies key
-          # cuz in the fork this is the only dependency in the whole key
-          # so we can delete it for now
-          # targeting the subpack so yarn doesn't trip on dmg-license
-          # thankfullyy
-          echo "doing some spring cleaning to prevent compile errors..."
-          jq 'del(.dependencies)' packages/electron-builder/package.json > package.json.tmp && mv package.json.tmp packages/electron-builder/package.json
-
-          # check if it actually worked now
-          echo "here is how package.json looks now:"
-          cat packages/electron-builder/package.json
-                  
-          # to do the link to @electron/builder-util to packages/builder-util
-          yarn config set ignore-engines true
+          # clone the repo
+          echo "cloning electron-builder fork..."
+          git clone https://git.spacemit.com/electron/electron-builder.git custom-builder
+          
+          # checkout riscv branch
+          cd custom-builder
+          git checkout riscv
+          echo "Verified Branch:"
+          git branch --show-current
+          
+          # install the builder's own deps the right way
+          # so we don't have to deal with symlinks
           yarn install --ignore-engines --ignore-scripts
-          # --ignore-engines for no platform checks
-          # --ignore-scripts so it doesn't try to compile
-          # the wrong C++ modules (presumably with node-gyp or smth?)...
           
-          # manual symlink bridge cuz monorepos in node_modules are really weird
-          # no more symlink probs anymore
-          echo "manually creating the symlinks for @electron scoped packages..."
-          mkdir -p node_modules/@electron
-          ln -sf ../../packages/builder-util node_modules/@electron/builder-util
-          ln -sf ../../packages/app-builder-lib node_modules/@electron/app-builder-lib
-           
-          # run via ts-node, not regular node, cuz apparently ts-node
-          # cooperates more...
-          # --transpile-only ignores type errors
-          # which is really the whole point of typescript
-          # but not for us
-          echo "executing via ts-node with mapped paths..."
-          export NODE_PATH=$NODE_PATH:$(pwd)/packages # use NODE_PATH
-          # to make sure the right packages are found
-          # by forcing node to see the internal stuff
-          # with better binoculars this time
-          
-          # now use the cli from the packages/ folder
-          # and hope it finds it
-          # if not ill add a check here to run the default binary
-          npx ts-node --transpile-only packages/electron-builder/src/cli/cli.ts --linux appimage --arch riscv64
+          # now use the local source with npx
+          echo "attempting build now..."
+          export NODE_PATH=$NODE_PATH:$(pwd)/packages
+          npx ts-node --transpile-only packages/electron-builder/src/cli/cli.ts \
+            --project ../ \
+            --linux appimage --arch riscv64      
         working-directory: simpliplay
 
       - name: Upload artifacts
