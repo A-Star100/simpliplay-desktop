@@ -376,12 +376,16 @@ jobs:
 
           # install the builder's own deps the better way now
           yarn install --ignore-engines --ignore-scripts
-          
-          # now use the local source with npx
-          echo "attempting build now..."
-          export NODE_PATH=$NODE_PATH:$(pwd)/packages
+
+          # compile with tsc if yarn install
+          # didn't do everything needed
+          echo "Compiling electron-builder source..."
+          ./node_modules/.bin/tsc -p packages/electron-builder/tsconfig.json
+
+          # now use the local source
+          echo "Starting build..."
           node packages/electron-builder/out/cli/cli.js \
-            --project ../ --linux appimage --arch riscv64     
+            --project ../ --linux appimage --arch riscv64 
         working-directory: simpliplay
 
       - name: Upload artifacts
