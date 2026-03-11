@@ -358,11 +358,12 @@ jobs:
           # because in latest upstream (not fork yet) another dep
           # is in dependencies key
           # and Spacemit could always do a rebase y'know
-          find . -name "package.json" -exec bash -c 'for f; do
-            jq "del(.dependencies[\"dmg-license\"], .devDependencies[\"dmg-license\"]) | 
+          find . -name "package.json" -type f | while read -r file; do
+            jq 'del(.dependencies["dmg-license"], .devDependencies["dmg-license"]) | 
                 if .dependencies == {} then del(.dependencies) else . end | 
-                if .devDependencies == {} then del(.devDependencies) else . end" "$f" > "$f.tmp" && mv "$f.tmp" "$f"
-          done' _ {} +
+                if .devDependencies == {} then del(.devDependencies) else . end' \
+                "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+          done
 
           rm -f yarn.lock # delete the lockfile cuz it caches way too many things
           
