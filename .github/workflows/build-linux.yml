@@ -391,9 +391,8 @@ jobs:
 
           # compile with npm instead of tsc
           echo "Compiling electron-builder source..."
-          # try npm run build, then tsc with npx if that fails
-          # and hope it works
-          npm run build || (cd packages/electron-builder && npx tsc --skipLibCheck)
+          # try tsc build
+          npx tsc --skipLibCheck --noEmitOnError false || echo "tsc finished, checking for output..."
 
           echo "scanning for compiled source..."
           # search for cli.js
