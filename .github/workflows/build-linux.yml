@@ -344,15 +344,22 @@ jobs:
       - name: Build AppImage
         env:
           npm_config_arch: riscv64
-          qemu_ld_prefix: /usr/riscv64-linux-gnu/
-          electron_mirror: "https://github.com/riscv-forks/electron-riscv-releases/releases/download/"
-          electron_custom_dir: "v${version}"
-          electron_custom_filename: "electron-v${version}-linux-riscv64.zip"
+          QEMU_LD_PREFIX: /usr/riscv64-linux-gnu/
+          ELECTRON_MIRROR: "https://github.com/riscv-forks/electron-riscv-releases/releases/download/"
+          ELECTRON_CUSTOM_DIR: 'v${version}' # don't try and resolve the value
+          # before the job starts
+          # otherwise builder will use a broken url
+          # which is very very bad
+          ELECTRON_CUSTOM_FILENAME: 'electron-v${version}-linux-riscv64.zip'
+          # same here as well
         run: |
           cd node_modules/electron-builder
           
           # to do the link to @electron/builder-util to packages/builder-util
-          yarn install
+          yarn install --ignore-engines --ignore-scripts
+          # --ignore-engines for no platform checks
+          # --ignore-scripts so it doesn't try to compile
+          # the wrong C++ modules...
           # no more silly symlink-like problems anymore
           
           # run via ts-node, not regular node, cuz apparently ts-node
