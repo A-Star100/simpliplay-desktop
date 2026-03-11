@@ -337,6 +337,7 @@ jobs:
 
       - name: Build AppImage
         env:
+          npm_config_arch: riscv64
           ELECTRON_MIRROR: "https://github.com/riscv-forks/electron-riscv-releases/releases/download/"
           ELECTRON_CUSTOM_DIR: "v${version}"
           ELECTRON_CUSTOM_FILENAME: "electron-v${version}-linux-riscv64.zip"
@@ -350,8 +351,7 @@ jobs:
           #rm -rf ./node_modules/.bin/electron-builder
           # now, it is time to point to the monorepo
           # ik we installed it earlier, but whatever, we have to get something working
-          npx --package git+https://git.spacemit.com/electron/electron-builder.git#riscv \
-              electron-builder --linux AppImage --riscv64
+          ./node_modules/.bin/electron-builder --linux AppImage --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
