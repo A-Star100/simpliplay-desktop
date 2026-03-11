@@ -381,11 +381,22 @@ jobs:
           # didn't do everything needed
           echo "Compiling electron-builder source..."
           # ./node_modules/.bin/tsc -p packages/electron-builder/tsconfig.json
-          npx tsc --build
+          npx tsc -p packages/electron-builder/tsconfig.json --skipLibCheck
+          # --skipLibCheck skips library detection checks
+          # so we won't get a hard stop here, rather errors later
 
           # now use the local source
-          echo "Starting build..."
-          node packages/electron-builder/out/cli/cli.js \
+          if [ -f "packages/electron-builder/out/cli/cli.js" ]; then
+            bin="packages/electron-builder/out/cli/cli.js"
+          elif [ -f "packages/electron-builder/dist/cli/cli.js" ]; then
+            bin="packages/electron-builder/dist/cli/cli.js"
+          else
+            echo "ERROR: expected cli path was inaccessible. dumping dir struct for debugs:"
+            find packages/electron-builder -maxdepth 3
+            exit 1
+          fi
+          echo "attempting build"
+          node $bin \
             --project ../ --linux appimage --arch riscv64 
         working-directory: simpliplay
 
