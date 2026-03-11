@@ -346,8 +346,14 @@ jobs:
           # checkout riscv branch
           cd custom-builder
           git checkout riscv
-          echo "Verified Branch:"
+          echo "now using branch:"
           git branch --show-current
+
+          # patch out dmg-license
+          # it's darwin-only and freaks out linux compiler
+          # causing a direct halt
+          # hopefully this issue gets fixed with the fork soon
+          jq 'del(.dependencies["dmg-license"])' packages/electron-builder/package.json > tmp.json && mv tmp.json packages/electron-builder/package.json
           
           # install the builder's own deps the right way
           # so we don't have to deal with symlinks
