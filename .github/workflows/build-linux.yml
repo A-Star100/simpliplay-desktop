@@ -404,7 +404,7 @@ jobs:
 
           # install the builder's own deps inside custom-builder
           yarn install --no-immutable
-          yarn add ts-node typescript --dev --ignore-engines
+          yarn add ts-node typescript --dev
           # not using --ignore-scripts anymore
           # cuz it breaks the cli when we run it
           # and it tries to find its deps
