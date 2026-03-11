@@ -320,9 +320,13 @@ jobs:
       - name: Swap to the electron-builder fork (for RISC-V support)
         run: |
           # SpaceMIT's fork is cool
-          npm install electron-builder@git+https://git.spacemit.com/electron/electron-builder.git#riscv --ignore-scripts --no-save
-          # --ignore-scripts means that no silly install or post install scripts will run
-          # and --no-save forces the new dep to not be saved to the package.json
+          npm install electron-builder@git+https://git.spacemit.com/electron/electron-builder.git#riscv --force --ignore-scripts --no-save --legacy-peer-deps
+          # --ignore-scripts means that no silly multi-OS-dep-install (is this even a word???)
+          # scripts will run
+          # --no-save forces the new dep to not be saved to the package.json
+          # --force just, well, forces the install operation through most failures (like the EBADPLATFORM one)
+          # so if there is a failure, we'll hear about it instead of getting a stop.... good i guess
+          # and --legacy-peer-deps helps prevent dep conflicts due to forked monorepos (ehh)
           # i think this should fix the error in last CI run
         working-directory: simpliplay
 
