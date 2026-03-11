@@ -339,10 +339,10 @@ jobs:
           ELECTRON_CUSTOM_FILENAME: 'electron-v${version}-linux-riscv64.zip'
           # same here as well
         run: |
-          # enable corepack cuz
-          # electron builder wants us to use it to
-          # manage versions for yarn and pnpm
-          corepack enable
+          # install yarn globally
+          # instead of using corepack
+          # its not clean for CI but better than corepack
+          npm install -g yarn@4.1.1
           
           # clone the repo
           echo "cloning electron-builder fork..."
@@ -361,15 +361,22 @@ jobs:
           echo "available branches:"
           git branch -a | head -n 10
 
+          # just strip the whole packageManager key
+          # we dont need any yarn vs. pnpm conflicts
+          jq 'del(.packageManager)' package.json > package.json.tmp && mv package.json.tmp package.json
+          rm -f pnpm-lock.yaml
+
+          # make yarn use node-modules
+          # so it doesnt strip symlinks
+          echo "nodeLinker: node-modules" > .yarnrc.yml
+          
+
           # use yarn v4
           # cuz it natively supports workspace protocol
           # that yarn v1 hates
           yarn set version berry
 
-          # patch out pnpm
-          # so we can just use yarn without any conflicts
-          jq '.packageManager = "yarn@4.0.0"' package.json > package.json.tmp && mv package.json.tmp package.json
-
+          
           # patch out dmg-license
           # it's darwin-only and freaks out linux compiler
           # causing a direct halt
