@@ -342,12 +342,19 @@ jobs:
           # clone the repo
           echo "cloning electron-builder fork..."
           
-          # clone specific branch
-          # so no need to checkout afterwards
-          # using --branch flag
+          # clone specific branch using --branch flag
+          # we target the known riscv release tag/branch
           git clone --branch electron-builder@25.1.8-riscv https://github.com/riscv-forks/electron-builder.git custom-builder
+          
+          # move into builder dir now
+          cd custom-builder
+          
           echo "now using branch:"
-          git branch --show-current
+          git branch --show-current || git symbolic-ref --short HEAD
+          
+          # list branches
+          echo "available branches:"
+          git branch -a | head -n 10
 
           # patch out dmg-license
           # it's darwin-only and freaks out linux compiler
@@ -355,9 +362,6 @@ jobs:
           # hopefully this issue gets fixed with the fork soon
           # also we check if dmg-license is the only one there
           # and delete entire dependencies key if it is
-          # because in latest upstream (not fork yet) another dep
-          # is in dependencies key
-          # and a rebase could always be done
           find . -name "package.json" -type f | while read -r file; do
             jq 'del(.dependencies["dmg-license"], .devDependencies["dmg-license"]) | 
                 if .dependencies == {} then del(.dependencies) else . end | 
@@ -366,42 +370,43 @@ jobs:
           done
 
           rm -f yarn.lock # delete the lockfile cuz it caches way too many things
-          
 
           # create symlinks manually
-          # to resolve yarn errors after install
+          # to resolve yarn errors after install inside the monorepo
           mkdir -p node_modules/@electron
-          ln -s "$(pwd)/packages/builder-util" "node_modules/@electron/builder-util"
-          ln -s "$(pwd)/packages/app-builder-lib" "node_modules/app-builder-lib"
+          ln -sf "$(pwd)/packages/builder-util" "node_modules/@electron/builder-util"
+          ln -sf "$(pwd)/packages/app-builder-lib" "node_modules/app-builder-lib"
 
-          # install the builder's own deps the better way now
+          # install the builder's own deps inside custom-builder
           yarn install --ignore-engines --ignore-scripts
 
           # compile with npm instead of tsc
-          # didn't do everything needed
           echo "Compiling electron-builder source..."
-          # ./node_modules/.bin/tsc -p packages/electron-builder/tsconfig.json
-          npm run build || (cd packages/electron-builder && npx tsc)
-          # --skipLibCheck skips library detection checks
-          # so we won't get a hard stop here, rather errors later
+          # try npm run build, then tsc with npx if that fails
+          # and hope it works
+          npm run build || (cd packages/electron-builder && npx tsc --skipLibCheck)
 
-          echo "scanning for source"
+          echo "scanning for compiled source..."
+          # search for cli.js
           bin_path=$(find packages/electron-builder -name "cli.js" -type f | grep -E "out|dist" | head -n 1)
 
           # do a basic scan for the cli.js
           if [ -z "$bin_path" ]; then
             echo "ERROR: cli.js not found after build."
-            echo "current dir struct:"
+            echo "current dir struct for debugs:"
             find packages/electron-builder -maxdepth 3
             exit 1
           fi
 
-          echo "found at: $bin_path"
+          # use absolute path
+          full_bin_path="$(pwd)/$bin_path"
+          echo "found at: $full_bin_path"
           
-          # now try a local build
-          node "$bin_path" --project ../ --linux appimage --arch riscv64
-          node $bin \
-            --project ../ --linux appimage --arch riscv64 
+          # move back to the app dir to run the build
+          cd ..
+          
+          echo "attempting application build now..."
+          node "$full_bin_path" --project ./ --linux appimage --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
