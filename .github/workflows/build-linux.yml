@@ -414,9 +414,13 @@ jobs:
           # # use absolute path
           # full_bin_path="$(pwd)/$bin_path"
           # echo "found at: $full_bin_path"
-          
+
+          echo "yarn adding missing deps"
+          (cd packages/electron-builder && yarn add is-ci yargs read-config-file --ignore-engines)
+
           echo "setting up redirects..."
           mkdir -p packages/electron-builder/out/cli
+          # redirects .ts to use .js with a symlink
           ln -sf "$(pwd)/packages/electron-builder/src/cli/cli.ts" "packages/electron-builder/out/cli/cli.js"
 
           # stay inside builder dir
