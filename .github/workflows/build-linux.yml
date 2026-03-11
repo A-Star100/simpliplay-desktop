@@ -381,7 +381,7 @@ jobs:
           # didn't do everything needed
           echo "Compiling electron-builder source..."
           # ./node_modules/.bin/tsc -p packages/electron-builder/tsconfig.json
-          ./node_modules/.bin/tsc --build
+          npx tsc --build
 
           # now use the local source
           echo "Starting build..."
