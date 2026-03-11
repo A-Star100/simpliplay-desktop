@@ -377,25 +377,29 @@ jobs:
           # install the builder's own deps the better way now
           yarn install --ignore-engines --ignore-scripts
 
-          # compile with tsc if yarn install
+          # compile with npm instead of tsc
           # didn't do everything needed
           echo "Compiling electron-builder source..."
           # ./node_modules/.bin/tsc -p packages/electron-builder/tsconfig.json
-          npx tsc -p packages/electron-builder/tsconfig.json --skipLibCheck
+          npm run build || (cd packages/electron-builder && npx tsc)
           # --skipLibCheck skips library detection checks
           # so we won't get a hard stop here, rather errors later
 
-          # now use the local source
-          if [ -f "packages/electron-builder/out/cli/cli.js" ]; then
-            bin="packages/electron-builder/out/cli/cli.js"
-          elif [ -f "packages/electron-builder/dist/cli/cli.js" ]; then
-            bin="packages/electron-builder/dist/cli/cli.js"
-          else
-            echo "ERROR: expected cli path was inaccessible. dumping dir struct for debugs:"
+          echo "scanning for source"
+          bin_path=$(find packages/electron-builder -name "cli.js" -type f | grep -E "out|dist" | head -n 1)
+
+          # do a basic scan for the cli.js
+          if [ -z "$bin_path" ]; then
+            echo "ERROR: cli.js not found after build."
+            echo "current dir struct:"
             find packages/electron-builder -maxdepth 3
             exit 1
           fi
-          echo "attempting build"
+
+          echo "found at: $bin_path"
+          
+          # now try a local build
+          node "$bin_path" --project ../ --linux appimage --arch riscv64
           node $bin \
             --project ../ --linux appimage --arch riscv64 
         working-directory: simpliplay
