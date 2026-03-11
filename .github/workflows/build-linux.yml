@@ -379,11 +379,9 @@ jobs:
 
           # compile with tsc if yarn install
           # didn't do everything needed
-          # echo "Compiling electron-builder source..."
+          echo "Compiling electron-builder source..."
           # ./node_modules/.bin/tsc -p packages/electron-builder/tsconfig.json
-
-          # try yarn build
-          yarn build
+          ./node_modules/.bin/tsc --build
 
           # now use the local source
           echo "Starting build..."
