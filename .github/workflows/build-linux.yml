@@ -403,7 +403,7 @@ jobs:
           ln -sf "$(pwd)/packages/app-builder-lib" "node_modules/app-builder-lib"
 
           # install the builder's own deps inside custom-builder
-          yarn install
+          yarn install --no-immutable
           yarn add ts-node typescript --dev --ignore-engines
           # not using --ignore-scripts anymore
           # cuz it breaks the cli when we run it
