@@ -18,9 +18,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
       - name: Install dependencies
@@ -32,7 +32,7 @@ jobs:
         run: npx electron-builder --win --x64
         working-directory: simpliplay
       - name: Upload artifacts (x64)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: builds-x64
           path: simpliplay/dist/
@@ -41,9 +41,9 @@ jobs:
     runs-on: windows-11-arm
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
       - name: Install dependencies
@@ -55,7 +55,7 @@ jobs:
         run: npx electron-builder --win --arm64
         working-directory: simpliplay
       - name: Upload artifacts (arm64)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: builds-arm64
           path: simpliplay/dist/
