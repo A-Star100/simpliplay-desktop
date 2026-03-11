@@ -418,6 +418,9 @@ jobs:
 
           echo "yarn adding missing deps"
           cd packages/electron-builder
+
+          sed -i 's/workspace:\*/\*/g' package.json # workspaces, nope
+          
           touch yarn.lock # make a yarn lockfile here
           # so yarn v4 stops whining about usage issues
 
