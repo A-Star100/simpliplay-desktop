@@ -335,17 +335,6 @@ jobs:
           # and --legacy-peer-deps helps prevent dep conflicts due to forked monorepos (ehh)
         working-directory: simpliplay
 
-      - name: Build RISC-V AppImage
-        env:
-          ELECTRON_MIRROR: "https://github.com/riscv-forks/electron-riscv-releases/releases/download/"
-          ELECTRON_CUSTOM_DIR: "v${version}"
-          ELECTRON_CUSTOM_FILENAME: "electron-v${version}-linux-riscv64.zip"
-        run: |
-          # Use the local binary. Since we used --force, 
-          # ./node_modules/.bin/electron-builder should now point to the fork.
-          ./node_modules/.bin/electron-builder --linux AppImage --riscv64
-        working-directory: simpliplay
-
       - name: Build AppImage
         env:
           ELECTRON_MIRROR: "https://github.com/riscv-forks/electron-riscv-releases/releases/download/"
@@ -358,7 +347,7 @@ jobs:
           # which is, well, against the whole purpose of this shebang
           # to anyone contributing, don't change this snippet in the build_riscv job to use npx
           # because it will cause RISC-V build failures
-          rm -rf ./node_modules/.bin/electron-builder
+          #rm -rf ./node_modules/.bin/electron-builder
           # now, it is time to point to the monorepo
           # ik we installed it earlier, but whatever, we have to get something working
           npx --package git+https://git.spacemit.com/electron/electron-builder.git#riscv \
