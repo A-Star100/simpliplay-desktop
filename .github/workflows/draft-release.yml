@@ -16,39 +16,36 @@ jobs:
       - name: Prepare folder(s)
         run: mkdir -p all-artifacts
 
-      - name: Wait for artifacts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check for required artifacts
         run: |
-          set -e
-          echo "Polling until all required artifacts are available..."
-
-          required=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64" "linux-armv7-snap" "linux-armv7-appimage")
-
-          while true; do
-            echo "Checking artifacts..."
-
+            set -e
+            echo "Downloading available artifacts..."
+                    
             rm -rf all-artifacts
             mkdir -p all-artifacts
-
+            
             gh run download --dir all-artifacts || true
-
-            missing=0
+            
+            required=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64" "linux-armv7-snap" "linux-armv7-appimage")
+            missing_list=()
+            
             for artifact in "${required[@]}"; do
               if [ ! -d "all-artifacts/$artifact" ]; then
-                echo "MISSING: $artifact"
-                missing=1
+                echo "Missing: $artifact"
+                missing_list+=("$artifact")
               fi
             done
-
-            if [ "$missing" -eq 0 ]; then
-              echo "All the required artifacts were found!"
-              break
+            
+            if [ ${#missing_list[@]} -ne 0 ]; then
+              echo "The following required artifacts are missing:"
+              for m in "${missing_list[@]}"; do 
+                echo "  - $m"
+              done
+              echo "Please make sure said artifacts are available and try again."
+              exit 1
             fi
-
-            echo "Unfortunately, not all the needed artifacts were found. Gonna retry in 15s"
-            sleep 15
-          done
+            
+            echo "Everything needed is present! Moving on now..."
 
       - name: Extract ZIP files and prepare allowed files list
         run: |
