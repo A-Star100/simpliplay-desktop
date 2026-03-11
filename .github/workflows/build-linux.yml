@@ -361,6 +361,9 @@ jobs:
           echo "available branches:"
           git branch -a | head -n 10
 
+          touch yarn.lock # now tell the yarn v4
+          # that builder is what we're working with
+
           # just strip the whole packageManager key
           # we dont need any yarn vs. pnpm conflicts
           jq 'del(.packageManager)' package.json > package.json.tmp && mv package.json.tmp package.json
@@ -392,8 +395,6 @@ jobs:
                 if .devDependencies == {} then del(.devDependencies) else . end' \
                 "$file" > "$file.tmp" && mv "$file.tmp" "$file"
           done
-
-          rm -f yarn.lock # delete the lockfile cuz it caches way too many things
 
           # create symlinks manually
           # to resolve yarn errors after install inside the monorepo
