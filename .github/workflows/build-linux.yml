@@ -414,7 +414,7 @@ jobs:
            cd ..
           
           echo "attempting application build now..."
-          node "$(pwd)/packages/electron-builder/cli.js" --project ./ --linux appimage --arch riscv64
+          node "./custom-builder/packages/electron-builder/cli.js" --project ./ --linux appimage --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
