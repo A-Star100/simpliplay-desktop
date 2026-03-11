@@ -354,10 +354,15 @@ jobs:
         run: |
           # the custom binary lives in the apartment node_modules
           # using npx just means it'll get the standard electron-builder from upstream (nuh uh)
+          # unless we use the --package args and stuff
           # which is, well, against the whole purpose of this shebang
           # to anyone contributing, don't change this snippet in the build_riscv job to use npx
           # because it will cause RISC-V build failures
-          ./node_modules/.bin/electron-builder --linux AppImage --riscv64
+          rm -rf ./node_modules/.bin/electron-builder
+          # now, it is time to point to the monorepo
+          # ik we installed it earlier, but whatever, we have to get something working
+          npx --package git+https://git.spacemit.com/electron/electron-builder.git#riscv \
+              electron-builder --linux AppImage --riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
