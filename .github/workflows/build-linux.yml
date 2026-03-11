@@ -317,12 +317,16 @@ jobs:
           sudo apt-get install -y jq qemu-user-static binfmt-support
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
 
+      - name: Install Node project deps
+        run: npm install
+        working-directory: simpliplay
+
       - name: Swap to the electron-builder fork (for RISC-V support)
         run: |
           npm config set engine-strict false # no platform checks
-          npm install builder-riscv@git+https://git.spacemit.com/electron/electron-builder.git#riscv --force --ignore-scripts --no-save
+          npm uninstall electron-builder # uninstall the standard one installed via npm install
+          npm install electron-builder@git+https://git.spacemit.com/electron/electron-builder.git#riscv --force --ignore-scripts --no-save
           # always use spacemit's fork, not standard electron-builder; it currently lacks risc-v support
-          # also using an alias just to validate if we are really using the fork or not
           # --ignore-scripts means that no silly specific-OS-dep-install (is this even a word???)
           # scripts will run
           # --no-save forces the new dep to not be saved to the package.json
@@ -331,15 +335,15 @@ jobs:
           # and --legacy-peer-deps helps prevent dep conflicts due to forked monorepos (ehh)
         working-directory: simpliplay
 
-      - name: Swap Electron ver.
+      - name: Build RISC-V AppImage
+        env:
+          ELECTRON_MIRROR: "https://github.com/riscv-forks/electron-riscv-releases/releases/download/"
+          ELECTRON_CUSTOM_DIR: "v${version}"
+          ELECTRON_CUSTOM_FILENAME: "electron-v${version}-linux-riscv64.zip"
         run: |
-          latest=$(curl -s https://api.github.com/repos/riscv-forks/electron-riscv-releases/releases/latest | jq -r .tag_name | sed 's/^v//')
-          echo "Using Electron v$latest"
-          jq ".devDependencies.electron = \"$latest\"" package.json > package.json.tmp && mv package.json.tmp package.json
-        working-directory: simpliplay
-
-      - name: Install Node project deps
-        run: npm install
+          # Use the local binary. Since we used --force, 
+          # ./node_modules/.bin/electron-builder should now point to the fork.
+          ./node_modules/.bin/electron-builder --linux AppImage --riscv64
         working-directory: simpliplay
 
       - name: Build AppImage
@@ -353,9 +357,7 @@ jobs:
           # which is, well, against the whole purpose of this shebang
           # to anyone contributing, don't change this snippet in the build_riscv job to use npx
           # because it will cause RISC-V build failures
-          ./node_modules/.bin/builder-riscv --help | grep -i "risc" || (echo "CLI might be wrong" && exit 1)
-          
-          ./node_modules/.bin/builder-riscv --linux AppImage --riscv64
+          ./node_modules/.bin/electron-builder --linux AppImage --riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
