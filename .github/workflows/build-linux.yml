@@ -355,21 +355,22 @@ jobs:
         run: |
           cd node_modules/electron-builder
 
-          # look for matches in grep
-          # really not the best
-          # should really refactor this soon imho
-          grep -E "dmg|mac|darwin" packages/electron-builder/package.json || true
-          # strip mac references x2
-          sed -i '/"dmg-license":/d' packages/electron-builder/package.json
-          # strip mac references x3
-          sed -i '/7zip-bin-mac/d' packages/electron-builder/package.json || true
-          
+          # delete the dependencies key
+          # cuz in the fork this is the only dependency in the whole key
+          # so we can delete it for now
+          echo "doing some spring cleaning to prevent compile errors..."
+          jq 'del(.dependencies)' package.json > package.json.tmp && mv package.json.tmp package.json
+
+          # check if it actually worked now
+          echo "here is how package.json looks now:"
+          cat package.json
+                 
           # to do the link to @electron/builder-util to packages/builder-util
           yarn config set ignore-engines true
           yarn install --ignore-engines --ignore-scripts
           # --ignore-engines for no platform checks
           # --ignore-scripts so it doesn't try to compile
-          # the wrong C++ modules...
+          # the wrong C++ modules (presumably with node-gyp or smth?)...
           # no more silly symlink-like problems anymore
           
           # run via ts-node, not regular node, cuz apparently ts-node
