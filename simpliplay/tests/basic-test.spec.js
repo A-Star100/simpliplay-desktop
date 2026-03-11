@@ -29,13 +29,14 @@ const { _electron: electron } = require('playwright');
   await window.click('text=Enter a URL')
   await window.getByRole('textbox').fill('https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8');
   await window.click('text=Submit')
+  // wait for the video to begin playing and timestamp to be more than 0s
   await window.waitForFunction(() => {
     const video = document.querySelector('video');
     return video && video.currentTime > 0 && !video.paused;
   }, { timeout: 15000 });
 
   await new Promise(r => setTimeout(r, 1000));  
-  await window.screenshot({ path: 'played_media.png' }); // do another screenshot to see if playback worked
+  await window.screenshot({ path: 'played_media.png' }); // now do another screenshot to see if playback worked
   // exit
   await electronApp.close();
 })();
