@@ -396,25 +396,25 @@ jobs:
 
           echo "scanning for compiled source..."
           # search for cli.js
-          bin_path=$(find packages/electron-builder -name "cli.js" -type f | grep -E "out|dist" | head -n 1)
+          # bin_path=$(find packages/electron-builder -name "cli.js" -type f | grep -E "out|dist" | head -n 1)
 
-          # do a basic scan for the cli.js
-          if [ -z "$bin_path" ]; then
-            echo "ERROR: cli.js not found after build."
-            echo "current dir struct for debugs:"
-            find packages/electron-builder -maxdepth 3
-            exit 1
-          fi
+          # # do a basic scan for the cli.js
+          # if [ -z "$bin_path" ]; then
+          #   echo "ERROR: cli.js not found after build."
+          #   echo "current dir struct for debugs:"
+          #   find packages/electron-builder -maxdepth 3
+          #   exit 1
+          # fi
 
-          # use absolute path
-          full_bin_path="$(pwd)/$bin_path"
-          echo "found at: $full_bin_path"
+          # # use absolute path
+          # full_bin_path="$(pwd)/$bin_path"
+          # echo "found at: $full_bin_path"
           
           # move back to the app dir to run the build
-          cd ..
+           cd ..
           
           echo "attempting application build now..."
-          node "$full_bin_path" --project ./ --linux appimage --arch riscv64
+          node "$(pwd)/packages/electron-builder/cli.js" --project ./ --linux appimage --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
