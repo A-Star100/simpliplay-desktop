@@ -320,7 +320,10 @@ jobs:
       - name: Swap to the electron-builder fork (for RISC-V support)
         run: |
           # SpaceMIT's fork is cool
-          npm install electron-builder@git+https://git.spacemit.com/electron/electron-builder.git#riscv
+          npm install electron-builder@git+https://git.spacemit.com/electron/electron-builder.git#riscv --ignore-scripts --no-save
+          # --ignore-scripts means that no silly install or post install scripts will run
+          # and --no-save forces the new dep to not be saved to the package.json
+          # i think this should fix the error in last CI run
         working-directory: simpliplay
 
       - name: Swap Electron ver.
