@@ -311,10 +311,14 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install global deps (qemu and jq)
+      - name: Install global deps (qemu, jq, and risc-v libs)
         run: |
           sudo apt-get update
-          sudo apt-get install -y jq qemu-user-static binfmt-support
+          # the libc6-riscv64-cross package gives us the dynamic loader and base libs
+          # which will definitely help
+          # we just have to hope the package doesn't get damaged in "shipping" though.... lol
+          sudo apt-get install -y jq qemu-user-static binfmt-support libc6-riscv64-cross
+          # qemu, please register at the front desk
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
 
       - name: Install Node project deps
@@ -324,7 +328,7 @@ jobs:
       - name: Swap to the electron-builder fork (for RISC-V support)
         run: |
           npm config set engine-strict false # no platform checks
-          npm uninstall electron-builder # uninstall the standard one installed via npm install
+          #npm uninstall electron-builder # uninstall the standard one installed via npm install
           npm install electron-builder@git+https://git.spacemit.com/electron/electron-builder.git#riscv --force --ignore-scripts --no-save
           # always use spacemit's fork, not standard electron-builder; it currently lacks risc-v support
           # --ignore-scripts means that no silly specific-OS-dep-install (is this even a word???)
@@ -351,7 +355,19 @@ jobs:
           #rm -rf ./node_modules/.bin/electron-builder
           # now, it is time to point to the monorepo
           # ik we installed it earlier, but whatever, we have to get something working
-          ./node_modules/.bin/electron-builder --linux AppImage --arch riscv64
+          echo "Contents of .bin/:"
+          ls -F ./node_modules/.bin/ || echo ".bin folder not found"
+          
+          found_cli=$(find ./node_modules/electron-builder -name "cli.js" | grep "out/cli/cli.js" | head -n 1)
+
+          if [ -z "$found_cli" ]; then
+            echo "cli.js not found. Directory tree:"
+            find ./node_modules/electron-builder -maxdepth 5
+            exit 1
+          fi
+
+          echo "Found at: $found_cli"
+          node "$found_cli" --linux AppImage --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
