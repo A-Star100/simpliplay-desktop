@@ -342,7 +342,7 @@ jobs:
           # install yarn globally
           # instead of using corepack
           # its not clean for CI but better than corepack
-          npm install -g yarn@4.1.1
+          npm install -g yarn
           
           # clone the repo
           echo "cloning electron-builder fork..."
@@ -375,6 +375,9 @@ jobs:
           # cuz it natively supports workspace protocol
           # that yarn v1 hates
           yarn set version berry
+
+          # confirm yarn ver
+          yarn --version
 
           
           # patch out dmg-license
