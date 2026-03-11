@@ -341,11 +341,11 @@ jobs:
         run: |
           # clone the repo
           echo "cloning electron-builder fork..."
-          git clone https://git.spacemit.com/electron/electron-builder.git custom-builder
           
-          # checkout riscv branch
-          cd custom-builder
-          git checkout riscv
+          # clone specific branch
+          # so no need to checkout afterwards
+          # using --branch flag
+          git clone --branch electron-builder@25.1.8-riscv https://github.com/riscv-forks/electron-builder.git custom-builder
           echo "now using branch:"
           git branch --show-current
 
@@ -357,7 +357,7 @@ jobs:
           # and delete entire dependencies key if it is
           # because in latest upstream (not fork yet) another dep
           # is in dependencies key
-          # and Spacemit could always do a rebase y'know
+          # and a rebase could always be done
           find . -name "package.json" -type f | while read -r file; do
             jq 'del(.dependencies["dmg-license"], .devDependencies["dmg-license"]) | 
                 if .dependencies == {} then del(.dependencies) else . end | 
@@ -379,8 +379,11 @@ jobs:
 
           # compile with tsc if yarn install
           # didn't do everything needed
-          echo "Compiling electron-builder source..."
-          ./node_modules/.bin/tsc -p packages/electron-builder/tsconfig.json
+          # echo "Compiling electron-builder source..."
+          # ./node_modules/.bin/tsc -p packages/electron-builder/tsconfig.json
+
+          # try yarn build
+          yarn build
 
           # now use the local source
           echo "Starting build..."
