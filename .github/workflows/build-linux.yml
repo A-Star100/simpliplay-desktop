@@ -355,19 +355,26 @@ jobs:
           #rm -rf ./node_modules/.bin/electron-builder
           # now, it is time to point to the monorepo
           # ik we installed it earlier, but whatever, we have to get something working
-          echo "Contents of .bin/:"
-          ls -F ./node_modules/.bin/ || echo ".bin folder not found"
+          cd node_modules/electron-builder/packages/electron-builder
           
-          found_cli=$(find ./node_modules/electron-builder -name "cli.js" | grep "out/cli/cli.js" | head -n 1)
-
-          if [ -z "$found_cli" ]; then
-            echo "cli.js not found. Directory tree:"
-            find ./node_modules/electron-builder -maxdepth 5
+          npm install --include=dev
+          npm run build || true # some forks have weird build scripts, continue anyway
+          
+          real=$(jq -r '.bin."electron-builder" // .bin' package.json) # hopefully allegedly real
+          
+          abs="$(pwd)/$real" # absolute
+          
+          if [ ! -f "$abs" ]; then
+            echo "binary path from the package.json ($abs) was not found. now checking for any js in out/:"
+            find out -name "*.js" | head -n 5
             exit 1
           fi
 
-          echo "Found at: $found_cli"
-          node "$found_cli" --linux AppImage --arch riscv64
+          echo "Found real binary at: $abs"
+          cd ../../../.. # go back to simpliplay/ now
+          # man, how much have we dug into the rabbit hole
+          
+          node "simpliplay/node_modules/electron-builder/packages/electron-builder/$real" --linux AppImage --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
