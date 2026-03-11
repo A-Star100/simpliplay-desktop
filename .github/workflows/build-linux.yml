@@ -17,9 +17,9 @@ jobs:
   build_x64:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
 
@@ -90,9 +90,9 @@ jobs:
   build_arm64:
     runs-on: ubuntu-22.04-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
 
@@ -202,9 +202,9 @@ jobs:
   build_i386:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
   
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
 
@@ -242,9 +242,9 @@ jobs:
   build_armv7:
     runs-on: ubuntu-22.04-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
   
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
 
