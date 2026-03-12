@@ -431,16 +431,47 @@ jobs:
           echo "setting up extra symlinks..."
           # for the internal imports
           # in electron builder module
-          mkdir -p packages/electron-builder/out
-          ln -sfn "$(pwd)/packages/electron-builder/src" packages/electron-builder/out
-          mkdir -p packages/electron-builder/out/cli
-          # redirects .ts to use .js with a symlink
-          ln -sf "$(pwd)/packages/electron-builder/src/cli/cli.ts" "packages/electron-builder/out/cli/cli.js"
 
-          mkdir -p packages/app-builder-lib/out
-          ln -sfn "$(pwd)/packages/app-builder-lib/src" packages/app-builder-lib/out
-          mkdir -p packages/builder-util/out
-          ln -sfn "$(pwd)/packages/builder-util/src" packages/builder-util/out
+
+          for pkg_path in packages/*; do
+            if [ -d "$pkg_path" ]; then
+              pkg_name=$(basename "$pkg_path")
+              echo "creating symlinks for $pkg_name"
+
+              # create 'out' dir
+              mkdir -p "$pkg_path/out"
+              # symlink all the contents in src/ and out/
+              # recursively
+              cp -rsf "$(pwd)/$pkg_path/src/"* "$(pwd)/$pkg_path/out/"
+
+              # make package discoverable in node_modules properly
+              # cuz some packages are namespaced right
+              # and are discoverable by default due to their preferences
+              # but others are not... unfortunately
+              if [ "$pkg_name" == "builder-util" ]; then
+                mkdir -p node_modules/@electron
+                ln -sf "$(pwd)/$pkg_path" "node_modules/@electron/builder-util"
+                ln -sf "$(pwd)/$pkg_path" "node_modules/builder-util"
+              else
+                ln -sf "$(pwd)/$pkg_path" "node_modules/$pkg_name"
+              fi
+            fi
+          done
+
+
+          # old attempts: not good
+          # mkdir -p packages/electron-builder/out
+          # ln -sfn "$(pwd)/packages/electron-builder/src" packages/electron-builder/out
+          # mkdir -p packages/electron-builder/out/cli
+          # # redirects .ts to use .js with a symlink
+          # ln -sf "$(pwd)/packages/electron-builder/src/cli/cli.ts" "packages/electron-builder/out/cli/cli.js"
+
+          # mkdir -p packages/app-builder-lib/out
+          # ln -sfn "$(pwd)/packages/app-builder-lib/src" packages/app-builder-lib/out
+          # mkdir -p packages/builder-util/out
+          # ln -sfn "$(pwd)/packages/builder-util/src" packages/builder-util/out
+
+          
 
           # stay inside builder dir
           echo "attempting build now..."
@@ -448,7 +479,9 @@ jobs:
           # -r hooks ts-node into the whole proc
           # so ts-node is always there during the compile process
           # to catch any requests
-          # 1. Export the NODE_PATH so siblings are found
+          
+          # export node_path so any siblings are found
+          # properly, so no libs will whine during compile
           export NODE_PATH="$(pwd)/packages"
 
           # ts_node_transpile_only skips all the type checks
