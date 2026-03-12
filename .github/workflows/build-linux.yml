@@ -557,7 +557,10 @@ jobs:
           unset TS_NODE_COMPILER_OPTIONS
           unset TS_NODE_PROJECT
 
-          find . -name "package.json" -exec sed -i 's/"type": "module"/"type": "commonjs"/g' {} +
+          # type f so sed doesn't come across anything it hates
+          # like any files that sed says are supposedly broken
+          # when they aren't really
+          find . -type f -name "package.json" -exec sed -i 's/"type": "module"/"type": "commonjs"/g' {} +
             
           npx esbuild packages/electron-builder/src/cli/cli.ts \
               --bundle \
