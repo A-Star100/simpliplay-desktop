@@ -534,6 +534,7 @@ jobs:
           # ts_node_transpile_only skips all the type checks
           # ts_node_compiler_options overrides the silly strict project configs
           # --skip-project forces ts-node to ignore
+          unset NODE_OPTIONS # in case there's some weirdly broken options
           # the tsconfig.json because it is very problematic
           export TS_NODE_COMPILER_OPTIONS='{
             "module": "nodenext",
@@ -549,10 +550,10 @@ jobs:
           export NODE_OPTIONS="--loader ts-node/esm --no-warnings" # using this to run the TS files
           # with native ESM! 
           
-          npx ts-node \
+          npx ts-node --esm \
             --transpile-only \
             --skip-project \
-            "packages/electron-builder/src/cli/cli.js" \
+            "packages/electron-builder/src/cli/cli.ts" \
             --project "../../" \
             --linux appimage \
             --arch riscv64
