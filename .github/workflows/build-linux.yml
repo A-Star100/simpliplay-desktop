@@ -549,14 +549,20 @@ jobs:
 
           export NODE_OPTIONS="--loader ts-node/esm --no-warnings" # using this to run the TS files
           # with native ESM! 
-          
-          npx ts-node --esm \
-            --transpile-only \
-            --skip-project \
-            "packages/electron-builder/src/cli/cli.ts" \
+
+          # recompile the cli to hopefully be more compliant with ESM
+          npx tsc packages/electron-builder/src/cli/cli.ts \
+            --target esnext \
+            --module nodenext \
+            --moduleResolution nodenext \
+            --esModuleInterop \
+            --skipLibCheck \
+            --outDir packages/electron-builder/dist-cli
+
+          node packages/electron-builder/dist-cli/cli.js \
             --project "../../" \
             --linux appimage \
-            --arch riscv64
+            --arch riscv64 # now run the new CLI          
         working-directory: simpliplay
 
       - name: Upload artifacts
