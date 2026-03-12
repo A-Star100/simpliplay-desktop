@@ -309,7 +309,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 20
 
       - name: Install global deps (qemu, jq, risc-v libs and ts-node)
         run: |
