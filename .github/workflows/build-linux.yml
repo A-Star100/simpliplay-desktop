@@ -584,12 +584,11 @@ jobs:
           [ -f node_modules/@electron/rebuild/package.json ] && jq 'del(.exports)' node_modules/@electron/rebuild/package.json > package.json.tmp && mv package.json.tmp node_modules/@electron/rebuild/package.json
 
           echo "attempting application build now..."
-          node dist/bundle.js build \
+          node dist/bundle.js build -- \
             --linux appimage \
             --arch riscv64 \
-            --projectDir . \
-            --publish never \
-            -c.publish never
+            --projectDir .. \
+            --publish never
         working-directory: simpliplay
 
       - name: Upload artifacts
