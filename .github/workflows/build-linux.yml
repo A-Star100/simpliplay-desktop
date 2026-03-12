@@ -439,11 +439,19 @@ jobs:
           mkdir -p packages/builder-util/out
           ln -sf "$(pwd)/packages/builder-util/src/"* "packages/builder-util/out/"
 
+          
+
           # stay inside builder dir
           echo "attempting build now..."
           
-          echo "attempting build now..."
-          npx ts-node --transpile-only "packages/electron-builder/cli.js" \
+          # sort of unclean usage of env var but its okay for now
+          # -r hooks ts-node into the whole proc
+          # so ts-node is always there during the compile process
+          # to catch any requests
+          NODE_PATH="$(pwd)/packages" npx ts-node \
+            -r ts-node/register \
+            --transpile-only \
+            "packages/electron-builder/cli.js" \
             --project "../../" \
             --linux appimage \
             --arch riscv64
