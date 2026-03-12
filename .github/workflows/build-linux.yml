@@ -550,10 +550,9 @@ jobs:
           # with native ESM! 
           
           npx ts-node \
-            --skip-project \
             --transpile-only \
-            -r ts-node/register \
-            "packages/electron-builder/cli.js" \
+            --skip-project \
+            "packages/electron-builder/src/cli/cli.js" \
             --project "../../" \
             --linux appimage \
             --arch riscv64
