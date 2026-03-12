@@ -567,14 +567,7 @@ jobs:
               --platform=node \
               --target=node22 \
               --outfile=dist/bundle.js \
-              --external:electron \
-              --external:app-builder-bin \
-              --external:dmg-builder \
-              --external:@electron/rebuild \
-              --external:bluebird-lst \
-              --external:@babel/core \
-              --external:electron-webpack \
-              --external:debug \
+              --packages=external \
               --log-level=error
             
             node dist/bundle.js \
