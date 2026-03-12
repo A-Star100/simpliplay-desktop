@@ -431,18 +431,30 @@ jobs:
           echo "setting up extra symlinks..."
           # for the internal imports
           # in electron builder module
-
-
+          
           for pkg_path in packages/*; do
             if [ -d "$pkg_path" ]; then
               pkg_name=$(basename "$pkg_path")
-              echo "creating symlinks for $pkg_name"
+              echo "Processing $pkg_name..."
 
               # create 'out' dir
               mkdir -p "$pkg_path/out"
               # symlink all the contents in src/ and out/
               # recursively
-              cp -rsf "$(pwd)/$pkg_path/src/"* "$(pwd)/$pkg_path/out/"
+
+              # only if an 'src' dir exists
+              # then make a symlink
+              # otherwise cp'll be like "can not stat non existent dir bwha haha haha"
+              # and thats irritating
+              if [ -d "$pkg_path/src" ]; then
+                mkdir -p "$pkg_path/out"
+                # if src is empty and we use *, cp'll throw errors
+                # because it expects at least one file inside
+                # since the asterisk covers all files in current dir
+                # but . just won't care, it only expects its parent dir to exist
+                # and no contents have to be inside 
+                cp -rsf "$(pwd)/$pkg_path/src/." "$(pwd)/$pkg_path/out/"
+              fi
 
               # make package discoverable in node_modules properly
               # cuz some packages are namespaced right
