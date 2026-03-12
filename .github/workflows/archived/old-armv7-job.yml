@@ -1,0 +1,107 @@
+# originally a part of build_linux.yml
+# was replaced by new armv7 job (much cleaner)
+# and was hinted out for a while before being removed recently
+  
+  build_armv7_old:
+    runs-on: ubuntu-22.04-arm #THIS IS THE OLD, REDUNDANT ARMV7 WORKFLOW - REMEMBER TO ALWAYS ACTIVATE QEMU VIRTUALIZATION AFTER INSTALLING IT SO IT IS OF USE!!!
+    steps:
+      - uses: actions/checkout@v4
+  
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install QEMU for ARMv7 emulation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support
+          Register ARM emulation so Snapcraft sees armhf/armv7
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
+
+      - name: Install snapcraft
+        run: sudo snap install snapcraft --classic
+        
+      - name: Install dependencies
+        run: npm install
+        working-directory: simpliplay
+  
+      - name: Build ARMv7 AppImage
+        run: npx electron-builder --linux AppImage --armv7l
+        working-directory: simpliplay
+        continue-on-error: true
+  
+      - name: Upload ARMv7 AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-armv7-appimage
+          path: simpliplay/dist/*.AppImage
+        continue-on-error: true
+  
+      - name: Prepare Snap wrapper files
+        run: |
+          mkdir -p snap/parts/appimage
+          cp simpliplay/dist/*.AppImage snap/parts/appimage/
+  
+      - name: Generate snapcraft.yaml (NO ARCH, bin wrapper)
+        run: |
+          set -euo pipefail
+      
+          APP_VERSION=$(jq -r '.version' simpliplay/package.json)
+      
+          # ensure we have an appimage
+          if ! ls simpliplay/dist/*.AppImage >/dev/null 2>&1; then
+            echo "No AppImage found in simpliplay/dist"
+            exit 1
+          fi
+      
+          APPIMAGE_NAME=$(basename simpliplay/dist/*.AppImage)
+      
+          # prep parts folder
+          mkdir -p snap/parts/appimage
+          cp -f "simpliplay/dist/${APPIMAGE_NAME}" snap/parts/appimage/
+      
+          # make snapcraft.yaml without any heredocs
+          mkdir -p snap
+          echo "name: simpliplay" > snap/snapcraft.yaml
+          printf "version: \"%s\"\n" "$APP_VERSION" >> snap/snapcraft.yaml
+          echo "summary: SimpliPlay ARMv7 AppImage wrapper" >> snap/snapcraft.yaml
+          echo "description: SimpliPlay ARMv7 AppImage wrapped in a Snap" >> snap/snapcraft.yaml
+          echo "base: core20" >> snap/snapcraft.yaml
+          echo "confinement: strict" >> snap/snapcraft.yaml
+          echo "grade: stable" >> snap/snapcraft.yaml
+          echo "" >> snap/snapcraft.yaml
+      
+          echo "parts:" >> snap/snapcraft.yaml
+          echo "  appimage:" >> snap/snapcraft.yaml
+          echo "    plugin: dump" >> snap/snapcraft.yaml
+          echo "    source: parts/appimage" >> snap/snapcraft.yaml
+          echo "    override-build: |" >> snap/snapcraft.yaml
+          # create bin, copy the AppImage into bin and rename it
+          echo "      mkdir -p \$SNAPCRAFT_PART_INSTALL/bin" >> snap/snapcraft.yaml
+          # use the literal filename (it exists in the part source)
+          echo "      cp \"${APPIMAGE_NAME}\" \$SNAPCRAFT_PART_INSTALL/bin/SimpliPlay.AppImage" >> snap/snapcraft.yaml
+          echo "      chmod +x \$SNAPCRAFT_PART_INSTALL/bin/SimpliPlay.AppImage" >> snap/snapcraft.yaml
+          # create a tiny launcher script in the snap's bin dir
+          echo "      echo '#!/bin/sh' > \$SNAPCRAFT_PART_INSTALL/bin/simpliplay" >> snap/snapcraft.yaml
+          echo "      echo 'exec \$SNAP/bin/SimpliPlay.AppImage \"\$@\"' >> \$SNAPCRAFT_PART_INSTALL/bin/simpliplay" >> snap/snapcraft.yaml
+          echo "      chmod +x \$SNAPCRAFT_PART_INSTALL/bin/simpliplay" >> snap/snapcraft.yaml
+          echo "" >> snap/snapcraft.yaml
+      
+          echo "apps:" >> snap/snapcraft.yaml
+          echo "  simpliplay:" >> snap/snapcraft.yaml
+          echo "    command: bin/simpliplay" >> snap/snapcraft.yaml
+      
+          echo "Generated snap/snapcraft.yaml and staged AppImage: ${APPIMAGE_NAME}"
+
+
+      - name: Build ARMv7 Snap
+        run: snapcraft pack --destructive-mode --enable-experimental-target-arch --target-arch=armhf
+        working-directory: snap
+        continue-on-error: true
+  
+      - name: Upload ARMv7 Snap
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-armv7-snap
+          path: snap/*.snap
+        continue-on-error: true
