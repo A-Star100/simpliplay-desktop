@@ -429,28 +429,30 @@ jobs:
           cd ../..
           
           echo "setting up extra symlinks..."
+          # for the internal imports
+          # in electron builder module
+          mkdir -p packages/electron-builder/out
+          ln -sfn "$(pwd)/packages/electron-builder/src" packages/electron-builder/out
           mkdir -p packages/electron-builder/out/cli
           # redirects .ts to use .js with a symlink
           ln -sf "$(pwd)/packages/electron-builder/src/cli/cli.ts" "packages/electron-builder/out/cli/cli.js"
 
           mkdir -p packages/app-builder-lib/out
-          ln -sf "$(pwd)/packages/app-builder-lib/src/"* "packages/app-builder-lib/out/"
-          
+          ln -sfn "$(pwd)/packages/app-builder-lib/src" packages/app-builder-lib/out
           mkdir -p packages/builder-util/out
-          ln -sf "$(pwd)/packages/builder-util/src/"* "packages/builder-util/out/"
-
-          
+          ln -sfn "$(pwd)/packages/builder-util/src" packages/builder-util/out
 
           # stay inside builder dir
           echo "attempting build now..."
           
-          # sort of unclean usage of env var but its okay for now
           # -r hooks ts-node into the whole proc
           # so ts-node is always there during the compile process
           # to catch any requests
-          NODE_PATH="$(pwd)/packages" npx ts-node \
-            -r ts-node/register \
+          export NODE_PATH="$(pwd)/packages"
+          npx ts-node \
             --transpile-only \
+            --skip-ignore \
+            -r ts-node/register \
             "packages/electron-builder/cli.js" \
             --project "../../" \
             --linux appimage \
