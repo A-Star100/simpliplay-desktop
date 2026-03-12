@@ -561,6 +561,8 @@ jobs:
           # like any files that sed says are supposedly broken
           # when they aren't really
           find . -type f -name "package.json" -exec sed -i 's/"type": "module"/"type": "commonjs"/g' {} +
+
+          echo "preparing (via rebuilding) electron-builder CLI..."
             
           npx esbuild packages/electron-builder/src/cli/cli.ts \
               --bundle \
@@ -569,10 +571,21 @@ jobs:
               --outfile=dist/bundle.js \
               --packages=external \
               --log-level=error
-            
-            node dist/bundle.js \
-              --linux appimage \
-              --arch riscv64
+
+          mkdir -p node_modules/@electron/rebuild/lib
+
+          # export no-op so the require() doesn't crash
+          # trying to call a function that doesn't exist
+          # which will make it in a bad mood
+          echo "module.exports = { getProjectRootPath: () => process.cwd() };" > node_modules/@electron/rebuild/lib/search-module.js
+
+          # delete exports field for node to let us do the DEEEP exports
+          jq 'del(.exports)' node_modules/@electron/rebuild/package.json > package.json.tmp && mv package.json.tmp node_modules/@electron/rebuild/package.json
+
+          echo "attempting application build now..."
+          node dist/bundle.js \
+            --linux appimage \
+            --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
