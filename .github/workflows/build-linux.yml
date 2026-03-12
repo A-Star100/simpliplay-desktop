@@ -448,10 +448,18 @@ jobs:
           # -r hooks ts-node into the whole proc
           # so ts-node is always there during the compile process
           # to catch any requests
+          # 1. Export the NODE_PATH so siblings are found
           export NODE_PATH="$(pwd)/packages"
+
+          # ts_node_transpile_only skips all the type checks
+          # ts_node_compiler_options overrides the silly strict project configs
+          # --skip-project forces ts-node to ignore
+          # the tsconfig.json because it is very problematic
+          TS_NODE_TRANSPILE_ONLY=true \
+          TS_NODE_COMPILER_OPTIONS='{"module": "commonjs", "target": "esnext", "skipLibCheck": true, "esModuleInterop": true}' \
           npx ts-node \
+            --skip-project \
             --transpile-only \
-            --skip-ignore \
             -r ts-node/register \
             "packages/electron-builder/cli.js" \
             --project "../../" \
