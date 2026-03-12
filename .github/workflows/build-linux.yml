@@ -309,7 +309,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install global deps (qemu, jq, risc-v libs and ts-node)
         run: |
@@ -519,8 +519,8 @@ jobs:
           # # cd ../..
           # old stuff ended now
 
-          # the code below is in case we migrate BACK to commonjs one day for some reason
-          # or want to rely on ESM as less as possible
+
+          # if we want to rely on ESM as less as possible
           # force-patch the chalk imports and require functions
           # to not use any .default stuff the old libs ain't compatible with
           # cuz in older deps the export is the func
@@ -530,39 +530,48 @@ jobs:
           find packages/electron-builder/src -name "*.ts" -exec sed -i 's/import chalk from "chalk"/import * as chalk from "chalk"/g' {} +
           find packages/electron-builder/src -name "*.ts" -exec sed -i 's/require("chalk")/ (require("chalk").default || require("chalk"))/g' {} +
 
+          # old code start
           
           # ts_node_transpile_only skips all the type checks
           # ts_node_compiler_options overrides the silly strict project configs
           # --skip-project forces ts-node to ignore
           unset NODE_OPTIONS # in case there's some weirdly broken options
           # the tsconfig.json because it is very problematic
-          export TS_NODE_COMPILER_OPTIONS='{
-            "module": "nodenext",
-            "target": "esnext",
-            "moduleResolution": "nodenext",
-            "skipLibCheck": true,
-            "esModuleInterop": true,
-            "allowSyntheticDefaultImports": true,
-            "experimentalResolver": true,
-            "transpileOnly": true
-          }'
+          # export TS_NODE_COMPILER_OPTIONS='{
+          #   "module": "nodenext",
+          #   "target": "esnext",
+          #   "moduleResolution": "nodenext",
+          #   "skipLibCheck": true,
+          #   "esModuleInterop": true,
+          #   "allowSyntheticDefaultImports": true,
+          #   "experimentalResolver": true,
+          #   "transpileOnly": true
+          # }'
 
-          export NODE_OPTIONS="--loader ts-node/esm --no-warnings" # using this to run the TS files
+          ######export NODE_OPTIONS="--loader ts-node/esm --no-warnings" # using this to run the TS files
           # with native ESM! 
 
-          # recompile the cli to hopefully be more compliant with ESM
-          npx tsc packages/electron-builder/src/cli/cli.ts \
-            --target esnext \
-            --module nodenext \
-            --moduleResolution nodenext \
-            --esModuleInterop \
-            --skipLibCheck \
-            --outDir packages/electron-builder/dist-cli
+          # old stuff ended
+          
+          unset NODE_OPTIONS
+          unset TS_NODE_COMPILER_OPTIONS
+          unset TS_NODE_PROJECT
 
-          node packages/electron-builder/dist-cli/cli.js \
-            --project "../../" \
-            --linux appimage \
-            --arch riscv64 # now run the new CLI          
+          find . -name "package.json" -exec sed -i 's/"type": "module"/"type": "commonjs"/g' {} +
+            
+          npx esbuild packages/electron-builder/src/cli/cli.ts \
+              --bundle \
+              --platform=node \
+              --target=node22 \
+              --outfile=dist/bundle.js \
+              --external:electron \
+              --external:app-builder-bin \
+              --external:dmg-builder \
+              --log-level=error
+            
+            node dist/bundle.js \
+              --linux appimage \
+              --arch riscv64
         working-directory: simpliplay
 
       - name: Upload artifacts
