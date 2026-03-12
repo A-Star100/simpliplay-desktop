@@ -411,10 +411,13 @@ jobs:
           # but the scripts were the ones that added them
           # and by skipping them it causes that error
 
+
+          # old stuff below:
           # compile with npm instead of tsc
-          echo "compiling electron-builder source..."
+          # echo "compiling electron-builder source..."
           # try tsc build
-          npx tsc --skipLibCheck --noEmitOnError false || echo "tsc finished, checking for output..."
+          # npx tsc --skipLibCheck --noEmitOnError false || echo "tsc finished, checking for output..."
+          # old stuff ended
 
           echo "yarn adding missing deps"
           cd packages/electron-builder
@@ -425,7 +428,11 @@ jobs:
           # so yarn v4 stops whining about usage issues
 
           # and now add the deps
-          yarn add is-ci yargs read-config-file ts-node typescript
+          yarn add is-ci yargs@16.2.0 read-config-file ts-node typescript
+          # oughta use older version of yargs
+          # cuz newer ones deprecated yargs.parserConfiguration which is used in
+          # electron-builder/src/builder.ts and is needed
+          # otherwise build will crash and fail immediately
           cd ../..
           
           echo "setting up extra symlinks..."
@@ -435,7 +442,7 @@ jobs:
           for pkg_path in packages/*; do
             if [ -d "$pkg_path" ]; then
               pkg_name=$(basename "$pkg_path")
-              echo "Processing $pkg_name..."
+              echo "creating symlinks for $pkg_name..."
 
               # create 'out' dir
               mkdir -p "$pkg_path/out"
@@ -494,7 +501,7 @@ jobs:
           
           # export node_path so any siblings are found
           # properly, so no libs will whine during compile
-          export NODE_PATH="$(pwd)/packages"
+          export NODE_PATH="$(pwd)/packages/electron-builder/node_modules:$(pwd)/packages"
 
           # ts_node_transpile_only skips all the type checks
           # ts_node_compiler_options overrides the silly strict project configs
