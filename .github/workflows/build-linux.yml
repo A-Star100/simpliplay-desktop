@@ -428,11 +428,15 @@ jobs:
           # so yarn v4 stops whining about usage issues
 
           # and now add the deps
-          yarn add is-ci yargs@16.2.0 read-config-file ts-node typescript
+          yarn add is-ci yargs@16.2.0 chalk@4.1.2 read-config-file ts-node typescript
           # oughta use older version of yargs
           # cuz newer ones deprecated yargs.parserConfiguration which is used in
           # electron-builder/src/builder.ts and is needed
           # otherwise build will crash and fail immediately
+          # also have to use older version of chalk
+          # for commonjs support
+          # cuz for some reason v5+ uses ESM only and hates any mentions of commonjs
+          # so this is the only choice for now
           cd ../..
           
           echo "setting up extra symlinks..."
