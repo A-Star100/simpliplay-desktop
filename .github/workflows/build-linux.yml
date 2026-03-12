@@ -507,17 +507,28 @@ jobs:
           # properly, so no libs will whine during compile
           export NODE_PATH="$(pwd)/packages/electron-builder/node_modules:$(pwd)/packages"
 
-          # super ultra quick
-          # last minute reinstall of chalk
-          # to prevent a new esm-only polluted version
-          # from infiltrating the build process
-          # which would be pretty annoying if it happened
-          # so to anyone debugging, pls don't remove this
-          rm -rf node_modules/chalk
-          cd packages/electron-builder
-          yarn add chalk@2.4.2
-          cd ../..
+          # the below is OLD
+          # # super ultra quick
+          # # last minute reinstall of chalk
+          # # to prevent a new esm-only polluted version
+          # # from infiltrating the build process
+          # # which would be pretty annoying if it happened
+          # # rm -rf node_modules/chalk
+          # # cd packages/electron-builder
+          # # yarn add chalk@2.4.2
+          # # cd ../..
+          # old stuff ended now
 
+          # force-patch the chalk imports and require functions
+          # to not use any .default stuff the old libs ain't compatible with
+          # cuz in older deps the export is the func
+          # but when ts-node compiles the instructs to commonjs
+          # it is like "hey look for chalk.default"
+          # which won't work obviously
+          find packages/electron-builder/src -name "*.ts" -exec sed -i 's/import chalk from "chalk"/import * as chalk from "chalk"/g' {} +
+          find packages/electron-builder/src -name "*.ts" -exec sed -i 's/require("chalk")/ (require("chalk").default || require("chalk"))/g' {} +
+
+          
           # ts_node_transpile_only skips all the type checks
           # ts_node_compiler_options overrides the silly strict project configs
           # --skip-project forces ts-node to ignore
