@@ -570,6 +570,11 @@ jobs:
               --external:electron \
               --external:app-builder-bin \
               --external:dmg-builder \
+              --external:@electron/rebuild \
+              --external:bluebird-lst \
+              --external:@babel/core \
+              --external:electron-webpack \
+              --external:debug \
               --log-level=error
             
             node dist/bundle.js \
