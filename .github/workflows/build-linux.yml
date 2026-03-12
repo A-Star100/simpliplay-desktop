@@ -535,9 +535,9 @@ jobs:
           # ts_node_compiler_options overrides the silly strict project configs
           # --skip-project forces ts-node to ignore
           # the tsconfig.json because it is very problematic
-          TS_NODE_TRANSPILE_ONLY=true \
+          TS_NODE_TRANSPILE_ONLY=true
           export TS_NODE_COMPILER_OPTIONS='{
-            "module": "nodenext", # use esm now.... don't wanna fight with commonjs
+            "module": "nodenext",
             "target": "esnext",
             "moduleResolution": "nodenext",
             "skipLibCheck": true,
