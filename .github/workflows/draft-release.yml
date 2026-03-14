@@ -15,8 +15,12 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          # so git log actually returns something
+          # phew
+          fetch-depth: 0 
 
       - name: Prepare folder(s)
         run: mkdir -p all-artifacts
@@ -76,10 +80,8 @@ jobs:
           ### Release notes:
           ${{ github.event.inputs.release_notes }}
             
-          ### Dev highlights
-          These are the 10 newest commits in the repo as of this release:
-            
-          $(git log $(git describe --tags --abbrev=0 2>/dev/null)..HEAD --format=%s | head -n 10)
+          ### Dev highlights          
+          $(git log -n 10 --format="- %s")
           EOF
 
       - name: Create empty draft release
