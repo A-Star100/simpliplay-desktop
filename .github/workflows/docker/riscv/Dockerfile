@@ -12,7 +12,7 @@ RUN git clone --branch electron-builder@25.1.8-riscv https://github.com/riscv-fo
     && yarn link # make result a global cli
 
 # setup project
-WORKDIR /project
+WORKDIR /simpliplay
 COPY package.json yarn.lock ./
 RUN yarn install --immutable
 COPY . .
