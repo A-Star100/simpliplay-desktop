@@ -301,6 +301,32 @@ jobs:
           name: linux-armv7l-v2-snap
           path: simpliplay/dist/*.snap
 
+  build_riscv:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+  
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Build using docker and extract assets
+        run: |
+            docker build \
+            -t simpliplay_riscv:experimental \
+            -f .github/workflows/docker/riscv/Dockerfile .
+
+            mkdir -p dist
+            docker run --rm \
+              -v ${{ github.workspace }}/dist:/simpliplay/dist \
+              simpliplay_riscv:experimental
+
+      - name: Upload artifacts      
+        uses: actions/upload-artifact@v6
+        with:
+          name: linux-riscv64-appimage
+          path: simpliplay/dist/*.AppImage
+
   # start-linux-tests:
   #   name: Start Linux Tests
   #   needs: [build_x64, build_arm64, build_armv7]
