@@ -315,6 +315,13 @@ jobs:
       #   with:
       #     platforms: riscv64
 
+      - name: Set up docker buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver: docker-container # for riscv64 emulation support
+          # because the standard runc driver doesn't support
+          # the ops we are using for multi platform correctly
+
       - name: Build using docker and extract assets
         run: |
             docker build \
