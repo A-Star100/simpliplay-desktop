@@ -74,14 +74,21 @@ jobs:
 
           echo "Created incomplete list of files to upload"
 
-      - name: Generate changelog
-        run: |
+      - name: Generate Native Changelog
+        env:
+          GH_TOKEN: ${{ github.token }} # gh actions runners need this env
+                                        # when using the GH CLI, otherwise it doesn't work
+        run: |     
+          gh release create automated-for-release-notes --generate-notes --draft > /dev/null
+          gh release view automated-for-release-notes --json body --jq .body > generated.md
+          gh release delete automated-for-release-notes --yes
+          
           cat <<EOF > "${{ github.workspace }}-CHANGELOG.txt"
-          ### Release notes:
-          ${{ github.event.inputs.release_notes }}
-            
-          ### Dev highlights          
-          $(git log -n 10 --format="- %s")
+          ## Release Notes
+          ${{ inputs.release_notes }}
+
+          ## Dev Highlights
+          $(cat generated.md || git log -n 10 --format="- %s")
           EOF
 
       - name: Create empty draft release
