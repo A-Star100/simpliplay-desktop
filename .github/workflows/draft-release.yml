@@ -89,7 +89,7 @@ jobs:
           # and delete any line containing github repo comparisons
           # because that usually has a full changelog
           # which will link to a non-existent tag since it gets deleted
-          gh release view "notes-tmp" --json body --jq .body \
+          gh release view automated-for-release-notes --json body --jq .body \
             | grep -v "github.com/.*/compare/" > generated.md
           # then delete the dummy release
           gh release delete automated-for-release-notes --yes
