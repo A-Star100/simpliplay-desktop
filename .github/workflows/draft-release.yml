@@ -74,7 +74,7 @@ jobs:
 
           echo "Created incomplete list of files to upload"
 
-      - name: Generate Native Changelog
+      - name: Generate changelog
         env:
           GH_TOKEN: ${{ github.token }} # gh actions runners need this env
                                         # when using the GH cli, otherwise it doesn't work
