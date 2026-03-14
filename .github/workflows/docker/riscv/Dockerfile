@@ -1,8 +1,14 @@
-FROM --platform=linux/riscv64 node:22-bookworm-slim
+FROM --platform=linux/riscv64 debian:sid-slim
 
-# install git to do clone
-# and then cleanup cache to save space
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# install tools
+# and then clear cache to save space
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g yarn \
+    && rm -rf /var/lib/apt/lists/*
 
 # clone and yarn build fork
 WORKDIR /opt/electron-builder
