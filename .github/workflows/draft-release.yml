@@ -77,17 +77,27 @@ jobs:
       - name: Generate Native Changelog
         env:
           GH_TOKEN: ${{ github.token }} # gh actions runners need this env
-                                        # when using the GH CLI, otherwise it doesn't work
+                                        # when using the GH cli, otherwise it doesn't work
+                                        # hope this gets fixed soon
         run: |     
+          # make a dummy release for the notes feature
+          # since the cli doesn't support making only notes...
+          # pipe to /dev/null to suppress logs
           gh release create automated-for-release-notes --generate-notes --draft > /dev/null
-          gh release view automated-for-release-notes --json body --jq .body > generated.md
+          # take the generated notes (body key parsed by jq)
+          # and pipe them into generated.md
+          # and delete any line containing github repo comparisons
+          # because that usually has a full changelog
+          # which will link to a non-existent tag since it gets deleted
+          gh release view "notes-tmp" --json body --jq .body \
+            | grep -v "github.com/.*/compare/" > generated.md
+          # then delete the dummy release
           gh release delete automated-for-release-notes --yes
           
           cat <<EOF > "${{ github.workspace }}-CHANGELOG.txt"
           ## Release Notes
           ${{ inputs.release_notes }}
 
-          ## Dev Highlights
           $(cat generated.md || git log -n 10 --format="- %s")
           EOF
 
@@ -118,6 +128,7 @@ jobs:
           rm -f upload-files-renamed.txt
           touch upload-files-renamed.txt
 
+          # TODO: refactor this segment
           while IFS= read -r filepath; do
             filename=$(basename "$filepath")
             dirname=$(basename "$(dirname "$filepath")")
