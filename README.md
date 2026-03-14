@@ -5,6 +5,7 @@ The desktop version of SimpliPlay, a simple, cross-platform media player.
 [Electron](https://electronjs.org) version of SimpliPlay for Windows, macOS, and Linux (x64 and arm64).
 
 [![simpliplay](https://snapcraft.io/simpliplay/badge.svg)](https://snapcraft.io/simpliplay)
+
 Available as a [Snap](https://snapcraft.io/simpliplay).
 
 ## [simpliplay-lite](https://github.com/A-Star100/simpliplay-desktop/tree/lite)
