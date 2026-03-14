@@ -2,6 +2,11 @@ name: Draft Release
 
 on:
   workflow_dispatch:
+    inputs:
+        release_notes:
+          description: "Anything's changed? What you put here will be visible to anyone on GitHub. The release notes are in Markdown btw."
+          required: false
+          default: "Just a regular release. Not too many changes :D"
   workflow_call:
 
 jobs:
@@ -49,10 +54,10 @@ jobs:
             
             echo "Everything needed is present! Moving on now..."
 
-      - name: Extract ZIP files and prepare allowed files list
+      - name: Extract artifacts and filter them
         run: |
           set -e
-          echo "Extracting ZIP files and collecting all needed assets..."
+          echo "Extracting artifacts and collecting needed assets..."
 
           find all-artifacts -type f -name '*.zip' | while read -r zipfile; do
             extract_dir="${zipfile%.zip}"
@@ -63,15 +68,28 @@ jobs:
           rm -f upload-files.txt
           find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.AppImage' \) | grep 'SimpliPlay' > upload-files.txt
 
-          echo "Successfully set up unfiltered list of files to upload:"
+          echo "Created incomplete list of files to upload"
 
-      - name: Create an empty draft release
+      - name: Generate changelog
+        run: |
+          cat <<EOF > "${{ github.workspace }}-CHANGELOG.txt"
+          ### Release notes:
+          ${{ github.event.inputs.release_notes }}
+            
+          ### Dev highlights
+          These are the 10 newest commits in the repo as of this release:
+            
+          $(git log $(git describe --tags --abbrev=0 2>/dev/null)..HEAD --format=%s | head -n 10)
+          EOF
+
+      - name: Create empty draft release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: "draft-${{ github.run_number }}"
           draft: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          body_path: ${{ github.workspace }}-CHANGELOG.txt #okay i know this param name sounds weird
+                                                           # but it is for release notes
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Rename files if duplicates exist on the release
         id: rename
@@ -102,7 +120,7 @@ jobs:
               name="${filename%.*}"
               safe_name=$(sanitize_filename "$name")
               newname="${safe_name}-${dirname}.${extension}"
-              echo "Renaming $filename to $newname because it exists in release"
+              echo "Renamed $filename to $newname because it exists in the release already"
               cp "$filepath" "all-artifacts/$newname"
               echo "all-artifacts/$newname" >> upload-files-renamed.txt
             else
