@@ -1,16 +1,16 @@
-# Ignore build directories
+# ignore build dirs
 /build/
 /dist/
 /bin/
 
-# Ignore system files (macOS, Windows)
+# ignore system junk files
 .DS_Store
 Thumbs.db
 
-# Ignore node_modules (if you are using Node.js)
+# ignore node_modules
+# it's like hundreds of MBs
 node_modules/
 
-# Ignore any other IDE/editor-specific files (VSCode, etc.)
+# ignore ide-specific files and stuff
 .vscode/
 .idea/
-*.swp
