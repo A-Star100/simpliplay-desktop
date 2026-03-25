@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>me.anirudhsevugan.SimpliPlay</id>
+    <metadata_license>FSFAP</metadata_license>
+    <project_license>MIT</project_license>
+    <name>SimpliPlay</name>
+    <summary>Simple FOSS media player</summary>
+    <developer id="me.anirudhsevugan.SimpliPlay">
+        <name>Anirudh S</name>
+    </developer>
+    <content_rating type="oars-1.1" />
+    <branding>
+        <color type="primary" scheme_preference="light">#1a73e8</color>
+        <color type="primary" scheme_preference="dark">#083358</color>
+    </branding>
+    <description>
+    <p>A simple media player that supports various multimedia formats such as HLS and MPEG-DASH, plus support for customization via add-ons.</p>
+
+    <p>You can play media with features such as:</p>
+    <ul>
+        <li>HLS and MPEG-DASH streams support, and codecs such as H.264, VP9, and AV1</li>
+        <li>Use add-ons coded in JavaScript to customize media playback, from custom skins to new features</li>
+        <li>WebVTT and SRT subtitles support</li>
+        <li>Take snapshots with Ctrl+S to capture perfect moments in your media, as well as any add-ons you've created</li>
+        <li>Use DevTools (identical to what's in Chrome) to edit code for the player in realtime</li>
+    </ul>
+
+    <p>App icon from Vector Stall - (www.flaticon.com)</p>
+    </description>
+    <launchable type="desktop-id">me.anirudhsevugan.SimpliPlay.desktop</launchable>
+    <screenshots>
+        <screenshot type="default">
+            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/eb86785b3803a0431059618c9a68c62ecb99d77f/screenshots/png/interface.png</image>
+            <caption>Main interface</caption>
+        </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/eb86785b3803a0431059618c9a68c62ecb99d77f/screenshots/png/settings.png</image>
+            <caption>Additional settings</caption>
+        </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/eb86785b3803a0431059618c9a68c62ecb99d77f/screenshots/png/addons.png</image>
+            <caption>Addons</caption>
+        </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/A-Star100/me.anirudhsevugan.SimpliPlay/eb86785b3803a0431059618c9a68c62ecb99d77f/screenshots/png/devtools.png</image>
+            <caption>DevTools</caption>
+        </screenshot>
+    </screenshots>
+    <keywords>
+        <keyword>media</keyword>
+        <keyword>player</keyword>
+        <keyword>video</keyword>
+        <keyword>streaming</keyword>
+    </keywords>
+    <url type="homepage">https://simpliplay.netlify.app/</url>
+    <url type="vcs-browser">https://github.com/A-Star100/simpliplay-desktop</url>
+    <project_group>SimpliPlay</project_group>
+</component>
