@@ -34,7 +34,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential flatpak flatpak-builder
-        continue-on-error: true
+        #continue-on-error: true
 
       # - name: Create unpacked build for Flatpak
       #   run: npx electron-builder --linux --x64 --dir
@@ -71,8 +71,9 @@ jobs:
           flatpak-builder --user --install-deps-from=flathub --disable-rofiles-fuse --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
           flatpak build-export repo build-dir
           flatpak build-bundle repo simpliplay.flatpak me.anirudhsevugan.SimpliPlay
+          mv *.flatpak dist/*.flatpak
         working-directory: simpliplay
-        continue-on-error: true
+        #continue-on-error: true
 
       # - name: Restore package.json
       #   run: mv simpliplay/package.json.orig simpliplay/package.json # redundant for now but might be useful in future
@@ -140,7 +141,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential flatpak flatpak-builder
-        continue-on-error: true
+        #continue-on-error: true
       - name: Build Flatpak
         run: |
           # setup flathub repo
@@ -149,8 +150,9 @@ jobs:
           flatpak-builder --user --install-deps-from=flathub --disable-rofiles-fuse --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
           flatpak build-export repo build-dir
           flatpak build-bundle repo simpliplay.flatpak me.anirudhsevugan.SimpliPlay
+          mv *.flatpak dist/*.flatpak
         working-directory: simpliplay
-        continue-on-error: true
+        #continue-on-error: true
 
       # - name: Patch package.json for Flatpak
       #   run: |
