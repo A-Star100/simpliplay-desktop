@@ -36,9 +36,12 @@ modules:
         elif [ "$FLATPAK_ARCH" = "aarch64" ]; then
           arch="arm64"
         fi
-        npx electron-builder --linux --$arch --dir
+        ./node_modules/.bin/electron-packager . SimpliPlay \
+          --out=dist/ \
+          --overwrite \
+          --no-prune
         mkdir -p /app/lib/SimpliPlay
-        cp -r dist/* /app/lib/SimpliPlay/
+        cp -r dist/SimpliPlay-linux-$arch/* /app/lib/SimpliPlay/
       # note: gotta double check the filepaths
       - install -Dm644 simpliplay/icon.png /app/share/icons/hicolor/512x512/apps/me.anirudhsevugan.SimpliPlay.png
       - install -Dm644 simpliplay/flatpak/me.anirudhsevugan.SimpliPlay.desktop /app/share/applications/me.anirudhsevugan.SimpliPlay.desktop
@@ -54,6 +57,6 @@ modules:
         commands:
           - 'export WAYLAND_DISPLAY=""'
           - 'export XDG_SESSION_TYPE="x11"'
-          - 'exec /app/lib/SimpliPlay/SimpliPlay --no-sandbox --ozone-platform=x11 "$@"' # only doing this cuz i'm too lazy to deal with zypak
+          - 'exec zypak-wrapper /app/lib/SimpliPlay/SimpliPlay --ozone-platform=x11 "$@"'
       - type: patch
         path: resolve-persistent-snapshot-path.patch
