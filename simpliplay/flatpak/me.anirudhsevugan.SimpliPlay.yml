@@ -29,7 +29,6 @@ modules:
         - TAR_OPTIONS: "--no-same-owner --no-same-permissions --warning=no-unknown-keyword"
     build-commands:
       - |
-        ls # for debugging
         cd $(find . -name "package.json" -not -path "*/node_modules/*" -printf '%h\n' | head -n 1)
         npm install
         if [ "$FLATPAK_ARCH" = "x86_64" ]; then
@@ -39,6 +38,14 @@ modules:
         fi
         npx electron-builder --linux --$arch --dir
         mkdir -p /app/lib/SimpliPlay
+        if [ -d "dist/linux-${arch}-unpacked" ]; then
+          cp -rp dist/linux-${arch}-unpacked/. /app/lib/SimpliPlay/
+        else
+          echo "dist/linux-${arch}-unpacked wasn't found- so cannot pack into flatpak"
+          echo "it actually contains dist/:"
+          ls -R dist/
+          exit 1
+        fi
         cp -r dist/linux-${arch}-unpacked/* /app/lib/SimpliPlay/
       # note: gotta double check the filepaths
       - install -Dm644 simpliplay/icon.png /app/share/icons/hicolor/512x512/apps/me.anirudhsevugan.SimpliPlay.png
