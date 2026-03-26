@@ -70,7 +70,7 @@ jobs:
           done
 
           rm -f upload-files.txt
-          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.flatpak' -o -iname '*.AppImage' \) | grep 'SimpliPlay' > upload-files.txt
+          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.flatpak' -o -iname '*.AppImage' \) | grep -i 'simpliplay' > upload-files.txt
 
           echo "Created incomplete list of files to upload"
 
