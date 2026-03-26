@@ -36,9 +36,9 @@ jobs:
           sudo apt-get install -y build-essential flatpak flatpak-builder
         continue-on-error: true
 
-      - name: Create unpacked build for Flatpak
-        run: npx electron-builder --linux --x64 --dir
-        working-directory: simpliplay
+      # - name: Create unpacked build for Flatpak
+      #   run: npx electron-builder --linux --x64 --dir
+      #   working-directory: simpliplay
         
       # - name: Patch package.json
       #   run: |
@@ -64,7 +64,10 @@ jobs:
       #     mv simpliplay/package.flatpak.json simpliplay/package.json
 
       - name: Build Flatpak
-        run: npx electron-builder --linux flatpak --x64
+        run: | 
+          flatpak-builder --user --disable-rofiles-fuse --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yaml
+          flatpak build-export repo build-dir
+          flatpak build-bundle repo simpliplay.flatpak me.anirudhsevugan.SimpliPlay
         working-directory: simpliplay
         continue-on-error: true
 
@@ -158,26 +161,9 @@ jobs:
       #     # replace package.json for flatpak build cuz electron-builder is unfortunately
       #     # picky regarding flatpaks
       #     mv simpliplay/package.flatpak.json simpliplay/package.json
-
-      - name: Create unpacked build for Flatpak
-        run: npx electron-builder --linux --arm64 --dir
-        working-directory: simpliplay
-
       - name: Build Flatpak
         run: | 
-          #echo "file struct below:"
-          #ls
-          
-          #if ! pwd | grep -q "simpliplay"; then
-            #cd simpliplay
-          #fi
-          # if [ ! -d node_modules ]; then
-          #   echo "node_modules wasn't found, will install deps now"
-          #   npm install
-          # fi
-          
-          #TODO: actually make the manifest file
-          flatpak-builder --user --disable-rofiles-fuse --force-clean build-dir flatpak/to-be-made.yaml
+          flatpak-builder --user --disable-rofiles-fuse --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yaml
           flatpak build-export repo build-dir
           flatpak build-bundle repo simpliplay.flatpak me.anirudhsevugan.SimpliPlay
         working-directory: simpliplay
