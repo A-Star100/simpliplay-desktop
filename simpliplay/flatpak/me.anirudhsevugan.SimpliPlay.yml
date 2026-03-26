@@ -29,7 +29,7 @@ modules:
         - TAR_OPTIONS: "--no-same-owner --no-same-permissions --warning=no-unknown-keyword"
     build-commands:
       - |
-        cd $(find . -name "package.json" -not -path "*/node_modules/*" -printf '%h\n' | head -n 1)
+        cd simpliplay
         npm install
         if [ "$FLATPAK_ARCH" = "x86_64" ]; then
           arch="x64"
@@ -42,9 +42,10 @@ modules:
           --no-prune
         mkdir -p /app/lib/SimpliPlay
         cp -r dist/SimpliPlay-linux-$arch/* /app/lib/SimpliPlay/
-      # note: gotta double check the filepaths
-      - install -Dm644 simpliplay/icon.png /app/share/icons/hicolor/512x512/apps/me.anirudhsevugan.SimpliPlay.png
-      - install -Dm644 simpliplay/flatpak/me.anirudhsevugan.SimpliPlay.desktop /app/share/applications/me.anirudhsevugan.SimpliPlay.desktop
+      - install -Dm644 ./icon.png /app/share/icons/hicolor/512x512/apps/me.anirudhsevugan.SimpliPlay.png
+      - install -Dm644 ./flatpak/me.anirudhsevugan.SimpliPlay.desktop /app/share/applications/me.anirudhsevugan.SimpliPlay.desktop
+      # metainfo is dropped cuz it causes build failure on aarch64
+      # due to the appstream cli's compose behaving very weirdly
       #- install -Dm644 simpliplay/flatpak/me.anirudhsevugan.SimpliPlay.metainfo.xml /app/share/metainfo/me.anirudhsevugan.SimpliPlay.metainfo.xml
       - install -Dm755 run.sh /app/bin/run.sh
 
