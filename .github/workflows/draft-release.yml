@@ -37,7 +37,7 @@ jobs:
             
             gh run download --dir all-artifacts || true
             
-            required=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64" "linux-armv7-snap" "linux-armv7-appimage")
+            required=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64" "linux-armv7-snap" "linux-armv7-appimage" "linux-x64-flatpak" "linux-arm64-flatpak")
             missing_list=()
             
             for artifact in "${required[@]}"; do
