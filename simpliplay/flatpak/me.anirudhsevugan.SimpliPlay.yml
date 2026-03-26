@@ -42,7 +42,7 @@ modules:
       # note: gotta double check the filepaths
       - install -Dm644 simpliplay/icon.png /app/share/icons/hicolor/512x512/apps/me.anirudhsevugan.SimpliPlay.png
       - install -Dm644 simpliplay/flatpak/me.anirudhsevugan.SimpliPlay.desktop /app/share/applications/me.anirudhsevugan.SimpliPlay.desktop
-      - install -Dm644 simpliplay/flatpak/me.anirudhsevugan.SimpliPlay.metainfo.xml /app/share/metainfo/me.anirudhsevugan.SimpliPlay.metainfo.xml
+      #- install -Dm644 simpliplay/flatpak/me.anirudhsevugan.SimpliPlay.metainfo.xml /app/share/metainfo/me.anirudhsevugan.SimpliPlay.metainfo.xml
       - install -Dm755 run.sh /app/bin/run.sh
 
     sources:
