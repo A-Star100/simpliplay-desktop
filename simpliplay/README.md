@@ -9,6 +9,6 @@ We now use CI/CD (specifically GitHub Actions, at one point CircleCI) for builds
 ## Dependencies
 Other than Electron and Electron Builder, there is one more dependency called "Nothing".
 Its name is very self explanatory, isn't it?
-Okay, okay, that might've been a bad joke.
+Okay, okay, that was a very very very bad joke.
 
 Anyway, enjoy exploring.
