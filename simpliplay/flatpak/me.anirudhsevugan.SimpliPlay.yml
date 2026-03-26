@@ -21,46 +21,34 @@ modules:
   - name: simpliplay
     buildsystem: simple
     build-options:
+      build-args:
+        - --share=network
       append-path: /usr/lib/sdk/node22/bin
       env:
         - NODE_PATH: /usr/lib/sdk/node22/lib/node_modules
-        - NPM_CONFIG_OFFLINE: "true"
         - TAR_OPTIONS: "--no-same-owner --no-same-permissions --warning=no-unknown-keyword"
     build-commands:
-      - mkdir -p .electron-mirror
       - |
-        export electron="41.0.4"
+        cd $(find . -name "package.json" -not -path "*/node_modules/*" -printf '%h\n' | head -n 1)
+        npm install
         if [ "$FLATPAK_ARCH" = "x86_64" ]; then
-            mv simpliplay/cache/electron/electron-v${electron}-linux-x64.zip .electron-mirror/
-            arch-dir="SimpliPlay-linux-x64"
+          arch="x64"
         elif [ "$FLATPAK_ARCH" = "aarch64" ]; then
-            mv simpliplay/cache/electron/electron-v${electron}-linux-arm64.zip .electron-mirror/
-            arch-dir="SimpliPlay-linux-arm64"
+          arch="arm64"
         fi
-  
-        chmod -R +x simpliplay/node_modules/
-        sed -i 's/"electron": "\^$electron"/"electron": "$electron"/g' simpliplay/package.json
-        
-        export ELECTRON_SKIP_BINARY_DOWNLOAD=1
-        export root=$(pwd)
-          
-        cd simpliplay
-        ./node_modules/.bin/electron-packager . SimpliPlay \
-          --out=dist/ \
-          --overwrite \
-          --no-prune \
-          --electron-zip-dir="$root/.electron-mirror"
-  
+        npx electron-builder --linux --$arch --dir
         mkdir -p /app/lib/SimpliPlay
-        cp -r dist/$arch-dir/* /app/lib/SimpliPlay/
+        cp -r dist/* /app/lib/SimpliPlay/
+      # note: gotta double check the filepaths
       - install -Dm644 simpliplay/icon.png /app/share/icons/hicolor/512x512/apps/me.anirudhsevugan.SimpliPlay.png
-      - install -Dm644 simpliplay/me.anirudhsevugan.SimpliPlay.desktop /app/share/applications/me.anirudhsevugan.SimpliPlay.desktop
-      - install -Dm644 simpliplay/me.anirudhsevugan.SimpliPlay.metainfo.xml /app/share/metainfo/me.anirudhsevugan.SimpliPlay.metainfo.xml
+      - install -Dm644 simpliplay/flatpak/me.anirudhsevugan.SimpliPlay.desktop /app/share/applications/me.anirudhsevugan.SimpliPlay.desktop
+      #- install -Dm644 simpliplay/flatpak/me.anirudhsevugan.SimpliPlay.metainfo.xml /app/share/metainfo/me.anirudhsevugan.SimpliPlay.metainfo.xml
       - install -Dm755 run.sh /app/bin/run.sh
 
     sources:
-      - type: archive
-        url: simpliplay-vendored.tar.gz # it'll be created in ci
+      - type: git
+        url: https://github.com/A-Star100/simpliplay-desktop.git
+        branch: main
       - type: script
         dest-filename: run.sh
         commands:
