@@ -36,7 +36,7 @@ modules:
         elif [ "$FLATPAK_ARCH" = "aarch64" ]; then
           arch="arm64"
         fi
-        npx electron-packager . SimpliPlay \
+        npx @electron/packager . SimpliPlay \
           --out=dist/ \
           --overwrite \
           --no-prune
