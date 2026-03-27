@@ -23,7 +23,8 @@ jobs:
         with:
           node-version: 22
 
-      - run: npm install
+      - name: Install project deps
+        run: npm install
         working-directory: simpliplay
 
       - name: Build Snap and AppImage
@@ -296,8 +297,7 @@ jobs:
         run: npx electron-builder --linux snap --armv7l
         working-directory: simpliplay
         
-      - name: Upload artifacts      
-        uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v6
         with:
           name: linux-armv7l-v2-snap
           path: simpliplay/dist/*.snap
