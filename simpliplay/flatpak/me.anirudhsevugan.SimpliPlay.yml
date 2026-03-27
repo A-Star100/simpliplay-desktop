@@ -30,6 +30,7 @@ modules:
     build-commands:
       - |
         cd simpliplay
+        ls -la # debugging
         npm install
         if [ "$FLATPAK_ARCH" = "x86_64" ]; then
           arch="x64"
@@ -38,8 +39,7 @@ modules:
         fi
         npx @electron/packager . SimpliPlay \
           --out=dist/ \
-          --overwrite \
-          --no-prune
+          --overwrite
         mkdir -p /app/lib/SimpliPlay
         cp -r dist/SimpliPlay-linux-$arch/* /app/lib/SimpliPlay/
       - install -Dm644 simpliplay/icon.png /app/share/icons/hicolor/512x512/apps/me.anirudhsevugan.SimpliPlay.png
