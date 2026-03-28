@@ -271,7 +271,7 @@ jobs:
           # setup flathub repo
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           # now build
-          flatpak-builder --user --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
+          flatpak-builder --user --install-deps-from=flathub --arch=arm --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
           flatpak build-export repo build-dir
           flatpak build-bundle repo SimpliPlay-armv7-linux.flatpak me.anirudhsevugan.SimpliPlay
           mv *.flatpak dist/
