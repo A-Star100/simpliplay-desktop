@@ -212,13 +212,6 @@ jobs:
       # in snapcraft v8 the --build-for flag helps
       # but electron-builder does its own thing really
 
-      - name: Install QEMU for emulation
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support
-          # register arm emulation to fool the snapcraft cli
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
-
       - name: Install dependencies
         run: npm install
         working-directory: simpliplay
@@ -250,13 +243,22 @@ jobs:
         run: npx electron-builder --linux snap --armv7l
         working-directory: simpliplay
 
+      # flatpak builder might be pickier
+      # just doing trial and error here
+      - name: Install QEMU for emulation
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static binfmt-support
+          # register arm emulation to fool the snapcraft cli
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
+
       - name: Install Flatpak libs
         run: |
           sudo apt-get update
           # build-essential will be useful if I ever add native c++ modules
           # but otherwise it won't do much
           sudo apt-get install -y build-essential flatpak flatpak-builder
-        #continue-on-error: true
+        continue-on-error: true
 
       # the patch below's needed cuz freedesktop runtime dropped
       # support for armv7 after the 19.08 runtime
@@ -276,6 +278,7 @@ jobs:
           flatpak build-bundle repo SimpliPlay-armv7-linux.flatpak me.anirudhsevugan.SimpliPlay
           mv *.flatpak dist/
         working-directory: simpliplay
+        continue-on-error: true
         
       - uses: actions/upload-artifact@v6
         with:
@@ -292,7 +295,7 @@ jobs:
            name: linux-armv7-flatpak
            path: simpliplay/dist/*.flatpak
 
-  build_unstable_i386:
+  build_i386_unstable:
     runs-on: ubuntu-slim
     steps:
       - uses: actions/checkout@v6
@@ -332,7 +335,7 @@ jobs:
   
       - uses: actions/upload-artifact@v6
         with:
-          name: linux-unstable-i386-appimage
+          name: linux-i386-unstable-appimage
           path: simpliplay/dist/*.AppImage
 
   # start-linux-tests:
