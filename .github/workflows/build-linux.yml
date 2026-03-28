@@ -245,40 +245,40 @@ jobs:
 
       # flatpak builder might be pickier
       # just doing trial and error here
-      - name: Install QEMU for emulation
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y qemu-user-static binfmt-support
-          # register arm emulation to fool the snapcraft cli
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
+      # - name: Install QEMU for emulation
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y qemu-user-static binfmt-support
+      #     # register arm emulation to fool the snapcraft cli
+      #     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
 
-      - name: Install Flatpak libs
-        run: |
-          sudo apt-get update
-          # build-essential will be useful if I ever add native c++ modules
-          # but otherwise it won't do much
-          sudo apt-get install -y build-essential flatpak flatpak-builder
-        continue-on-error: true
+      # - name: Install Flatpak libs
+      #   run: |
+      #     sudo apt-get update
+      #     # build-essential will be useful if I ever add native c++ modules
+      #     # but otherwise it won't do much
+      #     sudo apt-get install -y build-essential flatpak flatpak-builder
+      #   continue-on-error: true
 
-      # the patch below's needed cuz freedesktop runtime dropped
-      # support for armv7 after the 19.08 runtime
-      # but the electron baseapp and older freedesktop runtime
-      # both still have versions for it so patching should work fine
-      - name: Patch manifest
-        run: sed -i "s/'25.08'/'19.08'/g" flatpak/me.anirudhsevugan.SimpliPlay.yml # sed is so annoying sometimes
-        working-directory: simpliplay
+      # # the patch below's needed cuz freedesktop runtime dropped
+      # # support for armv7 after the 19.08 runtime
+      # # but the electron baseapp and older freedesktop runtime
+      # # both still have versions for it so patching should work fine
+      # - name: Patch manifest
+      #   run: sed -i "s/'25.08'/'19.08'/g" flatpak/me.anirudhsevugan.SimpliPlay.yml # sed is so annoying sometimes
+      #   working-directory: simpliplay
         
-      - name: Build Flatpak
-        run: |
-          # setup flathub repo
-          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          # now build
-          flatpak-builder --user --install-deps-from=flathub --arch=arm --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
-          flatpak build-export repo build-dir
-          flatpak build-bundle repo SimpliPlay-armv7-linux.flatpak me.anirudhsevugan.SimpliPlay
-          mv *.flatpak dist/
-        working-directory: simpliplay
-        continue-on-error: true
+      # - name: Build Flatpak
+      #   run: |
+      #     # setup flathub repo
+      #     flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+      #     # now build
+      #     flatpak-builder --user --install-deps-from=flathub --arch=arm --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
+      #     flatpak build-export repo build-dir
+      #     flatpak build-bundle repo SimpliPlay-armv7-linux.flatpak me.anirudhsevugan.SimpliPlay
+      #     mv *.flatpak dist/
+      #   working-directory: simpliplay
+      #   continue-on-error: true
         
       - uses: actions/upload-artifact@v6
         with:
@@ -290,10 +290,10 @@ jobs:
            name: linux-armv7-appimage
            path: simpliplay/dist/*.AppImage
 
-      - uses: actions/upload-artifact@v6
-        with:
-           name: linux-armv7-flatpak
-           path: simpliplay/dist/*.flatpak
+      # - uses: actions/upload-artifact@v6
+      #   with:
+      #      name: linux-armv7-flatpak
+      #      path: simpliplay/dist/*.flatpak
 
   build_i386_unstable:
     runs-on: ubuntu-slim
