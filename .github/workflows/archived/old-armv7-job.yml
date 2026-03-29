@@ -1,6 +1,12 @@
 # originally a part of build_linux.yml
 # was replaced by new armv7 job (much cleaner)
 # and was hinted out for a while before being removed recently
+# it isn't needed cuz the build tools
+# automatically pull and pack armv7 binaries
+# when an arch arg is given
+# and I double checked the binaries' headers to be sure
+# so long story short, QEMU was never needed, and this was just a
+# mistake... i did learn from it at least though
   
   build_armv7_old:
     runs-on: ubuntu-22.04-arm #THIS IS THE OLD, REDUNDANT ARMV7 WORKFLOW - REMEMBER TO ALWAYS ACTIVATE QEMU VIRTUALIZATION AFTER INSTALLING IT SO IT IS OF USE!!!
