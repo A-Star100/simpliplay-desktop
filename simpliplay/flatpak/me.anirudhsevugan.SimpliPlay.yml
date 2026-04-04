@@ -21,6 +21,13 @@ modules:
   - name: simpliplay
     buildsystem: simple
     build-options:
+      arch:
+        aarch64:
+          env:
+            arch: "arm64"
+        x86_64:
+          env:
+            arch: "x64"
       build-args:
         - --share=network
       append-path: /usr/lib/sdk/node22/bin
@@ -32,11 +39,6 @@ modules:
         cd simpliplay
         ls -la # debugging
         npm install
-        if [ "$FLATPAK_ARCH" = "x86_64" ]; then
-          arch="x64"
-        elif [ "$FLATPAK_ARCH" = "aarch64" ]; then
-          arch="arm64"
-        fi
         npx @electron/packager . SimpliPlay \
           --out=dist/ \
           --overwrite
