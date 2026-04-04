@@ -302,21 +302,18 @@ function addSubtitles(url) {
     let autoplayEnabled = true;
     let loopEnabled = false;
 
-    // Handle submit URL button in custom dialog
 submitUrlBtn.addEventListener('click', () => {
   let url = urlInput.value;
 
-  // Check if URL is a valid URL and doesn't contain "http" or "https"
   if (url && !url.startsWith('http') && !url.startsWith('https')) {
-    // Assuming it's a URL and needs the protocol added
-    url = 'http://' + url;  // You can also choose 'https://' if preferred
+    url = 'http://' + url;  
   }
 
   if (url) {
     if (url.includes('.m3u8')) {
       // HLS stream
       if (Hls.isSupported()) {
-        mediaPlayer.style.display = 'flex'; // Hide the native video player
+        mediaPlayer.style.display = 'flex'; 
         const hls = new Hls();
         mediaPlayer.pause();
         hls.loadSource(url);
@@ -382,12 +379,10 @@ submitUrlBtn.addEventListener('click', () => {
       }
     });
 
-    // Handle "Enter a URL" button
     enterUrlBtn.addEventListener('click', () => {
       urlDialogOverlay.style.display = 'block';
     });
 
-    // Handle cancel button in URL dialog
     cancelUrlBtn.addEventListener('click', () => {
       urlDialogOverlay.style.display = 'none';
     });
