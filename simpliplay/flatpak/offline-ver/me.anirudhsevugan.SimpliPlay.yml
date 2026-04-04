@@ -18,15 +18,6 @@ finish-args:
   - --device=dri
 
 modules:
-  - name: src
-    buildsystem: simple
-    build-commands:
-      - |
-        echo "cloned repo"
-    sources:
-      - type: git
-        url: https://github.com/A-Star100/simpliplay-desktop.git
-        branch: main
   - name: electron-zip
     buildsystem: simple
     build-commands:
@@ -47,6 +38,13 @@ modules:
   - name: build
     buildsystem: simple
     build-options:
+      arch:
+        aarch64:
+          env:
+            arch: "arm64"
+        x86_64:
+          env:
+            arch: "x64"
       append-path: /usr/lib/sdk/node22/bin
       env:
         - NODE_PATH: /usr/lib/sdk/node22/lib/node_modules
@@ -56,11 +54,6 @@ modules:
       - |
         export root=$(pwd)
         cd simpliplay
-        if [ "$FLATPAK_ARCH" = "x86_64" ]; then
-          arch="x64"
-        elif [ "$FLATPAK_ARCH" = "aarch64" ]; then
-          arch="arm64"
-        fi
         mv ./cache/*.zip $root/.electron-zip
         chmod -R +x simpliplay/node_modules/
         sed -i 's/"electron": "\^$electron"/"electron": "$electron"/g' simpliplay/package.json
@@ -83,5 +76,8 @@ modules:
           - 'export WAYLAND_DISPLAY=""'
           - 'export XDG_SESSION_TYPE="x11"'
           - 'exec zypak-wrapper /app/lib/SimpliPlay/SimpliPlay --ozone-platform=x11 "$@"'
+      - type: git
+        url: https://github.com/A-Star100/simpliplay-desktop.git
+        branch: main
       - type: patch
         path: patches/fix-snapshot-path.patch
