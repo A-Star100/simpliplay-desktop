@@ -136,6 +136,12 @@ jobs:
       - name: Install core22 snap
         run: sudo snap install core22
 
+      # this uses SNAPCRAFT_BUILD_ENVIRONMENT=host
+      # cuz otherwise the runner tries to use multipass sandboxing
+      # which doesn't work correctly on GH actions runners (for arm64 anyway)
+      # USE_SYSTEM_FPM=true is kinda self explanatory but the gist is the same
+      # it ditches virtualization
+      # cool... to anyone who's debugging don't edit this though
       - name: Build Snap
         run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
@@ -160,6 +166,7 @@ jobs:
       # - name: Patch package.json for Flatpak
       #   run: |
       #     # Save og
+      #     # honestly this patch was pretty silly imho
       #     cp simpliplay/package.json simpliplay/package.json.orig
       #     # Check if jq is installed; if not, install it
       #     if ! command -v jq &> /dev/null
@@ -207,10 +214,14 @@ jobs:
         with:
           node-version: 22
 
-      # TODO: check if armv7 builds will work without qemu
-      # they don't always work with snapcraft
-      # in snapcraft v8 the --build-for flag helps
-      # but electron-builder does its own thing really
+      # qemu isn't needed
+      # cuz when building prebuilt
+      # electron binaries are already installed
+      # so there is literally no reason
+      # to use qemu anymore
+      # and also npx electron builder forces armv7 snap builds
+      # and just to double check the file header's correct for armv7
+      # so neat
 
       - name: Install dependencies
         run: npm install
