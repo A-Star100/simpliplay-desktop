@@ -33,7 +33,6 @@ modules:
       append-path: /usr/lib/sdk/node22/bin
       env:
         - NODE_PATH: /usr/lib/sdk/node22/lib/node_modules
-        - TAR_OPTIONS: "--no-same-owner --no-same-permissions --warning=no-unknown-keyword"
     build-commands:
       - |
         cd simpliplay
