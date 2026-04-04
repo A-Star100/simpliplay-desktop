@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlInput = document.getElementById('urlInput');
     const submitUrlBtn = document.getElementById('submitUrlBtn');
     const cancelUrlBtn = document.getElementById('cancelUrlBtn');
-    const ccBtn = document.getElementById('ccBtn'); // CC button
+    const ccBtn = document.getElementById('ccBtn');
     const volumeBtn = document.getElementById("volumeBtn")
     const subtitlesOverlay = document.getElementById('subtitlesOverlay');
     const subtitlesInput = document.getElementById('subtitlesInput');
@@ -29,12 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     /*let hls = null
     let player = null*/
 
-    // Update media volume when the slider is moved
   volumeBar.addEventListener("input", function () {
     mediaPlayer.volume = volumeBar.value;
   });
 
-  // Sync slider with media volume (in case it's changed programmatically)
   mediaPlayer.addEventListener("volumechange", function () {
     volumeBar.value = mediaPlayer.volume;
     if (mediaPlayer.muted || mediaPlayer.volume === 0) {
@@ -44,29 +42,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-// Function to add subtitles dynamically (e.g., after URL input)
 function addSubtitles(url) {
-  // Remove any existing subtitle tracks
   const existingTracks = mediaPlayer.getElementsByTagName('track');
   for (let track of existingTracks) {
     track.remove();
   }
 
-  // Create a new track for subtitles
   const track = document.createElement('track');
   track.kind = 'subtitles';
   track.label = 'English';
   track.srclang = 'en';
   track.src = url;
 
-  // Append the new track
   mediaPlayer.appendChild(track);
 
-  // Optionally, enable subtitles by default
-  track.track.mode = 'showing'; // Enable subtitles by default
+  track.track.mode = 'showing'; 
 }
 
-// Handle submit subtitle URL
 function clearSubtitles() {
   const tracks = mediaPlayer.getElementsByTagName('track');
   for (let i = tracks.length - 1; i >= 0; i--) {
@@ -74,7 +66,6 @@ function clearSubtitles() {
   }
 }
 
-// Use this function when a new video is loaded
 
 submitSubtitlesBtn.addEventListener('click', () => {
   const subtitleUrl = subtitlesInput.value;
@@ -90,14 +81,11 @@ submitSubtitlesBtn.addEventListener('click', () => {
     let autoplayEnabled = true;
     let loopEnabled = false;
 
-    // Handle submit URL button in custom dialog
 submitUrlBtn.addEventListener('click', () => {
   let url = urlInput.value;
 
-  // Check if URL is a valid URL and doesn't contain "http" or "https"
   if (url && !url.startsWith('http') && !url.startsWith('https')) {
-    // Assuming it's a URL and needs the protocol added
-    url = 'http://' + url;  // You can also choose 'https://' if preferred
+    url = 'http://' + url;  
   }
   
 
@@ -229,22 +217,18 @@ submitUrlBtn.addEventListener('click', () => {
         // Store the new Object URL for future cleanup
         previousObjectURL = fileURL;
     
-        // Hide dialog after selecting a file
         dialogOverlay.style.display = 'none';
     });
     
 
-    // Handle "Enter a URL" button
     enterUrlBtn.addEventListener('click', () => {
       urlDialogOverlay.style.display = 'block';
     });
 
-    // Handle cancel button in URL dialog
     cancelUrlBtn.addEventListener('click', () => {
       urlDialogOverlay.style.display = 'none';
     });
 
-    // Handle custom play/pause button
 playPauseBtn.addEventListener('click', () => {
   if (mediaPlayer.paused) {
     mediaPlayer.play();
@@ -255,24 +239,21 @@ playPauseBtn.addEventListener('click', () => {
   }
 });
 
-// Sync button with the video player when it is paused manually
 mediaPlayer.addEventListener('pause', () => {
   playPauseBtn.textContent = 'Play';
 });
 
-// Sync button with the video player when it is played
 mediaPlayer.addEventListener('play', () => {
   playPauseBtn.textContent = 'Pause';
 });
 
-// Volume button toggling mute/unmute
 volumeBtn.addEventListener('click', () => {
   if (mediaPlayer.muted || mediaPlayer.volume == 0) {
     mediaPlayer.muted = false;
-    volumeBtn.textContent = '🔊'; // Unmute icon
+    volumeBtn.textContent = '🔊';
   } else {
     mediaPlayer.muted = true;
-    volumeBtn.textContent = '🔇'; // Mute icon
+    volumeBtn.textContent = '🔇';
   }
 });
 
@@ -283,18 +264,14 @@ urlInput.addEventListener('keydown', (e) => {
     submitUrlBtn.click();
   }
 });
-
-// Handle Subtitles input on Enter key
 subtitlesInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     submitSubtitlesBtn.click();
   }
 });
 
-// Handle URL submission
 
 
-    // Update seek bar and time display
     mediaPlayer.addEventListener('timeupdate', () => {
       seekBar.max = mediaPlayer.duration || 0;
       seekBar.value = mediaPlayer.currentTime;
@@ -303,12 +280,10 @@ subtitlesInput.addEventListener('keydown', (e) => {
       timeDisplay.textContent = `${current} / ${total}`;
     });
 
-    // Seek media
     seekBar.addEventListener('input', () => {
       mediaPlayer.currentTime = seekBar.value;
     });
 
-    // Handle volume
     volumeBar.addEventListener('input', () => {
       mediaPlayer.volume = volumeBar.value;
       if (volumeBar.value == 0 || mediaPlayer.volume == 0) {
@@ -318,7 +293,6 @@ subtitlesInput.addEventListener('keydown', (e) => {
       }
     });
 
-    // Show settings panel
     settingsBtn.addEventListener('click', () => {
       settingsDialogOverlay.style.display = 'block';
       settingsPanel.style.display = 'block';
@@ -346,7 +320,6 @@ subtitlesInput.addEventListener('keydown', (e) => {
 
 // End of first event listener for DOM content loaded
 
-    // Format time
     function formatTime(time) {
       const minutes = Math.floor(time / 60) || 0;
       const seconds = Math.floor(time % 60) || 0;
@@ -357,17 +330,14 @@ subtitlesInput.addEventListener('keydown', (e) => {
     const hideDialogBtn = document.getElementById('hideDialogBtn');
     const fullscreenBtn = document.getElementById('fullscreenBtn');
 
-    // Show dialog
     showDialogBtn.addEventListener('click', () => {
       dialogOverlay.style.display = 'block';
     });
 
-    // Hide dialog
     hideDialogBtn.addEventListener('click', () => {
       dialogOverlay.style.display = 'none';
     });
 
-    // Fullscreen functionality
     fullscreenBtn.addEventListener('click', () => {
       if (!document.fullscreenElement) {
         mediaPlayer.requestFullscreen();
