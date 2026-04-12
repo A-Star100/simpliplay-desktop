@@ -341,13 +341,13 @@ jobs:
         working-directory: simpliplay
   
       - name: Build AppImage
-        run: npx electron-builder --linux AppImage --ia32
+        run: npx electron-builder --linux AppImage --ia32 && mv simpliplay/dist/*.AppImage simpliplay/dist/SimpliPlay-linux-i386.AppImage.unstable
         working-directory: simpliplay
   
       - uses: actions/upload-artifact@v6
         with:
           name: linux-i386-unstable-appimage
-          path: simpliplay/dist/*.AppImage
+          path: simpliplay/dist/*.AppImage.unstable
 
   # start-linux-tests:
   #   name: Start Linux Tests
