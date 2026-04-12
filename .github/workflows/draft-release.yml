@@ -1,10 +1,10 @@
 name: Draft Release
-
+#TODO: refactor this entire workflow
 on:
   workflow_dispatch:
     inputs:
         release_notes:
-          description: "Anything's changed? What you put here will be visible to anyone on GitHub. The release notes are in Markdown btw."
+          description: "Anything's changed? The release notes are in Markdown btw."
           required: false
           default: "Just a regular release. Not too many changes :D"
   workflow_call:
@@ -18,8 +18,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          # so git log actually returns something
-          # phew
+          # fetches all the history instead of just
+          # one commit by default
           fetch-depth: 0 
 
       - name: Prepare folder(s)
@@ -30,7 +30,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
             set -e
-            echo "Downloading available artifacts..."
+            echo "Downloading artifacts..."
                     
             rm -rf all-artifacts
             mkdir -p all-artifacts
