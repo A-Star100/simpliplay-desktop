@@ -45,5 +45,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add simpliplay/main.js
-          git commit -m "chore: auto-increment version in main.js for dependency update"
+          git commit -m "chore: increment version number"
           git push
