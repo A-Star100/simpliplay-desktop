@@ -6,7 +6,7 @@ const { pathToFileURL } = require("url");
 const { checkForUpdate } = require('./updateChecker');
 let gpuAccel = "";
 let didRegisterShortcuts = false;
-let version = "2.2.0.6"
+let version = "2.2.0.7"
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
