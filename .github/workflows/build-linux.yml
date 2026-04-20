@@ -216,6 +216,7 @@ jobs:
       - name: Build Flatpak
         run: |
           npx electron-builder --linux flatpak --armv7l
+        working-directory: simpliplay
         
       # - name: Build Flatpak
       #   run: |
