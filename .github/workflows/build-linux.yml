@@ -157,7 +157,7 @@ jobs:
             $image \
             bash -c "
               flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo && \
-              flatpak-builder --user --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml && \
+              flatpak-builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml && \
               flatpak build-export repo build-dir && \
               flatpak build-bundle repo SimpliPlay-arm64-linux.flatpak me.anirudhsevugan.SimpliPlay && \
               mkdir -p dist && mv *.flatpak dist/
