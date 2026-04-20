@@ -147,27 +147,19 @@ jobs:
         run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
         #continue-on-error: true
-      - name: Build Flatpak
-        env:
-          image: "ghcr.io/flathub-infra/flatpak-github-actions:gnome-50"
+      - name: Install Flatpak tools
         run: |
-          sudo aa-teardown >/dev/null 2>&1 || true
-          sudo systemctl disable --now apparmor.service >/dev/null 2>&1
-          sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
-          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
-          sudo sysctl kernel.unprivileged_userns_clone=1
-          docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace/simpliplay \
-            --security-opt apparmor=unconfined \
-            $image \
-            bash -c "
-              flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo && \
-              flatpak-builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml && \
-              flatpak build-export repo build-dir && \
-              flatpak build-bundle repo SimpliPlay-arm64-linux.flatpak me.anirudhsevugan.SimpliPlay && \
-              mkdir -p dist && mv *.flatpak dist/
-            "
+          sudo apt-get update
+          sudo apt-get install -y build-essential flatpak flatpak-builder appstream appstream-util
+      - name: Build Flatpak
+        run: |
+          # setup flathub repo
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          # now build
+          flatpak-builder --user --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
+          flatpak build-export repo build-dir
+          flatpak build-bundle repo SimpliPlay-arm64-linux.flatpak me.anirudhsevugan.SimpliPlay
+          mv *.flatpak dist/
         working-directory: simpliplay
         #continue-on-error: true
 
