@@ -197,13 +197,13 @@ jobs:
         run: npx electron-builder --linux snap --armv7l
         working-directory: simpliplay
 
-      - name: Install Flatpak libs
-        run: |
-          sudo apt-get update
-          # build-essential will be useful if I ever add native c++ modules
-          # but otherwise it won't do much
-          sudo apt-get install -y build-essential flatpak flatpak-builder
-        continue-on-error: true
+      # - name: Install Flatpak libs
+      #   run: |
+      #     sudo apt-get update
+      #     # build-essential will be useful if I ever add native c++ modules
+      #     # but otherwise it won't do much
+      #     sudo apt-get install -y build-essential flatpak flatpak-builder
+      #   continue-on-error: true
 
       # # the patch below's needed cuz freedesktop runtime dropped
       # # support for armv7 after the 19.08 runtime
@@ -212,11 +212,6 @@ jobs:
       # - name: Patch manifest
       #   run: sed -i "s/'25.08'/'19.08'/g" flatpak/me.anirudhsevugan.SimpliPlay.yml # sed is so annoying sometimes
       #   working-directory: simpliplay
-
-      - name: Build Flatpak
-        run: |
-          npx electron-builder --linux flatpak --armv7l
-        working-directory: simpliplay
         
       # - name: Build Flatpak
       #   run: |
