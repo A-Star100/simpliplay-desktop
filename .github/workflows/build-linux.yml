@@ -149,8 +149,10 @@ jobs:
         #continue-on-error: true
       - name: Build Flatpak
         env:
-          image: "ghcr.io/flathub-infra/flatpak-github-actions:gnome-48"
+          image: "ghcr.io/flathub-infra/flatpak-github-actions:gnome-50"
         run: |
+          sudo systemctl stop apparmor
+          sudo systemctl disable apparmor
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace/simpliplay \
