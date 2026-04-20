@@ -151,11 +151,14 @@ jobs:
         env:
           image: "ghcr.io/flathub-infra/flatpak-github-actions:gnome-50"
         run: |
-          sudo systemctl stop apparmor
-          sudo systemctl disable apparmor
+          sudo aa-teardown >/dev/null 2>&1 || true
+          sudo systemctl disable --now apparmor.service >/dev/null 2>&1
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             -w /workspace/simpliplay \
+            --security-opt apparmor=unconfined \
             $image \
             bash -c "
               flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo && \
