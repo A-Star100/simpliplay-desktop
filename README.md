@@ -6,7 +6,8 @@ The desktop version of SimpliPlay, a simple, cross-platform media player.
 
 [![simpliplay](https://snapcraft.io/simpliplay/badge.svg)](https://snapcraft.io/simpliplay)
 
-Available as a [Snap](https://snapcraft.io/simpliplay).
+> [!WARNING]
+> The rest of the versions below are no longer maintained, and are considered deprecated. They're still mentioned here for archival purposes, however.
 
 ## [simpliplay-lite](https://github.com/A-Star100/simpliplay-desktop/tree/lite)
 [Neutralinojs](https://neutralino.js.org) version of SimpliPlay (significantly smaller filesize) for Windows (x64 only), macOS, and Linux (both x64 and ARM64).
