@@ -51,7 +51,6 @@ modules:
         if [ "$arch" == "x64" ]; then
            install -Dm644 simpliplay/flatpak/me.anirudhsevugan.SimpliPlay.metainfo.xml /app/share/metainfo/me.anirudhsevugan.SimpliPlay.metainfo.xml
         fi
-        install -Dm644 simpliplay/flatpak/me.anirudhsevugan.SimpliPlay.metainfo.xml /app/share/metainfo/me.anirudhsevugan.SimpliPlay.metainfo.xml
       - install -Dm755 run.sh /app/bin/run.sh
 
     sources:
