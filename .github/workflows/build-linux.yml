@@ -37,34 +37,7 @@ jobs:
           sudo apt-get install -y build-essential flatpak flatpak-builder
           sudo apt install appstream-util
         #continue-on-error: true
-
-      # - name: Create unpacked build for Flatpak
-      #   run: npx electron-builder --linux --x64 --dir
-      #   working-directory: simpliplay
         
-      # - name: Patch package.json
-      #   run: |
-      #     # save OG package json
-      #     cp simpliplay/package.json simpliplay/package.json.orig
-      #     # Check if jq is installed; if not, install it
-      #     if ! command -v jq &> /dev/null
-      #     then
-      #       echo "jq not found, installing..."
-      #       sudo apt-get update
-      #       sudo apt-get install -y jq
-      #     fi
-
-      #     # patch the json to use select electron for compat
-      #     jq '.devDependencies.electron="40.0.0" | .devDependencies["electron-builder"]="26.0.1"' \
-      #         simpliplay/package.json.orig > simpliplay/package.flatpak.json
-              
-      #     # print the json to double check if jq actually worked...
-      #     echo "electron $(jq -r '.devDependencies.electron' simpliplay/package.flatpak.json)"
-      #     echo "electron-builder $(jq -r '.devDependencies["electron-builder"]' simpliplay/package.flatpak.json)"
-          
-      #     # replace package.json for flatpak build
-      #     mv simpliplay/package.flatpak.json simpliplay/package.json
-
       - name: Build Flatpak
         run: |
           # setup flathub repo
@@ -76,9 +49,6 @@ jobs:
           mv *.flatpak dist/
         working-directory: simpliplay
         #continue-on-error: true
-
-      # - name: Restore package.json
-      #   run: mv simpliplay/package.json.orig simpliplay/package.json # redundant for now but might be useful in future
 
       - uses: actions/upload-artifact@v6
         with:
@@ -163,33 +133,6 @@ jobs:
         working-directory: simpliplay
         #continue-on-error: true
 
-      # - name: Patch package.json for Flatpak
-      #   run: |
-      #     # Save og
-      #     # honestly this patch was pretty silly imho
-      #     cp simpliplay/package.json simpliplay/package.json.orig
-      #     # Check if jq is installed; if not, install it
-      #     if ! command -v jq &> /dev/null
-      #     then
-      #       echo "jq not found, installing..."
-      #       sudo apt-get update
-      #       sudo apt-get install -y jq
-      #     fi
-      #     # patch the json to use select electron and electron-builder for compat
-      #     jq '.devDependencies.electron="41.0.4" | .devDependencies["electron-builder"]="26.0.1"' \
-      #         simpliplay/package.json.orig > simpliplay/package.flatpak.json
-              
-      #     # print the json to double check if jq actually worked...
-      #     echo "electron $(jq -r '.devDependencies.electron' simpliplay/package.flatpak.json)"
-      #     echo "electron-builder $(jq -r '.devDependencies["electron-builder"]' simpliplay/package.flatpak.json)"
-          
-      #     # replace package.json for flatpak build cuz electron-builder is unfortunately
-      #     # picky regarding flatpaks
-      #     mv simpliplay/package.flatpak.json simpliplay/package.json
-
-      # - name: Restore package.json
-      #   run: mv simpliplay/package.json.orig simpliplay/package.json
-
       - uses: actions/upload-artifact@v6
         with:
           name: linux-arm64-appimage
@@ -254,22 +197,13 @@ jobs:
         run: npx electron-builder --linux snap --armv7l
         working-directory: simpliplay
 
-      # flatpak builder might be pickier
-      # just doing trial and error here
-      # - name: Install QEMU for emulation
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y qemu-user-static binfmt-support
-      #     # register arm emulation to fool the snapcraft cli
-      #     docker run --rm --privileged multiarch/qemu-user-static --reset -p yes || true
-
-      # - name: Install Flatpak libs
-      #   run: |
-      #     sudo apt-get update
-      #     # build-essential will be useful if I ever add native c++ modules
-      #     # but otherwise it won't do much
-      #     sudo apt-get install -y build-essential flatpak flatpak-builder
-      #   continue-on-error: true
+      - name: Install Flatpak libs
+        run: |
+          sudo apt-get update
+          # build-essential will be useful if I ever add native c++ modules
+          # but otherwise it won't do much
+          sudo apt-get install -y build-essential flatpak flatpak-builder
+        continue-on-error: true
 
       # # the patch below's needed cuz freedesktop runtime dropped
       # # support for armv7 after the 19.08 runtime
@@ -278,6 +212,10 @@ jobs:
       # - name: Patch manifest
       #   run: sed -i "s/'25.08'/'19.08'/g" flatpak/me.anirudhsevugan.SimpliPlay.yml # sed is so annoying sometimes
       #   working-directory: simpliplay
+
+      - name: Build Flatpak
+        run: |
+          npx electron-builder --linux flatpak --armv7l
         
       # - name: Build Flatpak
       #   run: |
