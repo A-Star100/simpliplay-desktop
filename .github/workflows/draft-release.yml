@@ -24,9 +24,18 @@ jobs:
       - name: Prepare folder(s)
         run: mkdir -p all-artifacts
 
+      - name: Get latest successful runs
+        id: built-successfully
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # use gh api to get the run and pipe it to output env so other steps can access it
+          echo "run_id=$(gh run list --status success --limit 1 --json databaseId --jq '.[0].databaseId')" >> $GITHUB_OUTPUT
+
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
+          run-id: ${{ steps.build-info.outputs.built-successfully }}
           path: all-artifacts
 
       - name: Generate changelog
@@ -54,7 +63,7 @@ jobs:
             cat draft.md
           } > "${{ github.workspace }}/CHANGELOG.md"
 
-      - name: Create empty draft release
+      - name: Create draft release and upload assets
         uses: softprops/action-gh-release@v3
         with:
           tag_name: "draft-${{ github.run_number }}"
