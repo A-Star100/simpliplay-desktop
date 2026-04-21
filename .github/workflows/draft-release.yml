@@ -24,35 +24,11 @@ jobs:
       - name: Prepare folder(s)
         run: mkdir -p all-artifacts
 
-      - name: Get run IDs
-        id: builds
+      - name: Download artifacts
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "windows=$(gh run list --workflow "build-win.yml" --status success --limit 1 --json databaseId --jq '.[0].databaseId')" >> $GITHUB_OUTPUT
-          echo "macos=$(gh run list --workflow "build-macos.yml" --status success --limit 1 --json databaseId --jq '.[0].databaseId')" >> $GITHUB_OUTPUT
-          echo "linux=$(gh run list --workflow "build-linux.yml" --status success --limit 1 --json databaseId --jq '.[0].databaseId')" >> $GITHUB_OUTPUT
-
-      - name: Download Windows artifacts
-        if: steps.builds.outputs.windows != 'null'
-        uses: actions/download-artifact@v8
-        with:
-          run-id: ${{ steps.builds.outputs.windows }}
-          path: all-artifacts
-
-      - name: Download macOS artifacts
-        if: steps.builds.outputs.macos != 'null'
-        uses: actions/download-artifact@v8
-        with:
-          run-id: ${{ steps.builds.outputs.macos }}
-          path: all-artifacts
-
-      - name: Download Linux artifacts
-        if: steps.builds.outputs.linux != 'null'
-        uses: actions/download-artifact@v8
-        with:
-          run-id: ${{ steps.builds.outputs.linux }}
-          path: all-artifacts
+          gh artifact download --dir all-artifacts
 
       - name: Generate changelog
         env:
