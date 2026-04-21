@@ -1,5 +1,5 @@
 --- a/simpliplay/main.js
 +++ b/simpliplay/main.js
-@@ -59,1 +59,1 @@
+@@ -67,1 +67,1 @@
 -    const snapshotsDir = path.join(os.homedir(), 'simpliplay-snapshots');
 +    const snapshotsDir = path.join(os.homedir(), '.var/app', process.env.FLATPAK_ID, 'simpliplay-snapshots');
