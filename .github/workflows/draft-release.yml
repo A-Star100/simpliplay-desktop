@@ -1,5 +1,6 @@
 name: Draft Release
 #TODO: refactor this entire workflow
+# it is VERY, VERY unclean, but it works (for now at least)
 on:
   workflow_dispatch:
     inputs:
@@ -25,153 +26,46 @@ jobs:
       - name: Prepare folder(s)
         run: mkdir -p all-artifacts
 
-      #TODO: replace this step with download-artifact action equivalent
-      - name: Check for required artifacts
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-            set -e
-            echo "Downloading artifacts..."
-                    
-            rm -rf all-artifacts
-            mkdir -p all-artifacts
-            
-            gh run download --dir all-artifacts || true
-            
-            required=("linux-x64-appimage" "linux-x64-snap" "linux-arm64-snap" "builds" "builds-x64" "builds-arm64" "linux-armv7l-v2-snap" "linux-armv7-appimage" "linux-x64-flatpak" "linux-arm64-flatpak")
-            missing_list=()
-            
-            for artifact in "${required[@]}"; do
-              if [ ! -d "all-artifacts/$artifact" ]; then
-                echo "Missing: $artifact"
-                missing_list+=("$artifact")
-              fi
-            done
-            
-            if [ ${#missing_list[@]} -ne 0 ]; then
-              echo "The following required artifacts are missing:"
-              for m in "${missing_list[@]}"; do 
-                echo "  - $m"
-              done
-              echo "Please make sure said artifacts are available and try again."
-              exit 1
-            fi
-            
-            echo "Everything needed is present! Moving on now..."
-
-      - name: Extract artifacts and filter for needed ones
-        run: |
-          set -e
-          echo "Extracting artifacts and collecting needed assets..."
-
-          find all-artifacts -type f -name '*.zip' | while read -r zipfile; do
-            extract_dir="${zipfile%.zip}"
-            echo "Extracting $zipfile to $extract_dir"
-            unzip -o "$zipfile" -d "$extract_dir"
-          done
-
-          rm -f upload-files.txt
-          find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.flatpak' -o -iname '*.AppImage' \) | grep -i 'simpliplay' > upload-files.txt
-
-          echo "Created draft list of files to upload"
-          echo "It will be filtered later in CI in a bit"
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
 
       - name: Generate changelog
         env:
-          GH_TOKEN: ${{ github.token }} # gh actions runners need this env
-                                        # when using the GH cli, otherwise it doesn't work
-                                        # hope this gets fixed soon
-        run: |     
-          # make a dummy release for the notes feature
-          # since the cli doesn't support making only notes...
-          # pipe to /dev/null to suppress logs
-          gh release create automated-for-release-notes --generate-notes --draft > /dev/null
-          # take the generated notes (body key parsed by jq)
-          # and pipe them into generated.md
-          # and delete any line containing github repo comparisons
-          # because that usually has a full changelog
-          # which will link to a non-existent tag since it gets deleted
-          gh release view automated-for-release-notes --json body --jq .body \
-            | grep -v "github.com/.*/compare/" > generated.md
-          # then delete the dummy release
-          gh release delete automated-for-release-notes --yes
-          
-          cat <<EOF > "${{ github.workspace }}-CHANGELOG.txt"
-          ## Release Notes
-          ${{ inputs.release_notes }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # fetch from GH api
+          if gh api repos/${{ github.repository }}/releases/generate-notes \
+            -f tag_name="draft-${{ github.run_number }}" --jq .body > raw.md
+          then
+            # filter notes only for comparisons
+            grep -v "github.com/.*/compare/" raw.md > draft.md
+          else
+            # fall back to git log in case gh api is down
+            # instead of failing fast on ci
+            echo "WARNING: using git log for notes because GH api seems like it's down"
+            git log -n 10 --format="- %s" > draft.md
+          fi
 
-          $(cat generated.md || git log -n 10 --format="- %s")
-          EOF
+          # create and pipe md
+          {
+            echo "## Release Notes"
+            echo "${{ inputs.release_notes }}"
+            echo ""
+            cat draft.md
+          } > "${{ github.workspace }}/CHANGELOG.md"
 
       - name: Create empty draft release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: "draft-${{ github.run_number }}"
+          name: "Release draft-${{ github.run_number }}"
           draft: true
-          body_path: ${{ github.workspace }}-CHANGELOG.txt #okay i know this param name sounds weird
-                                                           # but it is for release notes
+          body_path: CHANGELOG.md
+          files: |
+            all-artifacts/**/*.exe
+            all-artifacts/**/*.dmg
+            all-artifacts/**/*.flatpak
+            all-artifacts/**/*.AppImage
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Rename files if duplicates exist on the release
-        id: rename
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -e
-          sanitize_filename() {
-            echo "$1" | tr ' ' '-'
-          }
-
-          release_tag="draft-${{ github.run_number }}"
-          existing_assets=$(gh release view "$release_tag" --json assets --jq '.assets[].name' || echo "")
-          echo "Existing assets on release $release_tag:"
-          echo "$existing_assets"
-
-          rm -f upload-files-renamed.txt
-          touch upload-files-renamed.txt
-
-          # TODO: refactor this segment
-          while IFS= read -r filepath; do
-            filename=$(basename "$filepath")
-            dirname=$(basename "$(dirname "$filepath")")
-
-            safe_filename=$(sanitize_filename "$filename")
-
-            if echo "$existing_assets" | grep -qx "$safe_filename"; then
-              extension="${filename##*.}"
-              name="${filename%.*}"
-              safe_name=$(sanitize_filename "$name")
-              newname="${safe_name}-${dirname}.${extension}"
-              echo "Renamed $filename to $newname because it exists in the release already"
-              cp "$filepath" "all-artifacts/$newname"
-              echo "all-artifacts/$newname" >> upload-files-renamed.txt
-            else
-              if [[ "$filename" != "$safe_filename" ]]; then
-                cp "$filepath" "all-artifacts/$safe_filename"
-                echo "all-artifacts/$safe_filename" >> upload-files-renamed.txt
-              else
-                echo "$filepath" >> upload-files-renamed.txt
-              fi
-            fi
-          done < upload-files.txt
-
-          echo "Filtered list of files to upload:"
-          cat upload-files-renamed.txt
-
-      - name: Upload assets to the draft release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -e
-          release_tag="draft-${{ github.run_number }}"
-          
-          if while IFS= read -r filepath; do
-               echo "Uploading $filepath..."
-               gh release upload "$release_tag" "$filepath" --clobber
-             done < upload-files-renamed.txt
-          then
-            echo "Successfully uploaded files to release!"
-          else
-            echo "Something went wrong during the upload process."
-            exit 1
-          fi
