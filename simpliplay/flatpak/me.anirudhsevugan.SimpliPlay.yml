@@ -59,5 +59,3 @@ modules:
           - 'exec zypak-wrapper /app/lib/SimpliPlay/SimpliPlay "$@"'
       - type: patch
         path: patches/fix-snapshot-path.patch
-      - type: patch
-        path: patches/add-wayland-arg.patch
