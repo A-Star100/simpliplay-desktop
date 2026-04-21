@@ -29,8 +29,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          run_id=$(gh run list --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -z "$run_id" ]; then
+            echo "ERROR: run id is bad; check for any errors and try again"
+            exit 1
+          fi
           # use gh api to get the run and pipe it to output env so other steps can access it
-          echo "run_id=$(gh run list --status success --limit 1 --json databaseId --jq '.[0].databaseId')" >> $GITHUB_OUTPUT
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
       - name: Download all artifacts
         uses: actions/download-artifact@v8
