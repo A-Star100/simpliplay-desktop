@@ -34,14 +34,17 @@ jobs:
       - name: Install Flatpak libs
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential flatpak flatpak-builder
-          sudo apt install appstream appstream-compose appstream-util
+          sudo apt-get install -y build-essential flatpak
+          sudo apt-get install -y appstream appstream-compose appstream-util
+          # setup flathub repo
+          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          # install flatpak-builder from flathub
+          # as version in apt is outdated and tries to call old libs
+          flatpak install flathub org.flatpak.Builder
         #continue-on-error: true
         
       - name: Build Flatpak
         run: |
-          # setup flathub repo
-          flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           # now build
           flatpak-builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
           flatpak build-export repo build-dir
@@ -117,15 +120,18 @@ jobs:
         run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
         #continue-on-error: true
-      - name: Install Flatpak tools
+      - name: Install Flatpak libs
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential flatpak flatpak-builder
-          sudo apt install appstream appstream-compose appstream-util
-      - name: Build Flatpak
-        run: |
+          sudo apt-get install -y build-essential flatpak
+          sudo apt-get install -y appstream appstream-compose appstream-util
           # setup flathub repo
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          # install flatpak-builder from flathub
+          # as version in apt is outdated and tries to call old libs
+          flatpak install flathub org.flatpak.Builder
+      - name: Build Flatpak
+        run: |
           # now build
           flatpak-builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
           flatpak build-export repo build-dir
