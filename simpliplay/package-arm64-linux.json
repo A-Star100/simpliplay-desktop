@@ -22,7 +22,7 @@
       "grade": "stable",
       "summary": "A cross-platform, simple media player.",
       "description": "The mission to make media playback accessible on every platform, anywhere, anytime.",
-      "base": "core22"
+      "base": "core24"
     },
     "flatpak": {
       "runtime": "org.freedesktop.Platform",
