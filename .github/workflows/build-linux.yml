@@ -46,7 +46,7 @@ jobs:
       - name: Build Flatpak
         run: |
           # now build
-          flatpak-builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
+          flatpak run org.flatpak.Builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
           flatpak build-export repo build-dir
           flatpak build-bundle repo SimpliPlay-x64-linux.flatpak me.anirudhsevugan.SimpliPlay
           mv *.flatpak dist/
@@ -133,7 +133,7 @@ jobs:
       - name: Build Flatpak
         run: |
           # now build
-          flatpak-builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
+          flatpak run org.flatpak.Builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
           flatpak build-export repo build-dir
           flatpak build-bundle repo SimpliPlay-arm64-linux.flatpak me.anirudhsevugan.SimpliPlay
           mv *.flatpak dist/
