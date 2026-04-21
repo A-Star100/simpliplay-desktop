@@ -24,24 +24,34 @@ jobs:
       - name: Prepare folder(s)
         run: mkdir -p all-artifacts
 
-      - name: Get latest successful runs
-        id: built-successfully
+      - name: Get run IDs
+        id: builds
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          run_id=$(gh run list --status success --limit 1 --json databaseId --jq '.[0].databaseId')
-          if [ -z "$run_id" ] || [ "$run_id" = "null" ]; then
-            echo "ERROR: run id is nonexistent or null; check for any errors and try again"
-            exit 1
-          fi
-          echo "run id found: $run_id"
-          # use gh api to get the run and pipe it to output env so other steps can access it
-          echo "run_id=$run_id" >> $GITHUB_OUTPUT
+          echo "windows=$(gh run list --workflow "build-win.yml" --status success --limit 1 --json databaseId --jq '.[0].databaseId')" >> $GITHUB_OUTPUT
+          echo "macos=$(gh run list --workflow "build-macos.yml" --status success --limit 1 --json databaseId --jq '.[0].databaseId')" >> $GITHUB_OUTPUT
+          echo "linux=$(gh run list --workflow "build-linux.yml" --status success --limit 1 --json databaseId --jq '.[0].databaseId')" >> $GITHUB_OUTPUT
 
-      - name: Download all artifacts
+      - name: Download Windows artifacts
+        if: steps.builds.outputs.windows != 'null'
         uses: actions/download-artifact@v8
         with:
-          run-id: ${{ steps.built-successfully.outputs.run_id }}
+          run-id: ${{ steps.builds.outputs.windows }}
+          path: all-artifacts
+
+      - name: Download macOS artifacts
+        if: steps.builds.outputs.macos != 'null'
+        uses: actions/download-artifact@v8
+        with:
+          run-id: ${{ steps.builds.outputs.macos }}
+          path: all-artifacts
+
+      - name: Download Linux artifacts
+        if: steps.builds.outputs.linux != 'null'
+        uses: actions/download-artifact@v8
+        with:
+          run-id: ${{ steps.builds.outputs.linux }}
           path: all-artifacts
 
       - name: Generate changelog
