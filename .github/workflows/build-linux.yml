@@ -33,20 +33,20 @@ jobs:
 
       - name: Install Flatpak deps
         run: |
+          # add flatpak ppa
+          # for latest flatpak pkgs
+          sudo add-apt-repository ppa:flatpak/stable
           sudo apt-get update
           sudo apt-get install -y build-essential flatpak
           sudo apt-get install -y appstream appstream-compose appstream-util
           # setup flathub repo
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          # install flatpak-builder from flathub as well as its deps
-          # as version in apt is outdated and tries to call old libs
-          flatpak install -y --noninteractive flathub org.flatpak.Builder
         #continue-on-error: true
         
       - name: Build Flatpak
         run: |
           # now build
-          xvfb-run flatpak run org.flatpak.Builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
+          flatpak-builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
           flatpak build-export repo build-dir
           flatpak build-bundle repo SimpliPlay-x64-linux.flatpak me.anirudhsevugan.SimpliPlay
           mv *.flatpak dist/
@@ -122,18 +122,18 @@ jobs:
         #continue-on-error: true
       - name: Install Flatpak libs
         run: |
+          # add flatpak ppa
+          # for latest flatpak pkgs
+          sudo add-apt-repository ppa:flatpak/stable
           sudo apt-get update
-          sudo apt-get install -y build-essential flatpak
+          sudo apt-get install -y build-essential flatpak flatpak-builder
           sudo apt-get install -y appstream appstream-compose appstream-util
           # setup flathub repo
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          # install flatpak-builder from flathub
-          # as version in apt is outdated and tries to call old libs
-          flatpak install -y --noninteractive flathub org.flatpak.Builder
       - name: Build Flatpak
         run: |
           # now build
-          xvfb-run flatpak run org.flatpak.Builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
+          flatpak-builder --user --disable-rofiles-fuse --install-deps-from=flathub --force-clean build-dir flatpak/me.anirudhsevugan.SimpliPlay.yml
           flatpak build-export repo build-dir
           flatpak build-bundle repo SimpliPlay-arm64-linux.flatpak me.anirudhsevugan.SimpliPlay
           mv *.flatpak dist/
