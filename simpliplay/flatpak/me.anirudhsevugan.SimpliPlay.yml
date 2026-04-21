@@ -12,7 +12,8 @@ sdk-extensions:
 finish-args:
   - --share=network
   - --share=ipc
-  - --socket=x11
+  - --socket=wayland
+  - --socket=fallback-x11
   - --socket=pulseaudio
   - --persist=simpliplay-snapshots
   - --device=dri
@@ -55,19 +56,8 @@ modules:
       - type: script
         dest-filename: run.sh
         commands:
-          - |
-            #!/bin/bash
-            if [[ " $* " == *"--ozone-platform=wayland"* ]]; then
-                echo "Warning: Wayland mode is experimental and may crash."
-            else
-                export WAYLAND_DISPLAY=""
-                export XDG_SESSION_TYPE="x11"
-
-                if [[ "$*" != *"--ozone-platform="* ]]; then
-                    set -- "$@" --ozone-platform=x11
-                fi
-            fi
-
-            exec zypak-wrapper /app/lib/SimpliPlay/SimpliPlay "$@"
+          - 'exec zypak-wrapper /app/lib/SimpliPlay/SimpliPlay --ozone-platform=x11 "$@"'
       - type: patch
         path: patches/fix-snapshot-path.patch
+      - type: patch
+        path: patches/add-wayland-arg.patch
