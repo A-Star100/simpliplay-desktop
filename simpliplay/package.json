@@ -22,7 +22,6 @@
       "grade": "stable",
       "summary": "A cross-platform, simple media player.",
       "description": "The mission to make media playback accessible on every platform, anywhere, anytime.",
-      "base": "core24"
     },
     "nsis": {
       "oneClick": false,
