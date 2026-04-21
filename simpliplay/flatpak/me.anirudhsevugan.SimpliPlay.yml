@@ -56,7 +56,7 @@ modules:
       - type: script
         dest-filename: run.sh
         commands:
-          - 'exec zypak-wrapper /app/lib/SimpliPlay/SimpliPlay --ozone-platform=x11 "$@"'
+          - 'exec zypak-wrapper /app/lib/SimpliPlay/SimpliPlay "$@"'
       - type: patch
         path: patches/fix-snapshot-path.patch
       - type: patch
