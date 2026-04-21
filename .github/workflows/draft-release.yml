@@ -35,27 +35,24 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v8
         with:
-          run-id: ${{ steps.build-info.outputs.built-successfully }}
+          run-id: ${{ steps.built-successfully.outputs.run_id }}
           path: all-artifacts
 
       - name: Generate changelog
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # fetch from GH api
-          if gh api repos/${{ github.repository }}/releases/generate-notes \
-            -f tag_name="draft-${{ github.run_number }}" --jq .body > raw.md
-          then
-            # filter notes only for comparisons
-            grep -v "github.com/.*/compare/" raw.md > draft.md
-          else
-            # fall back to git log in case gh api is down
-            # instead of failing fast on ci
-            echo "WARNING: using git log for notes because GH api seems like it's down"
-            git log -n 10 --format="- %s" > draft.md
-          fi
+          gh api repos/${{ github.repository }}/releases/generate-notes \
+            -f tag_name="draft-${{ github.run_number }}" --jq .body > raw.md || {
+              echo "WARNING: gh api failed, so using git log for notes instead"
+              git log -n 10 --format="- %s" > raw.md
+            }
 
-          # create and pipe md
+          # get comparison urls
+          grep -v "github.com/.*/compare/" raw.md > draft.md
+
+          # pipe into changelog md for release step
+          # to take over
           {
             echo "## Release Notes"
             echo "${{ inputs.release_notes }}"
