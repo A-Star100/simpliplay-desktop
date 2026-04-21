@@ -1,7 +1,5 @@
 name: Draft Release
 #TODO: refactor this entire workflow
-# instead of using this messy approach
-# download-artifact action would have been cleaner
 on:
   workflow_dispatch:
     inputs:
@@ -27,6 +25,7 @@ jobs:
       - name: Prepare folder(s)
         run: mkdir -p all-artifacts
 
+      #TODO: replace this step with download-artifact action equivalent
       - name: Check for required artifacts
         env:
           GH_TOKEN: ${{ github.token }}
@@ -60,7 +59,7 @@ jobs:
             
             echo "Everything needed is present! Moving on now..."
 
-      - name: Extract artifacts and filter them
+      - name: Extract artifacts and filter for needed ones
         run: |
           set -e
           echo "Extracting artifacts and collecting needed assets..."
@@ -74,7 +73,8 @@ jobs:
           rm -f upload-files.txt
           find all-artifacts -type f \( -iname '*.exe' -o -iname '*.dmg' -o -iname '*.flatpak' -o -iname '*.AppImage' \) | grep -i 'simpliplay' > upload-files.txt
 
-          echo "Created incomplete list of files to upload"
+          echo "Created draft list of files to upload"
+          echo "It will be filtered later in CI in a bit"
 
       - name: Generate changelog
         env:
@@ -104,7 +104,7 @@ jobs:
           EOF
 
       - name: Create empty draft release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: "draft-${{ github.run_number }}"
           draft: true
