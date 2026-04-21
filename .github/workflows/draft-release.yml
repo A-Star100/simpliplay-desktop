@@ -1,6 +1,4 @@
 name: Draft Release
-#TODO: refactor this entire workflow
-# it is VERY, VERY unclean, but it works (for now at least)
 on:
   workflow_dispatch:
     inputs:
