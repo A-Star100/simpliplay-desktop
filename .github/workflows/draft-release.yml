@@ -42,14 +42,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api repos/${{ github.repository }}/releases/generate-notes \
-            -f tag_name="draft-${{ github.run_number }}" --jq .body > raw.md || {
-              echo "WARNING: gh api failed, so using git log for notes instead"
-              git log -n 10 --format="- %s" > raw.md
-            }
+          #TODO: get gh api working
+          git log -n 10 --format="- %s" > raw.md
 
           # get comparison urls
-          grep -v "github.com/.*/compare/" raw.md > draft.md
+          grep -v "github.com/.*/compare/" raw.md > draft.md || true
 
           # pipe into changelog md for release step
           # to take over
