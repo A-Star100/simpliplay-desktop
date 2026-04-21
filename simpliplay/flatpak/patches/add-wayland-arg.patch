@@ -1,0 +1,15 @@
+--- a/main.js
++++ b/main.js
+@@ -1,3 +1,11 @@
++if (process.platform === 'linux') {
++  const isWayland = process.argv.some(arg => arg.includes('--ozone-platform=wayland'));
++  if (!isWayland) {
++    process.env.WAYLAND_DISPLAY = '';
++    process.env.XDG_SESSION_TYPE = 'x11';
++  }
++}
+ const { app, BrowserWindow, Menu, MenuItem, shell, dialog, globalShortcut } = require('electron');
+ const path = require('path');
++if (process.platform === 'linux' && !process.argv.some(arg => arg.includes('--ozone-platform=wayland'))) {
++  app.commandLine.appendSwitch('ozone-platform', 'x11');
++}
