@@ -22,7 +22,7 @@ jobs:
             echo "Closing dependabot PRs for $dep"
             gh pr list --author "app/dependabot" --json number,title | \
             jq -r --arg pkg "$TARGET" '.[] | select(.title | test("bump " + $pkg + " from"; "i")) | .number' | \
-            xargs -I {} gh pr close {} --comment "Closed in favor of manual $TARGET upgrade."
+            xargs -I {} gh pr close {} --comment "Closed because a manual dependency upgrade for $dep is in progress."
           fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
