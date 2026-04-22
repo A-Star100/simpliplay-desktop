@@ -10,17 +10,19 @@ jobs:
     steps:
       - name: Close dependabot PRs
         run: |
-          # for electron
-          PR_LIST=$(gh pr list --author "app/dependabot" --json number,title | \
-            jq -r '.[] | select(.title | test("bump electron from"; "i")) | .number')
-          for pr in $PR_LIST; do
-            gh pr close "$pr" --comment "Closing as a manual electron upgrade is in progress."
-          done
-          # for electron-builder
-          PR_LIST=$(gh pr list --author "app/dependabot" --json number,title | \
-            jq -r '.[] | select(.title | test("bump electron-builder from"; "i")) | .number')
-          for pr in $PR_LIST; do
-            gh pr close "$pr" --comment "Closing as a manual electron-builder upgrade is in progress."
-          done
+          title="${{ github.event.pull_request.title }}"
+
+          if [[ "$title" == *"electron-builder"* ]]; then
+            dep="electron-builder"
+          elif [[ "$title" == *"electron"* ]]; then
+            dep="electron"
+          fi
+
+          if [ ! -z "$dep" ]; then
+            echo "Closing dependabot PRs for $dep"
+            gh pr list --author "app/dependabot" --json number,title | \
+            jq -r --arg pkg "$TARGET" '.[] | select(.title | test("bump " + $pkg + " from"; "i")) | .number' | \
+            xargs -I {} gh pr close {} --comment "Closed in favor of manual $TARGET upgrade."
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
