@@ -32,7 +32,8 @@
       "baseVersion": "25.08",
       "finishArgs": [
         "--share=ipc",
-        "--socket=x11",
+        "--socket=wayland",
+        "--socket=fallback-x11",
         "--device=dri",
         "--socket=pulseaudio",
         "--filesystem=~/simpliplay-snapshots"
@@ -53,7 +54,10 @@
       "icon": "icon.png",
       "executableName": "SimpliPlay",
       "synopsis": "The mission to make media playback accessible anywhere, anytime.",
-      "artifactName": "SimpliPlay-${arch}-linux.${ext}"
+      "artifactName": "SimpliPlay-${arch}-linux.${ext}",
+      "executableArgs": [
+        "--ozone-platform-hint=auto"
+      ]
     },
     "fileAssociations": [
       {
