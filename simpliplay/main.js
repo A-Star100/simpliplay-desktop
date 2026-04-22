@@ -1,14 +1,14 @@
-if (process.platform === 'linux') {
-  const isWayland = process.argv.some(arg => arg.includes('--ozone-platform=wayland'));
-  if (!isWayland) {
-    process.env.WAYLAND_DISPLAY = '';
-    process.env.XDG_SESSION_TYPE = 'x11';
-  }
-}
+// if (process.platform === 'linux') {
+//   const isWayland = process.argv.some(arg => arg.includes('--ozone-platform=wayland'));
+//   if (!isWayland) {
+//     process.env.WAYLAND_DISPLAY = '';
+//     process.env.XDG_SESSION_TYPE = 'x11';
+//   }
+// }
 const { app, BrowserWindow, Menu, MenuItem, shell, dialog, globalShortcut } = require('electron');
-if (process.platform === 'linux' && !process.argv.some(arg => arg.includes('--ozone-platform=wayland'))) {
-  app.commandLine.appendSwitch('ozone-platform', 'x11');
-}
+// if (process.platform === 'linux' && !process.argv.some(arg => arg.includes('--ozone-platform=wayland'))) {
+//   app.commandLine.appendSwitch('ozone-platform', 'x11');
+// }
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
