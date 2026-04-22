@@ -1,4 +1,4 @@
-name: Dependabot Version Bump
+name: Dependabot version bump
 on:
   pull_request:
     branches: [ main ]
@@ -34,16 +34,21 @@ jobs:
           newversion="$v1.$v2.$v3.$v4"
           sed -i "s/let version = \"$currentversion\"/let version = \"$newversion\"/" "$filepath"
 
-      # - name: Increment version package-arm64-linux.json
-      #   run: |
-      #     arm_json="simpliplay/package-arm64-linux.json"
-      #     normal_json="package.json"
-      #     jq -r '.devDependencies.electron // "not found"' $normal_json
+      - name: Update Electron version in package-arm64-linux.json
+        run: |
+          armjson="simpliplay/package-arm64-linux.json"
+          normaljson="package.json"
+          ver=$(jq -r '.version' "$normaljson")
+          
+          # use tempfile cuz of jq and mv tmp changes to sync
+          touch tmp.json
+          jq --arg ver "$ver" '.version = $ver' "$armjson" > tmp.json
+          mv tmp.json "$armjson"
 
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add simpliplay/main.js
-          git commit -m "chore: increment version number"
+          git commit -m "chore: increment version number and electron dep"
           git push
