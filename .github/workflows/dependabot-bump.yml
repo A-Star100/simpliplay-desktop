@@ -34,15 +34,15 @@ jobs:
           newversion="$v1.$v2.$v3.$v4"
           sed -i "s/let version = \"$currentversion\"/let version = \"$newversion\"/" "$filepath"
 
-      - name: Update Electron version in package-arm64-linux.json
+      - name: Update electron version in package-arm64-linux.json
         run: |
           armjson="simpliplay/package-arm64-linux.json"
-          normaljson="package.json"
-          ver=$(jq -r '.version' "$normaljson")
+          normaljson="simpliplay/package.json"
+          ver=$(jq -r '.devDependencies.electron' "$normaljson")
           
           # use tempfile cuz of jq and mv tmp changes to sync
           touch tmp.json
-          jq --arg ver "$ver" '.version = $ver' "$armjson" > tmp.json
+          jq --arg ver "$ver" '.electron = $ver' "$armjson" > tmp.json
           mv tmp.json "$armjson"
 
       - name: Commit and push
