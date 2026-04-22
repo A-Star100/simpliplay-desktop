@@ -1,7 +1,7 @@
 name: Handle manual dep updates
 on:
   pull_request:
-    types: [labeled]
+    types: [labeled, opened]
 
 jobs:
   close-prs:
