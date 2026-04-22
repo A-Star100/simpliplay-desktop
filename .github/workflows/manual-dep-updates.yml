@@ -1,0 +1,26 @@
+name: Handle manual dep updates
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  close-prs:
+    if: github.event.label.name == 'manual-upgrade'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close dependabot PRs
+        run: |
+          # for electron
+          PR_LIST=$(gh pr list --author "app/dependabot" --json number,title | \
+            jq -r '.[] | select(.title | test("bump electron from"; "i")) | .number')
+          for pr in $PR_LIST; do
+            gh pr close "$pr" --comment "Closing as a manual electron upgrade is in progress."
+          done
+          # for electron-builder
+          PR_LIST=$(gh pr list --author "app/dependabot" --json number,title | \
+            jq -r '.[] | select(.title | test("bump electron-builder from"; "i")) | .number')
+          for pr in $PR_LIST; do
+            gh pr close "$pr" --comment "Closing as a manual electron-builder upgrade is in progress."
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
