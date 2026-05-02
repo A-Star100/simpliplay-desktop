@@ -37,9 +37,6 @@ jobs:
           #TODO: get gh api working
           git log -n 10 --format="- %s" > raw.md
 
-          # get comparison urls
-          grep -v "github.com/.*/compare/" raw.md > draft.md || true
-
           # pipe into changelog md for release step
           # to take over
           {
