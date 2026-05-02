@@ -50,7 +50,10 @@
       "icon": "icon.ico"
     },
     "linux": {
-      "target": ["snap", "AppImage"],
+      "target": [
+        "snap",
+        "AppImage"
+      ],
       "icon": "icon.png",
       "executableName": "SimpliPlay",
       "synopsis": "The mission to make media playback accessible anywhere, anytime.",
@@ -136,7 +139,7 @@
     "allowToChangeInstallationDirectory": true
   },
   "devDependencies": {
-    "electron": "^41.2.2",
+    "electron": "^41.4.0",
     "electron-builder": "^26.8.1"
-  }
+  },
 }
