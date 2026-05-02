@@ -35,7 +35,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential flatpak flatpak-builder
-          sudo apt-get install -y appstream appstream-compose appstream-util
           # setup flathub repo
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
         #continue-on-error: true
@@ -117,14 +116,13 @@ jobs:
         run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
         #continue-on-error: true
-      - name: Install Flatpak libs
+      - name: Install Flatpak deps
         run: |
           # add flatpak ppa
-          # for latest flatpak pkgs
+          # for latest flatpak
           sudo add-apt-repository ppa:flatpak/stable
           sudo apt-get update
           sudo apt-get install -y build-essential flatpak flatpak-builder
-          sudo apt-get install -y appstream appstream-compose appstream-util
           # setup flathub repo
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
       - name: Build Flatpak
