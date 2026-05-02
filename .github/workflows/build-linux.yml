@@ -118,13 +118,17 @@ jobs:
         #continue-on-error: true
       - name: Install Flatpak deps
         run: |
-          # add flatpak ppa
-          # for latest flatpak
-          sudo add-apt-repository ppa:flatpak/stable
           sudo apt-get update
           sudo apt-get install -y build-essential flatpak flatpak-builder
+          sudo apt-get install appstream appstream-compose appstream-util
           # setup flathub repo
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+      - name: Add patch for appstream
+        run: |
+          # create shell script for appstream-compose binary
+          # that redirects to appstreamcli compose
+          echo -e '#!/bin/bash\nappstreamcli compose "$@"' | sudo tee /usr/local/bin/appstream-compose > /dev/null
+          sudo chmod +x /usr/local/bin/appstream-compose
       - name: Build Flatpak
         run: |
           # now build
