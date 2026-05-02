@@ -42,7 +42,7 @@ jobs:
           
           # use tempfile cuz of jq and mv tmp changes to sync
           touch tmp.json
-          jq --arg ver "$ver" '.electron = $ver' "$armjson" > tmp.json
+          jq --arg ver "$ver" '.devDependencies.electron = $ver' "$armjson" > tmp.json
           mv tmp.json "$armjson"
 
       - name: Commit and push
