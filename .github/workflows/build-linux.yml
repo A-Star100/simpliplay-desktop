@@ -116,11 +116,31 @@ jobs:
         run: SNAPCRAFT_BUILD_ENVIRONMENT=host USE_SYSTEM_FPM=true npx electron-builder --linux snap --arm64
         working-directory: simpliplay
         #continue-on-error: true
+      - name: Add flatpak
+        run: |
+          echo "build=addrepo" >> $GITHUB_ENV
+          timeout 80s sudo add-apt-repository ppa:flatpak/stable
+          # if timeout
+          if [ $? -eq 124 ]; then
+            echo "build=src" >> $GITHUB_ENV
+            echo "Timed out. Building flatpak from source instead."
+            sudo apt-get update
+            sudo apt build-dep -y flatpak
+            sudo apt-get install -y build-essential git meson ninja-build devscripts debhelper libostree-dev libpolkit-gobject-1-dev   
+            git clone --recurse-submodules https://github.com/flatpak/flatpak.git
+            cd flatpak
+            meson setup _build --prefix=/usr -Dsysconfdir=/etc -Dlocalstatedir=/var
+            meson compile -C _build
+            sudo meson install -C _build
+          fi
       - name: Install Flatpak deps
         run: |
-          sudo add-apt-repository ppa:alexlarsson/flatpak
           sudo apt-get update
-          sudo apt-get install -y build-essential flatpak flatpak-builder
+          if [ $build == "src" ]; then
+            sudo apt-get install -y flatpak-builder
+          else
+            sudo apt-get install -y build-essential flatpak flatpak-builder
+          fi
           sudo apt-get install appstream appstream-compose appstream-util
           # setup flathub repo
           flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
