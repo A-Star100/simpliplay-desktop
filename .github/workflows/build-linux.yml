@@ -31,6 +31,10 @@ jobs:
         run: npx electron-builder --linux snap AppImage --x64
         working-directory: simpliplay
 
+      - name: Rename files
+        run: mv dist/SimpliPlay-x86_64-linux.AppImage dist/SimpliPlay-x64-linux.AppImage
+        working-directory: simpliplay
+
       - name: Install Flatpak deps
         run: |
           sudo apt-get update
