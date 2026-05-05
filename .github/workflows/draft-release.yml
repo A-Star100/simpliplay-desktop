@@ -43,7 +43,6 @@ jobs:
             echo "## Release Notes"
             echo "${{ inputs.release_notes }}"
             echo ""
-            cat draft.md
           } > "${{ github.workspace }}/CHANGELOG.md"
 
       - name: Create draft release and upload assets
