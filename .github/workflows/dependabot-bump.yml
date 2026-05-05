@@ -54,7 +54,7 @@ jobs:
       #     git push
 
       - name: Commit and push
-        uses: ryancyq/github-signed-commit@v1
+        uses: ryancyq/github-signed-commit@e9f3b28c80da7be66d24b8f501a5abe82a6b855f
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
