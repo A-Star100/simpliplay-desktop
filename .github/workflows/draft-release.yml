@@ -58,3 +58,4 @@ jobs:
             all-artifacts/**/*.flatpak
             all-artifacts/**/*.AppImage
           token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
