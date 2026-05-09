@@ -30,6 +30,12 @@ jobs:
         run: |
           gh run download --dir all-artifacts
 
+      - name: Filter out some artifacts
+        run: |
+          rm -f all-artifacts/**/elevate.exe
+          rm -f all-artifacts/**/SimpliPlay.exe
+          rm -f all-artifacts/**/SimpliPlay-i386-linux.AppImage
+
       - name: Generate changelog
         env:
           GH_TOKEN: ${{ github.token }}
