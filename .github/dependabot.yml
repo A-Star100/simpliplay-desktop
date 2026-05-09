@@ -10,11 +10,6 @@ updates:
     schedule:
       interval: "daily"
     versioning-strategy: increase
-    
-    # allow only these 2 deps
-    # allow:
-    #   - dependency-name: "electron"
-    #   - dependency-name: "electron-builder"
 
     # block major version updates for the builder cuz electron-builder *usually* has breaking changes with major version updates
     # and breaks some builds; especially for windows
