@@ -9,6 +9,9 @@
     "package": "electron-builder --dir",
     "make": "electron-builder"
   },
+  "overrides": {
+    "yauzl": "^3.3.1"
+  },
   "author": "Anirudh Sevugan",
   "build": {
     "npmRebuild": false,
