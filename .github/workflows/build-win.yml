@@ -1,15 +1,6 @@
 name: Build Windows
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-    paths-ignore:
-      - '.github/workflows/dependabot-bump.yml'
-      - '.github/workflows/dependabot.yml'
-      - 'README.md'
-      - '.gitignore'
   workflow_dispatch:
   workflow_call:
 
