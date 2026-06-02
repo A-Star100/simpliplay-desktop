@@ -24,15 +24,15 @@ jobs:
     needs: [build-linux]
     uses: ./.github/workflows/publish_snap.yml
     with:
-      channel: ${{ github.event.inputs.snap_channel }}
-    secrets: inherit
-
-  draft-release:
-    needs: [build-linux, build-macos, build-windows]
-    permissions:
-      contents: write
-    uses: ./.github/workflows/draft_release.yml
+      channel: ${{ github.event.inputs.snap_channel}}
     secrets: inherit
 
   playwright-test:
     uses: ./.github/workflows/playwright.yml
+
+  draft-release:
+    needs: [build-linux, build-macos, build-windows, playwright-test]
+    permissions:
+      contents: write
+    uses: ./.github/workflows/draft_release.yml
+    secrets: inherit
