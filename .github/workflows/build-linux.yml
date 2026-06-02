@@ -1,15 +1,6 @@
 name: Build Linux
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-    paths-ignore:
-      - '.github/workflows/dependabot-bump.yml'
-      - '.github/workflows/dependabot.yml'
-      - 'README.md' #ignore readme
-      - '.gitignore' #ignore the gitignore that is the file that ignores other files
   workflow_dispatch:
   workflow_call:
 
