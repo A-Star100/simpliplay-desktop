@@ -12,17 +12,17 @@ on:
 
 jobs:
   build-linux:
-    uses: ./.github/workflows/build_linux.yml
+    uses: ./.github/workflows/build-linux.yml
 
   build-macos:
-    uses: ./.github/workflows/build_macos.yml
+    uses: ./.github/workflows/build-macos.yml
 
   build-windows:
-    uses: ./.github/workflows/build_windows.yml
+    uses: ./.github/workflows/build-windows.yml
 
   publish-snap:
     needs: [build-linux]
-    uses: ./.github/workflows/publish_snap.yml
+    uses: ./.github/workflows/publish-snap.yml
     with:
       channel: ${{ github.event.inputs.snap_channel}}
     secrets: inherit
@@ -34,5 +34,5 @@ jobs:
     needs: [build-linux, build-macos, build-windows, playwright-test]
     permissions:
       contents: write
-    uses: ./.github/workflows/draft_release.yml
+    uses: ./.github/workflows/draft-release.yml
     secrets: inherit
