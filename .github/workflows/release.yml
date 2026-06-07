@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/build-macos.yml
 
   build-windows:
-    uses: ./.github/workflows/build-windows.yml
+    uses: ./.github/workflows/build-win.yml
 
   publish-snap:
     needs: [build-linux]
