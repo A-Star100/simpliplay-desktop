@@ -13,19 +13,22 @@
     "yauzl": "^3.3.1"
   },
   "author": "Anirudh Sevugan",
+  "snapcraft": {
+    "base": "core24",
+    "core24": {
+      "confinement": "strict"
+    },
+    "grade": "stable",
+    "summary": "A cross-platform, simple media player.",
+    "description": "The mission to make media playback accessible on every platform, anywhere, anytime."
+  },
+  "desktopName": "me.anirudhsevugan.SimpliPlay.desktop",
   "build": {
     "npmRebuild": false,
-    "appId": "com.anirudhsevugan.simpliPlay",
+    "appId": "me.anirudhsevugan.SimpliPlay",
     "productName": "SimpliPlay",
     "directories": {
       "output": "dist"
-    },
-    "snap": {
-      "confinement": "strict",
-      "grade": "stable",
-      "summary": "A cross-platform, simple media player.",
-      "description": "The mission to make media playback accessible on every platform, anywhere, anytime.",
-      "base": "core22"
     },
     "flatpak": {
       "runtime": "org.freedesktop.Platform",
@@ -59,6 +62,7 @@
       ],
       "icon": "icon.png",
       "executableName": "SimpliPlay",
+      "syncDesktopName": true,
       "synopsis": "The mission to make media playback accessible anywhere, anytime.",
       "artifactName": "SimpliPlay-${arch}-linux.${ext}",
       "executableArgs": [
@@ -143,6 +147,6 @@
   },
   "devDependencies": {
     "electron": "^42.3.3",
-    "electron-builder": "^26.8.1"
+    "electron-builder": "^26.15.2"
   }
 }
