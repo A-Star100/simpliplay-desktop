@@ -22,7 +22,7 @@
     "summary": "A cross-platform, simple media player.",
     "description": "The mission to make media playback accessible on every platform, anywhere, anytime."
   },
-  "desktopName": "me.anirudhsevugan.SimpliPlay",
+  "desktopName": "me.anirudhsevugan.SimpliPlay.desktop",
   "build": {
     "npmRebuild": false,
     "appId": "me.anirudhsevugan.SimpliPlay",
