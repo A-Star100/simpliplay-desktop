@@ -22,9 +22,10 @@
     "summary": "A cross-platform, simple media player.",
     "description": "The mission to make media playback accessible on every platform, anywhere, anytime."
   },
+  "desktopName": "me.anirudhsevugan.SimpliPlay.desktop",
   "build": {
     "npmRebuild": false,
-    "appId": "com.anirudhsevugan.simpliPlay",
+    "appId": "me.anirudhsevugan.SimpliPlay",
     "productName": "SimpliPlay",
     "directories": {
       "output": "dist"
@@ -61,7 +62,7 @@
       ],
       "icon": "icon.png",
       "executableName": "SimpliPlay",
-      "desktopName": "me.anirudhsevugan.SimpliPlay",
+      "syncDesktopName": true,
       "synopsis": "The mission to make media playback accessible anywhere, anytime.",
       "artifactName": "SimpliPlay-${arch}-linux.${ext}",
       "executableArgs": [
