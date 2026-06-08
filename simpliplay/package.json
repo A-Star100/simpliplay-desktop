@@ -24,7 +24,7 @@
   },
   "build": {
     "npmRebuild": false,
-    "appId": "com.anirudhsevugan.simpliPlay",
+    "appId": "me.anirudhsevugan.SimpliPlay",
     "productName": "SimpliPlay",
     "directories": {
       "output": "dist"
@@ -72,6 +72,7 @@
       "target": ["snap", "AppImage"],
       "icon": "icon.png",
       "executableName": "SimpliPlay",
+      "desktopName": "me.anirudhsevugan.SimpliPlay",
       "synopsis": "The mission to make media playback accessible anywhere, anytime.",
       "artifactName": "SimpliPlay-${arch}-linux.${ext}",
       "executableArgs": [
