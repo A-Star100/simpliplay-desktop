@@ -58,7 +58,7 @@
       ],
       "icon": "icon.icns",
       "artifactName": "SimpliPlay-${arch}-darwin.${ext}",
-      "identity": "-"
+      "identity": null
     },
     "win": {
       "target": [
