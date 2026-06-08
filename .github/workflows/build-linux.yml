@@ -99,8 +99,8 @@ jobs:
       - name: Install GTK theme snap
         run: sudo snap install gtk-common-themes
 
-      - name: Install core22 snap
-        run: sudo snap install core22
+      - name: Install core24 snap
+        run: sudo snap install core24
 
       # this uses SNAPCRAFT_BUILD_ENVIRONMENT=host
       # cuz otherwise the runner tries to use multipass sandboxing
