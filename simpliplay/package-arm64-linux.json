@@ -13,21 +13,21 @@
     "yauzl": "^3.3.1"
   },
   "author": "Anirudh Sevugan",
+  "snapcraft": {
+    "base": "core24",
+    "core24": {
+      "confinement": "strict"
+    },
+    "grade": "stable",
+    "summary": "A cross-platform, simple media player.",
+    "description": "The mission to make media playback accessible on every platform, anywhere, anytime."
+  },
   "build": {
     "npmRebuild": false,
     "appId": "com.anirudhsevugan.simpliPlay",
     "productName": "SimpliPlay",
     "directories": {
       "output": "dist"
-    },
-    "snapcraft": {
-      "base": "core24",
-      "core24": {
-        "confinement": "strict"
-      },
-      "grade": "stable",
-      "summary": "A cross-platform, simple media player.",
-      "description": "The mission to make media playback accessible on every platform, anywhere, anytime.",
     },
     "flatpak": {
       "runtime": "org.freedesktop.Platform",
