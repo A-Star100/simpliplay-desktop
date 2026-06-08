@@ -1,0 +1,15 @@
+name: Test CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    uses: ./.github/workflows/build-linux.yml
+
+  build-macos:
+    uses: ./.github/workflows/build-macos.yml
+
+  build-windows:
+    uses: ./.github/workflows/build-win.yml
