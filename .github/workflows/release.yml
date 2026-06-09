@@ -24,7 +24,7 @@ jobs:
     needs: [build-linux]
     uses: ./.github/workflows/publish-snap.yml
     with:
-      channel: ${{ github.event.inputs.snap_channel}}
+      channel: ${{ inputs.snap_channel }}
     secrets: inherit
 
   playwright-test:
