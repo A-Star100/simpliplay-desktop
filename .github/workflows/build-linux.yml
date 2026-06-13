@@ -90,7 +90,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
 
       - name: Install Snapcraft CLI
-        run: sudo snap install snapcraft --classic
+        run: sudo snap install snapcraft --classic --channel=8.x/stable
 
       - name: Install GNOME packages
         run: sudo snap install gnome-3-28-1804
