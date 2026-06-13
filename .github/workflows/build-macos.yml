@@ -5,7 +5,7 @@ on:
   workflow_call:
 
 jobs:
-  build:
+  build-universal:
     runs-on: macos-latest
 
     steps:
