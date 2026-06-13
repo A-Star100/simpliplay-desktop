@@ -5,48 +5,25 @@ on:
   workflow_call:
 
 jobs:
-  build-x64:
+  build-universal:
     runs-on: windows-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repo
         uses: actions/checkout@v6
-      - name: Set up Node.js
+      - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: 22
-      - name: Install dependencies
+          node-version: 24
+      - name: Install deps
         run: npm install
         working-directory: simpliplay
-      - name: Build Windows (x64)
+      - name: Build Windows
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npx electron-builder --win --x64
+        run: npx electron-builder --win
         working-directory: simpliplay
-      - name: Upload artifacts (x64)
+      - name: Upload builds
         uses: actions/upload-artifact@v6
         with:
-          name: builds-x64
-          path: simpliplay/dist/
-
-  build-arm64:
-    runs-on: windows-11-arm
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-      - name: Install dependencies
-        run: npm install
-        working-directory: simpliplay
-      - name: Build Windows (arm64)
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npx electron-builder --win --arm64
-        working-directory: simpliplay
-      - name: Upload artifacts (arm64)
-        uses: actions/upload-artifact@v6
-        with:
-          name: builds-arm64
+          name: windows-universal
           path: simpliplay/dist/
