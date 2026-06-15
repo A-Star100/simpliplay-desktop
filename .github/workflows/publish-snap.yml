@@ -11,8 +11,8 @@ on:
         options: [edge, stable, beta, candidate]
       arches:
         description: 'Arches to publish for'
-        required: true
-        default: 'edge'
+        required: false
+        default: 'all'
         type: choice
         options: [x64, arm64, armv7, all]
   workflow_call:
