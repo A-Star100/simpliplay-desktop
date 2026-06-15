@@ -11,7 +11,7 @@ on:
         options: [edge, stable, beta, candidate]
       arches:
         description: 'Arches to publish for'
-        required: false
+        required: true
         default: 'all'
         type: choice
         options: [x64, arm64, armv7, all]
