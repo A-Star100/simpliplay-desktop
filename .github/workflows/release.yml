@@ -9,6 +9,12 @@ on:
         default: 'edge'
         type: choice
         options: [edge, stable, beta, canary]
+      snap_arches:
+        description: 'Snap Store architectures to publish for'
+        required: true
+        default: 'all'
+        type: choice
+        options: [x64, arm64, armv7, all]
 
 jobs:
   build-linux:
@@ -25,6 +31,7 @@ jobs:
     uses: ./.github/workflows/publish-snap.yml
     with:
       channel: ${{ inputs.snap_channel }}
+      arches: ${{ inputs.snap_arches }}
     secrets: inherit
 
   playwright-test:
