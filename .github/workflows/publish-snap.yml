@@ -9,11 +9,20 @@ on:
         default: 'edge'
         type: choice
         options: [edge, stable, beta, candidate]
+      arches:
+        description: 'Arches to publish for'
+        required: true
+        default: 'edge'
+        type: choice
+        options: [x64, arm64, armv7, all]
   workflow_call:
     inputs:
       channel:
         type: string
         required: true
+      arches:
+        type: string
+        required: false
 
 jobs:
   publish:
@@ -39,13 +48,23 @@ jobs:
         env:
           SNAPCRAFT_STORE_AUTH: candid
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
-          target_channel: ${{ github.event.inputs.channel }}
+          channel: ${{ github.event.inputs.channel }}
+          arch: ${{ github.event.inputs.arches }}
         run: |
-          echo "Target channel: $target_channel"
-          
+          echo "Publishing snaps to: $channel"
+          echo "Publishing for $arch architecture(s)"
           base="final-snaps"
-          
-          valid=("linux-x64-snap" "linux-arm64-snap" "linux-armv7l-v2-snap")
+
+          # check for arches input
+          if [[ "$arch" == "x64" ]]; then
+              valid=("linux-x64-snap")  
+          elif [[ "$arch" == "arm64" ]]; then
+              valid=("linux-arm64-snap")
+          elif [[ "$arch" == "armv7" ]]; then
+              valid=("linux-armv7l-v2-snap")
+          else
+              valid=("linux-x64-snap" "linux-arm64-snap" "linux-armv7l-v2-snap")  
+          fi
 
           for artifact in "${valid[@]}"; do
             subdir="$base/$artifact"
@@ -53,10 +72,11 @@ jobs:
             if [ -d "$subdir" ]; then
               echo "Checking artifact folder: $subdir"
               find "$subdir" -name "*.snap" | while read -r snap_file; do
-                echo "Uploading $snap_file to $target_channel"
-                snapcraft upload "$snap_file" --release "$target_channel"
+                echo "Uploading $snap_file to $channel"
+                snapcraft upload "$snap_file" --release "$channel"
               done
             else
-              echo "An artifact wasn't found: $artifact (was expected at $subdir)"
+              echo "An artifact wasn't found... $artifact was expected at $subdir"
+              echo "Please fix the file structure and try again"
             fi
           done
