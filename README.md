@@ -1,9 +1,6 @@
 # simpliplay-desktop
 The desktop version of SimpliPlay, a simple, cross-platform media player.
-
-## simpliplay
-[Electron](https://electronjs.org) version of SimpliPlay for Windows, macOS, and Linux (x64 and arm64).
-
+Fun fact: the desktop version is made in Electron, Xbox version in UWP, and the Android version in [App Inventor](https://appinventor.mit.edu).
 [![simpliplay](https://snapcraft.io/simpliplay/badge.svg)](https://snapcraft.io/simpliplay)
 ___
 
