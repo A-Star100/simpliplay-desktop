@@ -42,9 +42,9 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: | 
           npx electron-builder --win
-          mv SimpliPlay-win-setup.exe SimpliPlay-winget-setup.exe
-          rm SimpliPlay-win-x64-setup.exe
-          rm SimpliPlay-win-arm64-setup.exe
+          mv dist/SimpliPlay-win-setup.exe dist/SimpliPlay-winget-setup.exe
+          rm -f dist/SimpliPlay-x64-win-setup.exe
+          rm -f dist/SimpliPlay-arm64-win-setup.exe
         working-directory: simpliplay
 
       - name: Create pre-release for winget build
