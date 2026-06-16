@@ -63,6 +63,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   publish-winget:
+    needs: build-winget
     permissions:
       contents: write
     runs-on: windows-latest
