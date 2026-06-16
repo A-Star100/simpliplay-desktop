@@ -1,0 +1,58 @@
+name: Build for winget
+
+on:
+  workflow_call:
+
+jobs:
+  build-winget:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install deps
+        run: npm install
+        working-directory: simpliplay
+
+      - name: Patch for winget
+        shell: bash
+        run: |
+          # this is to make sure the installer
+          # doesn't need ui interaction to finish
+          # as that breaks winget rules
+          jq '.build.nsis += { 
+            "oneClick": true, 
+            "allowToChangeInstallationDirectory": false, 
+            "perMachine": false, 
+            "deleteAppDataOnUninstall": false 
+          }' package.json > package.json.tmp
+          mv package.json.tmp package.json
+        working-directory: simpliplay
+
+      - name: Build installer
+        shell: bash
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
+        run: | 
+          npx electron-builder --win
+          mv SimpliPlay-win-setup.exe SimpliPlay-winget-setup.exe
+          rm SimpliPlay-win-x64-setup.exe
+          rm SimpliPlay-win-arm64-setup.exe
+        working-directory: simpliplay
+
+      - name: Create pre-release for winget build
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: "winget-${{ github.run_number }}"
+          name: "SimpliPlay desktop (winget-${{ github.run_number }})"
+          draft: false
+          prerelease: true
+          files: |
+            simpliplay/dist/*.exe
+          token: ${{ secrets.GITHUB_TOKEN }}
