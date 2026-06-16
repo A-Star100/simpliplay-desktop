@@ -6,7 +6,9 @@ on:
 
 jobs:
   build-winget:
-    runs-on: windows-latest
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
