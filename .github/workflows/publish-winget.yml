@@ -1,4 +1,4 @@
-name: Publish for winget
+name: Build for winget
 
 on:
   workflow_call:
@@ -8,7 +8,7 @@ jobs:
   build-winget:
     permissions:
       contents: write
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
       - name: Checkout
@@ -36,6 +36,8 @@ jobs:
             "deleteAppDataOnUninstall": false 
           }' package.json > package.json.tmp
           mv package.json.tmp package.json
+          # display the new json for debug
+          more package.json
         working-directory: simpliplay
 
       - name: Build installer
@@ -43,10 +45,10 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: | 
-          npx electron-builder --win
-          mv dist/SimpliPlay-win-setup.exe dist/SimpliPlay-winget-setup.exe
-          rm -f dist/SimpliPlay-x64-win-setup.exe
-          rm -f dist/SimpliPlay-arm64-win-setup.exe
+          npx electron-builder --win --x64 --arm64
+          rm -f SimpliPlay-win-setup.exe
+          mv dist/SimpliPlay-x64-win-setup.exe dist/SimpliPlay-x64-winget-setup.exe
+          mv dist/SimpliPlay-arm64-win-setup.exe dist/SimpliPlay-arm64-winget-setup.exe
         working-directory: simpliplay
 
       - name: Create pre-release for winget build
