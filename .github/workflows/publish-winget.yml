@@ -37,7 +37,7 @@ jobs:
           }' package.json > package.json.tmp
           mv package.json.tmp package.json
           # display the new json for debug
-          more package.json
+          cat package.json | jq '.'
         working-directory: simpliplay
 
       - name: Build installer
