@@ -26,6 +26,7 @@ jobs:
   build-windows:
     uses: ./.github/workflows/build-win.yml
 
+  # needs these inputs to work
   publish-snap:
     needs: [build-linux]
     uses: ./.github/workflows/publish-snap.yml
@@ -34,9 +35,14 @@ jobs:
       arches: ${{ inputs.snap_arches }}
     secrets: inherit
 
+  # winget ci builds its own version
+  publish-winget:
+    uses: ./.github/workflows/publish-winget.yml
+
   playwright-test:
     uses: ./.github/workflows/playwright.yml
 
+  # uploads existing builds and runs after basic retest in CI
   draft-release:
     needs: [build-linux, build-macos, build-windows, playwright-test]
     permissions:
