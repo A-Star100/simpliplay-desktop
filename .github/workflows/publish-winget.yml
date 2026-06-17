@@ -106,5 +106,5 @@ jobs:
           
           # edit PR comment
           gh pr edit "$PR_NUMBER" -R microsoft/winget-pkgs --body "$(gh pr view "$PR_NUMBER" -R microsoft/winget-pkgs --json body -q '.body')
-          *On behalf of @A-Star100 via [this workflow run]($workflow_url)*"
+           ###### On behalf of @A-Star100 via [this workflow run]($workflow_url)"
         continue-on-error: true
