@@ -67,9 +67,6 @@ jobs:
     runs-on: ubuntu-slim
     needs: build-winget
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
       - name: Parse version num
         id: ver-num
         shell: bash
