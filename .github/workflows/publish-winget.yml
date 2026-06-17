@@ -48,7 +48,7 @@ jobs:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: | 
           npx electron-builder --win --x64 --arm64
-          rm -f SimpliPlay-win-setup.exe
+          rm -f dist/SimpliPlay-win-setup.exe
           mv dist/SimpliPlay-x64-win-setup.exe dist/SimpliPlay-x64-winget-setup.exe
           mv dist/SimpliPlay-arm64-win-setup.exe dist/SimpliPlay-arm64-winget-setup.exe
         working-directory: simpliplay
@@ -61,11 +61,13 @@ jobs:
           draft: false
           prerelease: true
           files: |
-            simpliplay/dist/*.exe
+            simpliplay/dist/SimpliPlay-x64-winget-setup.exe
+            simpliplay/dist/SimpliPlay-arm64-winget-setup.exe
           token: ${{ secrets.GITHUB_TOKEN }}
           
   publish-winget:
     runs-on: ubuntu-slim
+    needs: build-winget
     steps:
       - name: Checkout
         uses: actions/checkout@v6
