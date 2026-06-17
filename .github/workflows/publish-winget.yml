@@ -96,3 +96,18 @@ jobs:
           version: ${{ steps.ver-num.outputs.version }} # ver num from main release tag
           release-notes-url: https://github.com/A-Star100/simpliplay-desktop/releases/tag/release-${{ steps.ver-num.outputs.version }}
           installers-regex: '\.exe$' # only exe files
+
+      - name: Add on-behalf-of at end of PR comment
+        env:
+          run-id: ${{ github.run_id }}
+        run: |
+          # use filters to find PR
+          pr_num=$(gh pr list -R microsoft/winget-pkgs -s open -A "[anirudhsevugan-bot]" -L 1 --json number -q '.[0].number')
+
+          # add workflow url
+          workflow_url="https://github.com/A-Star100/simpliplay-desktop/actions/runs/${run-id}"
+          
+          # edit PR comment
+          gh pr edit "$PR_NUMBER" -R microsoft/winget-pkgs --body "$(gh pr view "$pr_num" -R microsoft/winget-pkgs --json body -q '.body') *On behalf of @A-Star100 via [this CI run]($workflow_url)*"
+        continue-on-error: true
+        
