@@ -64,3 +64,42 @@ jobs:
             simpliplay/dist/*.exe
           token: ${{ secrets.GITHUB_TOKEN }}
           
+  publish-winget:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # trying with a github app
+      # the docs don't say it will work, but it might
+      - name: Generate temp app token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 #v3.2.0
+        with:
+          app-id: ${{ secrets.WINGET_ID }}
+          private-key: ${{ secrets.WINGET_TOKEN }}
+
+      - name: Parse version num
+        id: ver-num
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          # query cli for version
+          $tag = gh release view --json tagName --jq '.tagName'
+          
+          # remove extra info
+          $version = $tag -replace '^release-|^v', ''
+          
+          # pass version
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Publish to Winget
+        uses: vedantmgoyal9/winget-releaser@main
+        with:
+          identifier: AnirudhSevugan.SimpliPlay
+          token: ${{ steps.app-token.outputs.token }}
+          release-tag: winget-${{ github.run_number }}
+          version: ${{ steps.ver-num.outputs.version }}
+          release-notes-url: "https://github.com/A-Star100/simpliplay-desktop/releases/latest"
