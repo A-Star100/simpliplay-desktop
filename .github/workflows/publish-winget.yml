@@ -69,7 +69,6 @@ jobs:
     steps:
       - name: Parse version num
         id: ver-num
-        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
