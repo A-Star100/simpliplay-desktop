@@ -78,6 +78,7 @@ jobs:
         with:
           client-id: ${{ secrets.WINGET_ID }}
           private-key: ${{ secrets.WINGET_TOKEN }}
+          repositories: 'winget-pkgs'
 
       - name: Parse version num
         id: ver-num
