@@ -148,13 +148,9 @@ jobs:
           node-version: 22
 
       # qemu isn't needed
-      # cuz when building prebuilt
-      # electron binaries are already installed
-      # so there is literally no reason
-      # to use qemu anymore
-      # and also npx electron builder forces armv7 snap builds
-      # and just to double check the file header's correct for armv7
-      # so neat
+      # because when building prebuilt
+      # electron binaries are downloaded
+      # and the app resources are then packaged with the binary
 
       - name: Install dependencies
         run: npm install
@@ -163,25 +159,6 @@ jobs:
       - name: Build AppImage
         run: npx electron-builder --linux AppImage --armv7l
         working-directory: simpliplay
-
-      # the below is to prevent snapcraft from crashing
-      # for some reason it does not cope without these deps
-      # on arm64 and armv7 anyway
-
-      - name: Update package listings and install libgdk-pixbuf
-        run: sudo apt-get update && sudo apt-get install --only-upgrade libgdk-pixbuf-2.0-0
-
-      - name: Install Snapcraft CLI
-        run: sudo snap install snapcraft --classic
-
-      - name: Install GNOME packages
-        run: sudo snap install gnome-3-28-1804
-
-      - name: Install GTK theme stuff
-        run: sudo snap install gtk-common-themes
-
-      - name: Install core22 snap
-        run: sudo snap install core22
 
       - name: Build snap
         run: npx electron-builder --linux snap --armv7l
