@@ -87,7 +87,7 @@ jobs:
           echo "version=$version" >> $env:GITHUB_OUTPUT
 
       - name: Publish to Winget
-        uses: vedantmgoyal9/winget-releaser@main
+        uses: vedantmgoyal9/winget-releaser@7bd472be23763def6e16bd06cc8b1cdfab0e2fd5 #v2
         with:
           identifier: AnirudhSevugan.SimpliPlay
           token: ${{ secrets.WINGET_PAT }}
