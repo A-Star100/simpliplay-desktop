@@ -54,8 +54,8 @@ jobs:
       - name: Create draft release and upload assets
         uses: softprops/action-gh-release@v3
         with:
-          tag_name: "draft-${{ github.run_number }}"
-          name: "Release draft-${{ github.run_number }}"
+          tag_name: "release-w.x.y.z"
+          name: "SimpliPlay desktop (vx.x.x.x)"
           draft: true
           body_path: CHANGELOG.md
           files: |
