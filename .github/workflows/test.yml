@@ -5,11 +5,16 @@ on:
   workflow_dispatch:
 
 jobs:
+  # because github-actions bot will increment version num
+  # and force a CI retrigger so this stops CI from running twice
   build-linux:
+    if: github.actor != 'dependabot[bot]'
     uses: ./.github/workflows/build-linux.yml
 
   build-macos:
+    if: github.actor != 'dependabot[bot]'
     uses: ./.github/workflows/build-macos.yml
 
   build-windows:
+    if: github.actor != 'dependabot[bot]'
     uses: ./.github/workflows/build-win.yml
