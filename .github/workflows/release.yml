@@ -37,7 +37,6 @@ jobs:
 
   # winget ci builds its own version
   publish-winget:
-    needs: [draft-release]
     permissions:
       contents: write
     uses: ./.github/workflows/publish-winget.yml
