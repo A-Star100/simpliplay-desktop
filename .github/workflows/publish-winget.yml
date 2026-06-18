@@ -52,7 +52,7 @@ jobs:
         working-directory: simpliplay
 
       - name: Create pre-release for winget build
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@9ed3cf9a6863b31f005d951c8d19de20628cf4eb
         with:
           tag_name: "winget-${{ github.run_number }}"
           name: "SimpliPlay desktop (winget-${{ github.run_number }})"
