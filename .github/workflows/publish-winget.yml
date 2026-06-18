@@ -98,6 +98,9 @@ jobs:
           run_id: ${{ github.run_id }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # try wait for 15s so the PR can be found
+          sleep 15
+          
           # use filters to find PR
           pr_num=$(gh pr list -R microsoft/winget-pkgs -s open -A "[anirudhsevugan-bot]" -L 1 --json number -q '.[0].number')
           if [ "$pr_num" = "null" ] || [ -z "$pr_num" ]; then
