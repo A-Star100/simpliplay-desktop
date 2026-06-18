@@ -37,6 +37,8 @@ jobs:
 
   # winget ci builds its own version
   publish-winget:
+    permissions:
+      contents: write
     uses: ./.github/workflows/publish-winget.yml
 
   playwright-test:
