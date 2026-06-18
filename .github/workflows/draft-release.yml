@@ -52,7 +52,7 @@ jobs:
           } > "${{ github.workspace }}/CHANGELOG.md"
 
       - name: Create draft release and upload assets
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@9ed3cf9a6863b31f005d951c8d19de20628cf4eb
         with:
           tag_name: "release-w.x.y.z"
           name: "SimpliPlay desktop (vx.x.x.x)"
