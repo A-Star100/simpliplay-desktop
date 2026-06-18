@@ -69,17 +69,19 @@ jobs:
         
       - name: Parse version num
         id: ver-num
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # query cli for version
-          tag=$(gh release view --json tagName --jq '.tagName')
+          # search from main.js
+          version=$(grep -oE 'let version\s*=\s*["'\''][^"'\'']+["'\'']' main.js | sed -E 's/.*["'\'']([^"'\'']+)["'\'']/\1/')
           
-          # remove extra info
-          version=$(echo "$tag" | sed -E 's/^release-|^v//')
+          # fail if it wasn't found
+          if [ -z "$version" ]; then
+            echo "error: could not find version in main.js" >&2
+            exit 1
+          fi
           
-          # pass version
+          # if not failed, pass out to next job
           echo "version=$version" >> "$GITHUB_OUTPUT"
+        working-directory: simpliplay
 
       - name: Publish to Winget
         uses: vedantmgoyal9/winget-releaser@7bd472be23763def6e16bd06cc8b1cdfab0e2fd5 #v2
