@@ -23,17 +23,26 @@ jobs:
       - name: Patch for winget
         shell: bash
         run: |
-          # this is to make sure the installer
-          # doesn't need ui interaction to finish
-          # as that breaks winget rules
-          jq '.build.nsis += { 
-            "oneClick": true, 
-            "allowToChangeInstallationDirectory": false, 
-            "perMachine": false, 
-            "deleteAppDataOnUninstall": false 
-          }' package.json > package.json.tmp
+          # get version from main.js
+          # that github-actions bot did
+          version=$(grep -oE "version\s*[:=]\s*['\"][0-9]+\.[0-9]+\.[0-9]+\.[0-9]+['\"]" main.js | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")
+          echo "Version being used for buildVersion arg: $version"
+          
+          # then have the buildVersion be the 4 digit string
+          # so winget doesn't add Manifest-AppsAndFeaturesVersion-Error label
+          jq --arg winVer "$version" '
+            .build.buildVersion = $winVer |
+            .build.nsis += { 
+              "oneClick": true, 
+              "allowToChangeInstallationDirectory": false, 
+              "perMachine": false, 
+              "deleteAppDataOnUninstall": false 
+            }
+          ' package.json > package.json.tmp
+          
           mv package.json.tmp package.json
-          # display the new json for debug
+
+          # display json for debug now 
           cat package.json | jq '.'
         working-directory: simpliplay
 
