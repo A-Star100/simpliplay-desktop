@@ -24,7 +24,7 @@ jobs:
         working-directory: simpliplay
 
       - name: Install deps
-        run: npm install
+        run: npm ci
         working-directory: simpliplay
 
       - name: Create DMGs
