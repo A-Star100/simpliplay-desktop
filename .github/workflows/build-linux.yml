@@ -15,7 +15,7 @@ jobs:
           node-version: 22
 
       - name: Install project deps
-        run: npm install
+        run: npm ci
         working-directory: simpliplay
 
       - name: Build Snap and AppImage
@@ -75,7 +75,7 @@ jobs:
           mv simpliplay/package-arm64-linux.json simpliplay/package.json
 
       - name: Install project deps
-        run: npm install
+        run: npm ci
         working-directory: simpliplay
 
       - name: Build AppImage
@@ -153,7 +153,7 @@ jobs:
       # and the app resources are then packaged with the binary
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
         working-directory: simpliplay
 
       - name: Build AppImage
