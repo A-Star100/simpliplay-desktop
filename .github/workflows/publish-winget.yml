@@ -19,7 +19,7 @@ jobs:
           node-version: 22
 
       - name: Install deps
-        run: npm install
+        run: npm ci
         working-directory: simpliplay
 
       - name: Patch for winget
@@ -27,7 +27,7 @@ jobs:
         run: |
           # get version from main.js
           # that github-actions bot did
-          version=$(grep -oE "version\s*[:=]\s*['\"][0-9]+\.[0-9]+\.[0-9]+\.[0-9]+['\"]" main.js | grep -oE "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+")
+          version=$(sed -nE "s/.*version\s*[:=]\s*['\"]([0-9.]+)['\"].*\r?/\1/p" main.js)
           echo "Version being used for buildVersion arg: $version"
           
           # then have the main package.json version be one more
@@ -82,7 +82,7 @@ jobs:
         id: ver-num
         run: |
           # search from main.js
-          version=$(grep -oE 'let version\s*=\s*["'\''][^"'\'']+["'\'']' main.js | sed -E 's/.*["'\'']([^"'\'']+)["'\'']/\1/')
+          version=$(awk -F"['\"]" '/let version/ {print $2}' main.js)
           
           # fail if it wasn't found
           if [ -z "$version" ]; then
@@ -103,26 +103,3 @@ jobs:
           version: ${{ steps.ver-num.outputs.version }} # ver num from main release tag
           release-notes-url: https://github.com/A-Star100/simpliplay-desktop/releases/tag/release-${{ steps.ver-num.outputs.version }}
           installers-regex: '\.exe$' # only exe files
-
-      - name: Add on-behalf-of at end of PR comment
-        env:
-          run_id: ${{ github.run_id }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # try wait for 15s so the PR can be found
-          sleep 15
-          
-          # use filters to find PR
-          pr_num=$(gh pr list -R microsoft/winget-pkgs -s open -A "[anirudhsevugan-bot]" -L 1 --json number -q '.[0].number')
-          if [ "$pr_num" = "null" ] || [ -z "$pr_num" ]; then
-            echo "No open PR was found, has it been merged already? Please check for open PRs and check for any issues in the workflow."
-            exit 0
-          fi
-          
-          # add workflow url
-          workflow_url="https://github.com/A-Star100/simpliplay-desktop/actions/runs/${run_id}"
-          
-          # edit PR comment
-          gh pr edit "$pr_num" -R microsoft/winget-pkgs --body "$(gh pr view "$pr_num" -R microsoft/winget-pkgs --json body -q '.body') \n
-           *On behalf of @A-Star100 via [this workflow run]($workflow_url)*"
-        continue-on-error: true
