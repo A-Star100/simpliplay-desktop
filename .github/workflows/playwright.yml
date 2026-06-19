@@ -18,7 +18,7 @@ jobs:
         node-version: lts/*
     - name: Install deps
       run: |
-        npm ci && npx playwright install --with-deps && sudo apt-get install xvfb
+        npm ci && npm install playwright && npx playwright install --with-deps && sudo apt-get install xvfb
       working-directory: simpliplay
     - name: Run Playwright tests
       run: |
