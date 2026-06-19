@@ -1,14 +1,4 @@
-// if (process.platform === 'linux') {
-//   const isWayland = process.argv.some(arg => arg.includes('--ozone-platform=wayland'));
-//   if (!isWayland) {
-//     process.env.WAYLAND_DISPLAY = '';
-//     process.env.XDG_SESSION_TYPE = 'x11';
-//   }
-// }
 const { app, BrowserWindow, Menu, MenuItem, shell, dialog, globalShortcut } = require('electron');
-// if (process.platform === 'linux' && !process.argv.some(arg => arg.includes('--ozone-platform=wayland'))) {
-//   app.commandLine.appendSwitch('ozone-platform', 'x11');
-// }
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -16,7 +6,7 @@ const { pathToFileURL } = require("url");
 const { checkForUpdate } = require('./updateChecker');
 let gpuAccel = "";
 let didRegisterShortcuts = false;
-let version = "2.2.1.7"
+let version = "2.2.1.8"
 
 if (process.platform === 'darwin') {
   if (process.argv.includes('--use-gl')) {
@@ -36,6 +26,17 @@ app.on('open-file', (event, filePath) => {
   event.preventDefault();
   openFile(filePath);
 });
+
+protocol.registerSchemesAsPrivileged([
+  { 
+    scheme: 'simpliplay', 
+    privileges: { 
+      standard: true,     // same origin
+      secure: true,
+      supportFetchAPI: true 
+    } 
+  }
+]);
 
 const openFile = (filePath) => {
   app.whenReady().then(() => {
@@ -242,7 +243,7 @@ if (existingAddonsMenuItem) {
       if (!result.canceled && result.filePaths.length > 0) {
         const filePath = result.filePaths[0];
         const fileName = path.basename(filePath);
-        const fileURL = pathToFileURL(filePath).href;
+        const fileURL = `simpliplay://load?path=${encodeURIComponent(filePath)}`;
 
         // any addons already loaded? check here
         const alreadyLoaded = [...loadedAddons.keys()].some(
