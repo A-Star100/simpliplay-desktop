@@ -38,7 +38,7 @@ modules:
       - |
         cd simpliplay
         ls -la # debugging
-        npm install
+        npm ci
         npx @electron/packager . SimpliPlay \
           --out=dist/ \
           --overwrite
