@@ -125,7 +125,7 @@ function clearSubtitles() {
 function isSafeURL(fileURL) {
   try {
     const url = new URL(fileURL);
-    return url.protocol === "simpliplay:";
+    return url.protocol === "file:";
   } catch (error) {
     return false;
   }
@@ -176,7 +176,7 @@ window.electron.receive("play-media", (fileURL) => {
     }
     loadMedia(fileURL);
   } else {
-    console.warn("Blocked media URL:", fileURL);
+    console.warn("Blocked unsafe media URL:", fileURL);
   }
 });
 
