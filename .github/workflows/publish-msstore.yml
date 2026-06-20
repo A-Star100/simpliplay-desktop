@@ -22,17 +22,16 @@ jobs:
         run: npm ci
         working-directory: simpliplay
 
-      - name: Patch main target to appx
+      - name: Remove win section
         shell: bash
         run: |
-          jq '.build.win.target[0].target = ["appx"]' package.json
-          jq '.win.target[0].target |= .[0]' package.json > tmp.json && mv tmp.json package.json
+          jq 'del(.build.win)' package.json > tmp.json && mv tmp.json package.json
         working-directory: simpliplay
 
       - name: Build installer
         shell: bash
         run: | 
-          npx electron-builder --win --x64 --arm64
+          npx electron-builder --win --x64 --arm64 --target appx
           ls # debug
           mv dist/SimpliPlay-win-x64-*.appx dist/SimpliPlay-x64-msstore.appx
           mv dist/SimpliPlay-win-arm64-*.appx dist/SimpliPlay-arm64-msstore.appx
