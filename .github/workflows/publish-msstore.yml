@@ -33,8 +33,8 @@ jobs:
         run: | 
           npx electron-builder --win appx --x64 --arm64
           ls # debug
-          mv dist/SimpliPlay-win-x64-*.appx dist/SimpliPlay-x64-msstore.appx
-          mv dist/SimpliPlay-win-arm64-*.appx dist/SimpliPlay-arm64-msstore.appx
+          mv dist/SimpliPlay-*-arm64.appx dist/SimpliPlay-arm64-msstore.appx
+          mv dist/SimpliPlay-*.appx dist/SimpliPlay-x64-msstore.appx
         working-directory: simpliplay
 
       - name: Make appxbundle
