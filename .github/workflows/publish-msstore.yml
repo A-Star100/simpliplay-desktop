@@ -22,7 +22,7 @@ jobs:
       - name: Patch out update check
         shell: bash
         run: |
-          git apply --whitespace=fix $GITHUB_WORKSPACE/.github/workflows/patches/remove_update_check.patch
+          git apply --ignore-whitespace --whitespace=fix $GITHUB_WORKSPACE/.github/workflows/patches/remove_update_check.patch
         working-directory: simpliplay
 
       - name: Setup node
