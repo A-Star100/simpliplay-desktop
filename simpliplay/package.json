@@ -45,6 +45,7 @@
       "identityName": "AnirudhSevugan.simpliplay_desktop",
       "publisher": "CN=Anirudh Sevugan, O=Anirudh Sevugan, C=US",
       "publisherDisplayName": "Anirudh Sevugan",
+      "capabilities": ["runFullTrust", "internetClient"],
       "displayName": "SimpliPlay"  
     },
     "flatpak": {
