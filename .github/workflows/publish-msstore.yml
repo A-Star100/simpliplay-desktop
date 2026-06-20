@@ -22,7 +22,7 @@ jobs:
       - name: Patch out update check
         shell: bash
         run: |
-          patch -p1 < $GITHUB_WORKSPACE/.github/workflows/patches/remove_update_check.patch
+          patch -l -p1 < $GITHUB_WORKSPACE/.github/workflows/patches/remove_update_check.patch
         working-directory: simpliplay
 
       - name: Setup node
