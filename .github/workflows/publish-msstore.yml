@@ -72,8 +72,14 @@ jobs:
           Compress-Archive appxbundle/* SimpliPlay_universal.appxbundle
         working-directory: simpliplay/dist 
 
+      - uses: actions/upload-artifact@v6
+        with:
+           name: windows-appxbundle
+           path: simpliplay/dist/*.appxbundle
+
       - name: Configure MS Store CLI
         uses: microsoft/microsoft-store-apppublisher@v1.3
+        continue-on-error: true
         
       - name: Reconfigure store credentials 
         run: |
@@ -82,8 +88,10 @@ jobs:
               --sellerId ${{ secrets.MS_SELLER_ID }} ` 
               --clientId ${{ secrets.MS_CLIENT_ID }} ` 
               --clientSecret ${{ secrets.MS_APPLICATION }} 
+        continue-on-error: true
  
       - name: Publish Appx
         run: |
           msstore publish 'SimpliPlay_universal.appxbundle' -id [totally not lame placeholder to insert product id]
         working-directory: simpliplay/dist
+        continue-on-error: true
