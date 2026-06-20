@@ -23,6 +23,7 @@ jobs:
         working-directory: simpliplay
 
       - name: Patch main target to appx
+        shell: bash
         run: |
           jq '.build.win.target[0].target = ["appx"]' package.json
           jq '.win.target[0].target |= .[0]' package.json > tmp.json && mv tmp.json package.json
