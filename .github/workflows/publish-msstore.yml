@@ -66,6 +66,6 @@ jobs:
  
       - name: Publish Appx
         run: |
-          msstore publish 'SimpliPlay_universal.appxbundle' -id [totally not lame placeholder to insert product id]
+          msstore publish 'SimpliPlay_universal.appxbundle' -id simpliplaydesktop
         working-directory: simpliplay/dist
         continue-on-error: true
