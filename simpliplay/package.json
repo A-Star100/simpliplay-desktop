@@ -37,6 +37,16 @@
       "uninstallDisplayName": "simpliplay-uninstaller",
       "allowToChangeInstallationDirectory": true
     },
+    "appx": {
+      "minVersion": "10.0.17763.0",
+      "maxVersionTested": "10.0.22621.0",
+      "languages": "en-US",
+      "applicationId": "MyApp",
+      "identityName": "AnirudhSevugan.simpliplay_desktop",
+      "publisher": "CN=Anirudh Sevugan, O=Anirudh Sevugan, C=US",
+      "publisherDisplayName": "Anirudh Sevugan",
+      "displayName": "SimpliPlay"  
+    },
     "flatpak": {
       "runtime": "org.freedesktop.Platform",
       "runtimeVersion": "25.08",
@@ -63,7 +73,7 @@
     "win": {
       "target": [
         {
-          "target": "nsis",
+          "target": ["nsis"]
           "arch": ["x64", "arm64"]
         }
       ],
