@@ -28,6 +28,11 @@ jobs:
           jq 'del(.build.win)' package.json > tmp.json && mv tmp.json package.json
         working-directory: simpliplay
 
+      - name: Patch out update check
+        shell: bash
+        run: |
+          git apply --reject --whitespace=fix .github/workflows/patches/remove_update_check.patch
+
       - name: Build appx
         shell: bash
         run: | 
