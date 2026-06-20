@@ -24,7 +24,7 @@ jobs:
 
       - name: Patch main target to appx
         run: |
-          jq 'build.win.target.target = ["appx"]' package.json
+          jq '.build.win.target.target = ["appx"]' package.json 
         working-directory: simpliplay
 
       - name: Build installer
