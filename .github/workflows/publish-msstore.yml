@@ -54,10 +54,36 @@ jobs:
         shell: bash
         run: | 
           npx electron-builder --win --x64 --arm64
+          ls # debug
           mv dist/SimpliPlay-x64-*.appx dist/SimpliPlay-x64-msstore.appx
           mv dist/SimpliPlay-arm64-*.appx dist/SimpliPlay-arm64-msstore.appx
         working-directory: simpliplay
 
-      - uses: microsoft/microsoft-store-apppublisher@v1.3
-      - run: msstore reconfigure --tenantId ${{ secrets.PARTNER_CENTER_TENANT_ID }} --sellerId ${{ secrets.PARTNER_CENTER_SELLER_ID }} --clientId ${{ secrets.PARTNER_CENTER_CLIENT_ID }} --clientSecret ${{ secrets.PARTNER_CENTER_CLIENT_SECRET }}
-      - run: msstore apps list
+      - name: Setup bundle resources
+        shell: bash
+        run: |
+          mkdir appxbundle
+          mv *.appx appxbundle/
+        working-directory: simpliplay/dist 
+
+      - name: Compress the bundle now
+        shell: pwsh
+        run: |
+          Compress-Archive appxbundle/* SimpliPlay_universal.appxbundle
+        working-directory: simpliplay/dist 
+
+      - name: Configure MS Store CLI
+        uses: microsoft/microsoft-store-apppublisher@v1.3
+        
+      - name: Reconfigure store credentials 
+        run: |
+            msstore reconfigure ` 
+              --tenantId ${{ secrets.MS_TENANT_ID }} ` 
+              --sellerId ${{ secrets.MS_SELLER_ID }} ` 
+              --clientId ${{ secrets.MS_CLIENT_ID }} ` 
+              --clientSecret ${{ secrets.MS_APPLICATION }} 
+ 
+      - name: Publish Appx
+        run: |
+          msstore publish 'SimpliPlay_universal.appxbundle' -id [totally not lame placeholder to insert product id]
+        working-directory: simpliplay/dist
