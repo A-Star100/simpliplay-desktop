@@ -1,7 +1,7 @@
 diff --git a/main.js b/main.js
 --- a/main.js
 +++ b/main.js
-@@ -1,5 +1,2 @@
+@@ -1,5 +1,0 @@
 -if (appMenu && !appMenu.submenu.items.some(item => item.label === 'Check for Updates')) { const submenu = appMenu.submenu; const separatorIndex = submenu.items.findIndex(item => item.type === 'separator'); const updateMenuItem = new MenuItem({ label: 'Check for Updates', accelerator: 'CommandOrControl+Shift+U', click: () => checkForUpdate(version) }); if (separatorIndex === -1) { // if no separator, just append submenu.append(updateMenuItem); } else { // insert riiiight before the separator submenu.insert(separatorIndex, updateMenuItem); } }
 -
 -// Check for Updates if (!helpMenu.submenu.items.some(item => item.label === 'Check for Updates')) { helpMenu.submenu.append( new MenuItem({ label: 'Check for Updates', accelerator: 'CommandOrControl+Shift+U', click: () => checkForUpdate(version) }) ); }
