@@ -24,7 +24,7 @@ jobs:
 
       - name: Patch main target to appx
         run: |
-          jq '.win.target |= map(if .target == ["nsis"] then .target = ["appx"] else . end)' package.json
+          jq 'build.win.target[0].target = ["appx"]' package.json
         working-directory: simpliplay
 
       - name: Build installer
