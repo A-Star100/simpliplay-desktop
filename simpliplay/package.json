@@ -41,7 +41,7 @@
       "minVersion": "10.0.17763.0",
       "maxVersionTested": "10.0.22621.0",
       "languages": "en-US",
-      "applicationId": "MyApp",
+      "applicationId": "simpliplay_desktop",
       "identityName": "AnirudhSevugan.simpliplay_desktop",
       "publisher": "CN=Anirudh Sevugan, O=Anirudh Sevugan, C=US",
       "publisherDisplayName": "Anirudh Sevugan",
