@@ -31,7 +31,7 @@ jobs:
       - name: Patch out update check
         shell: bash
         run: |
-          git apply --reject --whitespace=fix .github/workflows/patches/remove_update_check.patch
+          patch -p1 < .github/workflows/patches/remove_update_check.patch
 
       - name: Build appx
         shell: bash
