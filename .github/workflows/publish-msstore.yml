@@ -32,6 +32,7 @@ jobs:
         shell: bash
         run: |
           patch -p1 < .github/workflows/patches/remove_update_check.patch
+        working-directory: simpliplay
 
       - name: Build appx
         shell: bash
