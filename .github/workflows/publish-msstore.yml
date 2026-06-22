@@ -31,7 +31,19 @@ jobs:
            chmod +x .github/workflows/patches/sandbox_devtools.sh
            .github/workflows/patches/sandbox_devtools.sh
 
-      - run: cat simpliplay/main.js
+      - name: Fixup syntax on line 182
+        shell: bash
+        run: |
+          # because the other scripts removed a '}' on that line
+          # yes, this is bad, but everyone starts somewhere
+          sed -i '182s/$/}/' simpliplay/main.js
+
+      - name: Show patches
+        shell: bash
+        run: |
+          echo "note that this is a PATCHED main.js file, it can contain syntax errors. for new patches, check in a JS linter"
+          echo "and then EDIT this accordingly, otherwise store build can fail to launch"
+          cat simpliplay/main.js
 
       - name: Setup node
         uses: actions/setup-node@v6
