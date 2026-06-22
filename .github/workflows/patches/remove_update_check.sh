@@ -1,5 +1,5 @@
 #!/bin/bash
-js="main.js"
+js="simpliplay/main.js"
 
 # last ditch effort to remove update check in main.js
 # it won't change too often anyway
