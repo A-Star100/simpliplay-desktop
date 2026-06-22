@@ -57,21 +57,21 @@ jobs:
            name: windows-appxbundle
            path: simpliplay/dist/SimpliPlay_universal.appxbundle
 
-      - name: Configure MS Store CLI
-        uses: microsoft/microsoft-store-apppublisher@v1.3
-        continue-on-error: true
+      # - name: Configure MS Store CLI
+      #   uses: microsoft/microsoft-store-apppublisher@v1.3
+      #   continue-on-error: true
         
-      - name: Reconfigure store credentials 
-        run: |
-            msstore reconfigure ` 
-              --tenantId ${{ secrets.MS_TENANT_ID }} ` 
-              --sellerId ${{ secrets.MS_SELLER_ID }} ` 
-              --clientId ${{ secrets.MS_CLIENT_ID }} ` 
-              --clientSecret ${{ secrets.MS_APPLICATION }} 
-        continue-on-error: true
+      # - name: Reconfigure store credentials 
+      #   run: |
+      #       msstore reconfigure ` 
+      #         --tenantId ${{ secrets.MS_TENANT_ID }} ` 
+      #         --sellerId ${{ secrets.MS_SELLER_ID }} ` 
+      #         --clientId ${{ secrets.MS_CLIENT_ID }} ` 
+      #         --clientSecret ${{ secrets.MS_APPLICATION }} 
+      #   continue-on-error: true
  
-      - name: Publish Appx
-        run: |
-          msstore publish 'SimpliPlay_universal.appxbundle' -id 9NZK5K3P1T6M
-        working-directory: simpliplay/dist
-        continue-on-error: true
+      # - name: Publish Appx
+      #   run: |
+      #     msstore publish 'SimpliPlay_universal.appxbundle' -id 9NZK5K3P1T6M
+      #   working-directory: simpliplay/dist
+      #   continue-on-error: true
