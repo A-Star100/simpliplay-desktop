@@ -39,8 +39,9 @@ jobs:
         run: | 
           npx electron-builder --win appx --x64 --arm64
           ls dist/ # debug
+          shopt -s extglob # add extendedglob
           mv dist/SimpliPlay*arm64.appx dist/SimpliPlay-arm64-msstore.appx
-          mv dist/SimpliPlay*.appx dist/SimpliPlay-x64-msstore.appx
+          mv dist/SimpliPlay!(*msstore*).appx dist/SimpliPlay-x64-msstore.appx
         working-directory: simpliplay
 
       - name: Make appxbundle
