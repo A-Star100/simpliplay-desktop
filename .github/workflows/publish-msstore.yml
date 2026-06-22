@@ -50,7 +50,7 @@ jobs:
           # find
           $MakeAppx = (Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\MakeAppx.exe" | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
           # run
-          & $MakeAppx bundle /d ./dist /p ./dist/SimpliPlay_universal.appxbundle
+          & $MakeAppx bundle /d ./dist /p ./SimpliPlay_universal.appxbundle
         working-directory: simpliplay
           
       - uses: actions/upload-artifact@v6
