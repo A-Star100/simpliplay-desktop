@@ -25,6 +25,14 @@ jobs:
            chmod +x .github/workflows/patches/remove_update_check.sh
            .github/workflows/patches/remove_update_check.sh
 
+      - name: Patch out DevTools
+        shell: bash
+        run: |
+           chmod +x .github/workflows/patches/sandbox_devtools.sh
+           .github/workflows/patches/sandbox_devtools.sh
+
+      - run: cat simpliplay/main.js
+
       - name: Setup node
         uses: actions/setup-node@v6
         with:
