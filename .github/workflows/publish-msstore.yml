@@ -43,20 +43,16 @@ jobs:
           mv dist/SimpliPlay*arm64.appx dist/SimpliPlay-arm64-msstore.appx
           mv dist/SimpliPlay!(*msstore*).appx dist/SimpliPlay-x64-msstore.appx
         working-directory: simpliplay
-
-      - name: Make appxbundle
-        shell: pwsh
-        run: |
-          # find
-          $MakeAppx = (Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\MakeAppx.exe" | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
-          # run
-          & $MakeAppx bundle /d ./dist /p ./SimpliPlay_universal.appxbundle
-        working-directory: simpliplay
           
       - uses: actions/upload-artifact@v6
         with:
-           name: windows-appxbundle
-           path: simpliplay/dist/SimpliPlay_universal.appxbundle
+           name: windows-x64-appx
+           path: simpliplay/dist/SimpliPlay-x64-msstore.appx
+           
+      - uses: actions/upload-artifact@v6
+        with:
+           name: windows-arm64-appx
+           path: simpliplay/dist/SimpliPlay-arm64-msstore.appx
 
       # - name: Configure MS Store CLI
       #   uses: microsoft/microsoft-store-apppublisher@v1.3
@@ -74,5 +70,6 @@ jobs:
       # - name: Publish Appx
       #   run: |
       #     msstore publish 'SimpliPlay_universal.appxbundle' -id 9NZK5K3P1T6M
+      # appx bundle is scrapped for now
       #   working-directory: simpliplay/dist
       #   continue-on-error: true
