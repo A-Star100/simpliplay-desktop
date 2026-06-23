@@ -42,11 +42,11 @@
       "maxVersionTested": "10.0.22621.0",
       "languages": "en-US",
       "applicationId": "simpliplaydesktop",
-      "identityName": "AnirudhSevugan.simpliplaydesktop",
-      "publisher": "CN=Anirudh Sevugan, O=Anirudh Sevugan, C=US",
+      "identityName": "AnirudhSevugan.3208598A5B203",
+      "publisher": "CN=980A5BA5-E457-4289-89D8-1E46A33B1D3E",
       "publisherDisplayName": "Anirudh Sevugan",
       "capabilities": ["runFullTrust", "internetClient"],
-      "displayName": "SimpliPlay"  
+      "displayName": "SimpliPlay Desktop"  
     },
     "flatpak": {
       "runtime": "org.freedesktop.Platform",
