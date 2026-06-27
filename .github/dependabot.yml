@@ -20,6 +20,9 @@ updates:
 
     # block major version updates for the builder cuz electron-builder *usually* has breaking changes with major version updates
     # and breaks some builds; especially for windows
+    # and using groups dependabot keeps forcibly opening PRs too often for electron
     ignore:
       - dependency-name: "electron-builder"
         update-types: ["version-update:semver-major"]
+      - dependency-name: "electron"
+        update-types: ["version-update:semver-minor"]
