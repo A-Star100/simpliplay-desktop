@@ -8,7 +8,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/simpliplay"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     versioning-strategy: increase
 
     # add group for all allowed deps not ignored
@@ -24,5 +24,3 @@ updates:
     ignore:
       - dependency-name: "electron-builder"
         update-types: ["version-update:semver-major"]
-      - dependency-name: "electron"
-        update-types: ["version-update:semver-minor"]
