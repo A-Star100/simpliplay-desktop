@@ -26,7 +26,7 @@ jobs:
   build-windows:
     uses: ./.github/workflows/build-win.yml
 
-  # needs these inputs to work
+  # needs these inputs to decide
   publish-snap:
     needs: [build-linux]
     uses: ./.github/workflows/publish-snap.yml
@@ -41,6 +41,11 @@ jobs:
       contents: write
     uses: ./.github/workflows/publish-winget.yml
     secrets: inherit
+
+  build-msstore:
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish-msstore.yml
 
   playwright-test:
     uses: ./.github/workflows/playwright.yml
