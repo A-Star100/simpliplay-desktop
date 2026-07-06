@@ -20,7 +20,7 @@ jobs:
       - name: Build Windows
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npx electron-builder --win
+        run: npx electron-builder --win --x64 --arm64
         working-directory: simpliplay
       - name: Upload builds
         uses: actions/upload-artifact@v6
