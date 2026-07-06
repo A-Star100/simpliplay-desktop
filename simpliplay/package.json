@@ -73,7 +73,7 @@
     },
     "win": {
       "target": ["nsis"],
-      "arch": ["x64", "arm64"]
+      "arch": ["x64", "arm64"],
       "artifactName": "SimpliPlay-${arch}-win-setup.${ext}"
     },
     "linux": {
