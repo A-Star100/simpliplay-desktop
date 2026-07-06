@@ -72,7 +72,7 @@
       "identity": null
     },
     "win": {
-      "target": ["nsis"],
+      "target": "nsis",
       "arch": ["x64", "arm64"],
       "artifactName": "SimpliPlay-${arch}-win-setup.${ext}"
     },
