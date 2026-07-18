@@ -20,20 +20,6 @@ jobs:
           jq 'del(.build.win)' package.json > tmp.json && mv tmp.json package.json
         working-directory: simpliplay
 
-      - name: Bump up version num
-        shell: bash
-        run: |
-          # then have the main package.json version be one more
-          # like in winget
-          jq '
-            .version |= (split(".") | .[-1] = (.[-1] | tonumber + 1 | tostring) | join("."))
-          ' package.json > package.json.tmp
-          mv package.json.tmp package.json
-
-          # display json for debug now 
-          cat package.json | jq '.'
-        working-directory: simpliplay
-
       - name: Patch out update check
         shell: bash
         run: |
