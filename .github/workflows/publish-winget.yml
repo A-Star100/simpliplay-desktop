@@ -22,32 +22,6 @@ jobs:
         run: npm ci
         working-directory: simpliplay
 
-      - name: Patch for winget
-        shell: bash
-        run: |
-          # get version from main.js
-          # that github-actions bot did
-          version=$(sed -nE "s/.*version\s*[:=]\s*['\"]([0-9.]+)['\"].*\r?/\1/p" main.js)
-          echo "Version being used for buildVersion arg: $version"
-          
-          # then have the main package.json version be one more
-          # so winget doesn't add Manifest-AppsAndFeaturesVersion-Error label
-          jq --arg winVer "$version" '
-            .version = (.version | split(".") | .[-1] = (.[-1] | tonumber + 1 | tostring) | join("."))
-            | .build.buildVersion = $winVer 
-            | .build.nsis += { 
-                "oneClick": true, 
-                "allowToChangeInstallationDirectory": false, 
-                "perMachine": false, 
-                "deleteAppDataOnUninstall": false 
-              } 
-          ' package.json > package.json.tmp   
-          mv package.json.tmp package.json
-
-          # display json for debug now 
-          cat package.json | jq '.'
-        working-directory: simpliplay
-
       - name: Build installer
         shell: bash
         env:
