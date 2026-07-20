@@ -61,7 +61,6 @@ jobs:
           jq --arg electronVersion "$electronVer" '.devDependencies.electron = $electronVersion' "${{ env.arm_json }}" > tmp_step_1.json
 
           touch tmp_step_2.json
-          mv tmp_step_1.json tmp_step_2.json
           jq --arg builderVersion "$builderVer" '.devDependencies.["electron-builder"] = $builderVersion' "./tmp_step_1.json" > tmp_step_2.json
           mv tmp_step_2.json "${{ env.arm_json }}"
 
