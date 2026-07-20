@@ -9,16 +9,19 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      main_js: "simpliplay/main.js"
+      arm_json: "simpliplay/package-arm64-linux.json"
+      regular_json: "simpliplay/package.json"
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Increment version in main.js
+      - name: Update version in main.js
         run: |
-          filepath="simpliplay/main.js"
-          currentversion=$(grep -oP 'let version = "\K[^"]+' $filepath)
+          currentversion=$(grep -oP 'let version = "\K[^"]+' ${{ env.main_js }})
           
           v1=$(echo $currentversion | cut -d. -f1); v1=${v1:-0}
           v2=$(echo $currentversion | cut -d. -f2); v2=${v2:-0}
@@ -31,19 +34,34 @@ jobs:
           if [ "$v3" -gt 9 ]; then v3=0; v2=$((v2 + 1)); fi
           if [ "$v2" -gt 9 ]; then v2=0; v1=$((v1 + 1)); fi
 
-          newversion="$v1.$v2.$v3.$v4"
-          sed -i "s/let version = \"$currentversion\"/let version = \"$newversion\"/" "$filepath"
+          newversion="$v1.$v2.$v3.0"
+          sed -i "s/let version = \"$currentversion\"/let version = \"$newversion\"/" "${{ env.main_js }}"
 
-      - name: Update electron version in package-arm64-linux.json
+      - name: Update version for package.json and package-arm64-linux.json
         run: |
-          armjson="simpliplay/package-arm64-linux.json"
-          normaljson="simpliplay/package.json"
-          ver=$(jq -r '.devDependencies.electron' "$normaljson")
+          currentVersion=$(grep -oP 'let version = "\K[^"]+' ${{ env.main_js }})
+          newVersion=$(echo "$currentVersion" | cut -d. -f1-3)
+
+          touch tmp-regular.json
+          jq --arg newVer "$newVersion" '.version = $newVer' "${{ env.regular_json }}" > tmp-regular.json
+          mv tmp-regular.json "${{ env.regular_json }}"
+
+          touch tmp-arm64.json
+          jq --arg newVer "$newVersion" '.version = $newVer' "${{ env.arm_json }}" > tmp-arm64.json
+          mv tmp-arm64.json "${{ env.arm_json }}"
           
-          # use tempfile cuz of jq and mv tmp changes to sync
-          touch tmp.json
-          jq --arg ver "$ver" '.devDependencies.electron = $ver' "$armjson" > tmp.json
-          mv tmp.json "$armjson"
+      - name: Sync some dependencies in package-arm64-linux.json with package.json
+        run: |
+          electronVer=$(jq -r '.devDependencies.electron' "${{ env.regular_json }}")
+          builderVer=$(jq -r '.devDependencies.electron-builder' "${{ env.regular_json }}")
+          
+          # yeah, there are better ways to do this
+          # but may as well keep it readable
+          touch tmp_step_1.json
+          jq --arg electronVersion "$electronVer" '.devDependencies.electron = $electronVersion' "${{ env.arm_json }}" > tmp_step_1.json
+          touch tmp_step_2.json
+          jq --arg builderVersion "$builderVer" '.devDependencies.["electron-builder"] = $builderVersion' "./tmp_step_1.json" > tmp_step_2.json
+          mv tmp_step_2.json "${{ env.arm_json }}"
 
       # - name: Commit and push
       #   run: |
@@ -58,5 +76,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: "**/*"
+          files: "${{ env.arm_json }},${{ env.regular_json }},${{ env.main_js}}"
           commit-message: "chore: increment version number and electron dep"
