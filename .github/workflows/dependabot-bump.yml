@@ -53,7 +53,7 @@ jobs:
       - name: Sync some dependencies in package-arm64-linux.json with package.json
         run: |
           electronVer=$(jq -r '.devDependencies.electron' "${{ env.regular_json }}")
-          builderVer=$(jq -r '.devDependencies.electron-builder' "${{ env.regular_json }}")
+          builderVer=$(jq -r '.devDependencies.["electron-builder"]' "${{ env.regular_json }}")
           
           # yeah, there are better ways to do this
           # but may as well keep it readable
