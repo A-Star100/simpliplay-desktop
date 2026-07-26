@@ -55,7 +55,7 @@ jobs:
         uses: softprops/action-gh-release@9ed3cf9a6863b31f005d951c8d19de20628cf4eb
         with:
           tag_name: "release-w.x.y.z"
-          name: "SimpliPlay desktop (vx.x.x.x)"
+          name: "SimpliPlay Desktop (vx.x.x.x)"
           draft: true
           body_path: CHANGELOG.md
           files: |
