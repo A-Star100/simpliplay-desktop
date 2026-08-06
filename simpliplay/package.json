@@ -1,6 +1,6 @@
 {
   "name": "SimpliPlay",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "The mission to make media playback accessible on every platform, anywhere, anytime.",
   "main": "./main.js",
   "scripts": {
@@ -155,7 +155,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^43.1.1",
-    "electron-builder": "^26.15.6"
+    "electron": "^43.2.0",
+    "electron-builder": "^26.15.7"
   }
 }
