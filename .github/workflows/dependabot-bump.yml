@@ -50,8 +50,8 @@ jobs:
           jq --arg newVer "$newVersion" '.version = $newVer' "${{ env.arm_json }}" > tmp-arm64.json
           mv tmp-arm64.json "${{ env.arm_json }}"
 
-          rm tmp-regular.json
-          rm tmp-arm64.json
+          rm -f tmp-regular.json
+          rm -f tmp-arm64.json
           
       - name: Sync some dependencies in package-arm64-linux.json with package.json
         run: |
@@ -67,8 +67,8 @@ jobs:
           jq --arg builderVersion "$builderVer" '.devDependencies.["electron-builder"] = $builderVersion' "./tmp_step_1.json" > tmp_step_2.json
           mv tmp_step_2.json "${{ env.arm_json }}"
 
-          rm tmp_step_1.json
-          rm tmp_step_2.json
+          rm -f tmp_step_1.json
+          rm -f tmp_step_2.json
 
       # - name: Commit and push
       #   run: |
