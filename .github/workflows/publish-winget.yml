@@ -68,12 +68,22 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
         working-directory: simpliplay
 
+      - name: Create new release tag name
+        id: winget_release
+        run: |
+          current_tag=$(git describe --tags --match="winget-*" --abbrev=0 2>/dev/null || echo "winget-X")
+          echo "Current winget release: $current_tag"
+          current_digit=${current_tag#winget-}
+          new="winget-$((current_digit + 1))"
+          echo "New release tag will be $new"
+          echo "newtag=$new" >> $GITHUB_OUTPUT
+
       - name: Publish to Winget
         uses: vedantmgoyal9/winget-releaser@7bd472be23763def6e16bd06cc8b1cdfab0e2fd5 #v2
         with:
           identifier: AnirudhSevugan.SimpliPlay
           token: ${{ secrets.WINGET_PAT }}
-          release-tag: winget-${{ github.run_number }} # release tag where winget setup exe is
+          release-tag: ${{ steps.winget_release.outputs.newtag }} # release tag where winget setup exe is
           version: ${{ steps.ver-num.outputs.version }} # ver num from main release tag
           release-notes-url: https://github.com/A-Star100/simpliplay-desktop/releases/tag/release-${{ steps.ver-num.outputs.version }}
           installers-regex: '\.exe$' # only exe files
