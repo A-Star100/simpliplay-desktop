@@ -42,12 +42,9 @@ jobs:
     uses: ./.github/workflows/build-winget.yml
     secrets: inherit
 
-  publish-winget:
-    # permissions:
-    #   contents: write
-    needs: [build-winget] # needs it for winget setup exes to exist
-    uses: ./.github/workflows/publish-winget.yml
-    secrets: inherit
+  # publish-winget:
+  #   uses: ./.github/workflows/publish-winget.yml
+  #   secrets: inherit
 
   build-msstore:
     permissions:
