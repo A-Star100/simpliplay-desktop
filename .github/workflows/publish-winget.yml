@@ -1,0 +1,48 @@
+name: Publish to winget
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  publish-winget:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Warn
+        run: "echo 'Before running this, please make sure you've already published the Winget release with all needed assets!'"
+        
+      - name: Parse version num
+        id: ver-num
+        run: |
+          # search from main.js
+          version=$(awk -F"['\"]" '/let version/ {print $2}' main.js)
+          
+          # fail if it wasn't found
+          if [ -z "$version" ]; then
+            echo "error: could not find version in main.js" >&2
+            exit 1
+          fi
+          
+          # if not failed, pass out to next job
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+        working-directory: simpliplay
+
+      - name: Get name of Winget release tag
+        id: winget_release
+        run: |
+          currenttag=$(git describe --tags --match="winget-*" --abbrev=0 2>/dev/null || echo "winget-X")
+          echo "Current winget release: $currenttag"
+          echo "current_tag=$currenttag >> $GITHUB_OUTPUT" # pipe for next job to have value
+
+      - name: Publish to Winget
+        uses: vedantmgoyal9/winget-releaser@7bd472be23763def6e16bd06cc8b1cdfab0e2fd5 #v2
+        with:
+          identifier: AnirudhSevugan.SimpliPlay
+          token: ${{ secrets.WINGET_PAT }}
+          release-tag: ${{ steps.winget_release.outputs.current_tag }} # release tag where winget setup exe is
+          version: ${{ steps.ver-num.outputs.version }} # ver num from main release tag
+          release-notes-url: https://github.com/A-Star100/simpliplay-desktop/releases/tag/release-${{ steps.ver-num.outputs.version }}
+          installers-regex: '\.exe$' # only exe files
