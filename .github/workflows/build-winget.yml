@@ -50,6 +50,8 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
         working-directory: simpliplay
 
+      # if the release fails, try setting draft to true
+      # and DISABLE publish-winget in release yml (by removing it)
       - name: Create pre-release for winget build
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228
         with:
