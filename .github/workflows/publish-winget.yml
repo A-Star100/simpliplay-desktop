@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
-      - name: Fetch tags
-        run: git fetch --tags --force
+        uses: actions/checkout@v7
+        with:
+          fetch-tags: true
 
       # - name: Warn
       #   run: "echo 'Before running this, please make sure you've already published the Winget release with all needed assets!'"
