@@ -51,6 +51,7 @@ jobs:
     secrets: inherit
 
   publish-winget:
+    needs: [build-winget]
     uses: ./.github/workflows/publish-winget.yml
     secrets: inherit
 
