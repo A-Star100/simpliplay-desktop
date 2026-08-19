@@ -15,6 +15,12 @@ on:
         default: 'all'
         type: choice
         options: [x64, arm64, armv7, all]
+      stores:
+        description: "Storefronts (doesn't include GitHub Releases obviously) to build and/or publish for"
+        required: true
+        default: 'all'
+        type: choice
+        options: [snapstore, msstore, winget, all]
 
 jobs:
   build-linux:
@@ -28,6 +34,7 @@ jobs:
 
   # needs these inputs to decide
   publish-snap:
+    if: inputs.stores == 'snapstore' || inputs.stores == 'all'
     needs: [build-linux]
     uses: ./.github/workflows/publish-snap.yml
     with:
@@ -37,6 +44,7 @@ jobs:
 
   # winget ci builds its own version
   build-winget:
+    if: inputs.stores == 'winget' || inputs.stores == 'all'
     permissions:
       contents: write
     uses: ./.github/workflows/build-winget.yml
@@ -47,6 +55,7 @@ jobs:
   #   secrets: inherit
 
   build-msstore:
+    if: inputs.stores == 'msstore' || inputs.stores == 'all'
     permissions:
       contents: write
     uses: ./.github/workflows/publish-msstore.yml
