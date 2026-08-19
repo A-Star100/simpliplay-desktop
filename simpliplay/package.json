@@ -1,6 +1,6 @@
 {
   "name": "SimpliPlay",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "description": "The mission to make media playback accessible on every platform, anywhere, anytime.",
   "main": "./main.js",
   "scripts": {
@@ -45,8 +45,11 @@
       "identityName": "AnirudhSevugan.3208598A5B203",
       "publisher": "CN=980A5BA5-E457-4289-89D8-1E46A33B1D3E",
       "publisherDisplayName": "Anirudh Sevugan",
-      "capabilities": ["runFullTrust", "internetClient"],
-      "displayName": "SimpliPlay Desktop"  
+      "capabilities": [
+        "runFullTrust",
+        "internetClient"
+      ],
+      "displayName": "SimpliPlay Desktop"
     },
     "flatpak": {
       "runtime": "org.freedesktop.Platform",
@@ -76,7 +79,10 @@
       "artifactName": "SimpliPlay-${arch}-win-setup.${ext}"
     },
     "linux": {
-      "target": ["snap", "AppImage"],
+      "target": [
+        "snap",
+        "AppImage"
+      ],
       "icon": "icon.png",
       "executableName": "SimpliPlay",
       "synopsis": "The mission to make media playback accessible anywhere, anytime.",
@@ -155,7 +161,7 @@
     ]
   },
   "devDependencies": {
-    "electron": "^43.2.0",
+    "electron": "^43.4.0",
     "electron-builder": "^26.15.7"
   }
 }
