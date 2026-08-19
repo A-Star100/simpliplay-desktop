@@ -36,9 +36,16 @@ jobs:
     secrets: inherit
 
   # winget ci builds its own version
-  publish-winget:
+  build-winget:
     permissions:
       contents: write
+    uses: ./.github/workflows/build-winget.yml
+    secrets: inherit
+
+  publish-winget:
+    # permissions:
+    #   contents: write
+    needs: [build-winget] # needs it for winget setup exes to exist
     uses: ./.github/workflows/publish-winget.yml
     secrets: inherit
 
