@@ -32,6 +32,7 @@ jobs:
         working-directory: simpliplay
 
       - name: Get name of Winget release tag
+        shell: bash
         id: winget_release
         run: |
           currenttag=$(git describe --tags --match="winget-*" --abbrev=0 2>/dev/null || echo "winget-X")
