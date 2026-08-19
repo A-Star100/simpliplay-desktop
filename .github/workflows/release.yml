@@ -20,7 +20,7 @@ on:
         required: true
         default: 'all'
         type: choice
-        options: [snapstore, msstore, winget, all]
+        options: [snapstore, msstore, winget, all, none]
 
 jobs:
   build-linux:
