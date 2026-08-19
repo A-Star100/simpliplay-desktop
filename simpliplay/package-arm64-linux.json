@@ -1,6 +1,6 @@
 {
   "name": "SimpliPlay",
-  "version": "2.2.5",
+  "version": "2.2.6",
   "description": "SimpliPlay - The mission to make media playback accessible on every device, anywhere, anytime.",
   "main": "./main.js",
   "scripts": {
@@ -146,7 +146,7 @@
     "allowToChangeInstallationDirectory": true
   },
   "devDependencies": {
-    "electron": "^43.2.0",
+    "electron": "^43.4.0",
     "electron-builder": "^26.15.7"
   }
 }
