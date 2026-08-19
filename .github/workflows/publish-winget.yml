@@ -11,7 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-tags: true
+          fetch-depth: 0
 
       # - name: Warn
       #   run: "echo 'Before running this, please make sure you've already published the Winget release with all needed assets!'"
