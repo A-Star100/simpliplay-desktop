@@ -55,7 +55,7 @@ jobs:
         with:
           tag_name: "winget-${{ github.run_number }}" # for compat
           name: "SimpliPlay desktop (winget-${{ steps.ver-num-first.outputs.version }})"
-          draft: false
+          draft: true
           prerelease: false
           files: |
             simpliplay/dist/SimpliPlay-x64-winget-setup.exe
