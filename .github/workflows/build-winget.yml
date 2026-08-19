@@ -34,6 +34,7 @@ jobs:
         working-directory: simpliplay
 
       - name: Parse version num
+        shell: bash
         id: ver-num-first
         run: |
           # search from main.js
