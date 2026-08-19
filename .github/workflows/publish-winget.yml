@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+      - name: Fetch tags
+        run: git fetch --tags --force
 
       # - name: Warn
       #   run: "echo 'Before running this, please make sure you've already published the Winget release with all needed assets!'"
