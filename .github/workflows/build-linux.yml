@@ -8,9 +8,9 @@ jobs:
   build_x64:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #7.0.0
         with:
           node-version: 22
 
@@ -63,9 +63,9 @@ jobs:
   build_arm64:
     runs-on: ubuntu-24.04-arm # cuz now electron-builder has core24 support
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #7.0.0
         with:
           node-version: 22
 
@@ -139,19 +139,14 @@ jobs:
           path: simpliplay/dist/*.flatpak
 
   build_armv7:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest #prebuilt
     steps:
-      - uses: actions/checkout@v6
-  
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #7.0.0
         with:
           node-version: 22
-
-      # qemu isn't needed
-      # because when building prebuilt
-      # electron binaries are downloaded
-      # and the app resources are then packaged with the binary
-
+ 
       - name: Install dependencies
         run: npm ci
         working-directory: simpliplay

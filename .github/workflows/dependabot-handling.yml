@@ -10,7 +10,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
       - name: Close dependabot PRs
         run: |
           title="${{ github.event.pull_request.title }}"
@@ -35,7 +35,7 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
       - name: Add version-bump label
         run: gh pr edit "$PR_NUMBER" --add-label "version-bump"
         env:
