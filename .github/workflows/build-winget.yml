@@ -52,7 +52,7 @@ jobs:
       - name: Create pre-release for winget build
         uses: softprops/action-gh-release@9ed3cf9a6863b31f005d951c8d19de20628cf4eb
         with:
-          tag_name: "winget-${{ steps.ver-num-first.outputs.version }}"
+          tag_name: "winget-${{ github.run_number }}" # for compat
           name: "SimpliPlay desktop (winget-${{ steps.ver-num-first.outputs.version }})"
           draft: false
           prerelease: true
