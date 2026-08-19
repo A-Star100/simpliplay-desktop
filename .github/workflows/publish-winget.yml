@@ -11,8 +11,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Warn
-        run: "echo 'Before running this, please make sure you've already published the Winget release with all needed assets!'"
+      # - name: Warn
+      #   run: "echo 'Before running this, please make sure you've already published the Winget release with all needed assets!'"
         
       - name: Parse version num
         shell: bash
