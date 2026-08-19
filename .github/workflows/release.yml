@@ -50,9 +50,9 @@ jobs:
     uses: ./.github/workflows/build-winget.yml
     secrets: inherit
 
-  # publish-winget:
-  #   uses: ./.github/workflows/publish-winget.yml
-  #   secrets: inherit
+  publish-winget:
+    uses: ./.github/workflows/publish-winget.yml
+    secrets: inherit
 
   build-msstore:
     if: inputs.stores == 'msstore' || inputs.stores == 'all'
