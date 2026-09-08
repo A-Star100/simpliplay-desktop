@@ -127,7 +127,7 @@ const createWindow = (onReadyCallback) => {
     buttons: ['Ok'],
     defaultId: 0,
     title: 'Warning!',
-    message: "Disabling GPU acceleration greatly decreases performance and is not recommended, but if you're curious, I don't wanna stop you.",
+    message: "Disabling GPU acceleration greatly decreases performance and can disable certain codecs (and HDR10 videos) from playing properly, and is not recommended. But if you're curious, I don't wanna stop you.",
   });
   } 
 
