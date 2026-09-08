@@ -65,16 +65,16 @@
     <button id="volumeBtn">🔊</button>
     <input type="range" id="volumeBar" min="0" max="1" step="0.1" value="1">
     <button id="fullscreenBtn">⛶</button>
-    <button id="ccBtn">Add Subtitles</button> <!-- CC button -->
+    <button id="ccBtn">Add Subtitles</button> <!-- subtitles -->
   </div>
 
   <div class="gap-box"></div>
   <button id="showDialogBtn">Play more media</button>
 
-  <!-- Settings gear button -->
+  <!-- btn for settings -->
   <button id="settingsBtn">⚙️</button>
 
-  <!-- Settings panel -->
+  <!-- the actual settings -->
   <div class="dialog-overlay" id="settingsDialogOverlay">
   <div id="settingsPanel">
     <label for="autoplayCheckbox">Autoplay:</label>
@@ -83,7 +83,7 @@
     <input type="checkbox" id="loopCheckbox"><br>
     <label for="controlsCheckbox">Controls:</label>
     <input type="checkbox" id="controlsCheckbox" checked><br>
-    <label for="controlsCheckbox">Vivid Colors:</label>
+    <label for="controlsCheckbox">Vivid Colors (disables HDR):</label>
     <input type="checkbox" id="colorsCheckbox"><br>
     <p class="settings-info"><em>Settings apply for this session only.</em></p>
     <button id="saveSettingsBtn">Save Settings</button>
