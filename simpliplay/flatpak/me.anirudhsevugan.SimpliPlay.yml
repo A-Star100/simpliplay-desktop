@@ -1,6 +1,6 @@
 app-id: me.anirudhsevugan.SimpliPlay
 runtime: org.freedesktop.Platform
-runtime-version: '25.08'
+runtime-version: '25.08' # wait until electron baseapp adds support for 26.08 till upgrade
 sdk: org.freedesktop.Sdk
 base: org.electronjs.Electron2.BaseApp
 base-version: '25.08'
