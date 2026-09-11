@@ -14,7 +14,7 @@ on:
         required: true
         default: 'all'
         type: choice
-        options: [x64, arm64, armv7, all]
+        options: [x64, arm64, all]
       stores:
         description: "Storefronts (doesn't include GitHub Releases obviously) to build and/or publish for"
         required: true
