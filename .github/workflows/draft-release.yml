@@ -35,6 +35,7 @@ jobs:
           rm -f all-artifacts/**/elevate.exe
           rm -f all-artifacts/**/SimpliPlay.exe
           rm -f all-artifacts/**/SimpliPlay-i386-linux.AppImage
+          rm -f all-artifacts/**/SimpliPlay-armv7l-linux.AppImage
 
       - name: Generate changelog
         env:
