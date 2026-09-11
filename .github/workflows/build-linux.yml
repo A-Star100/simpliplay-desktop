@@ -138,36 +138,36 @@ jobs:
           name: linux-arm64-flatpak
           path: simpliplay/dist/*.flatpak
 
-  build_armv7:
-    runs-on: ubuntu-latest #prebuilt
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
+  # build_armv7:
+  #   runs-on: ubuntu-latest #prebuilt
+  #   steps:
+  #     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
 
-      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #7.0.0
-        with:
-          node-version: 22
+  #     - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 #7.0.0
+  #       with:
+  #         node-version: 22
  
-      - name: Install dependencies
-        run: npm ci
-        working-directory: simpliplay
+  #     - name: Install dependencies
+  #       run: npm ci
+  #       working-directory: simpliplay
 
-      - name: Build AppImage
-        run: npx electron-builder --linux AppImage --armv7l
-        working-directory: simpliplay
+  #     - name: Build AppImage
+  #       run: npx electron-builder --linux AppImage --armv7l
+  #       working-directory: simpliplay
 
-      - name: Build snap
-        run: npx electron-builder --linux snap --armv7l
-        working-directory: simpliplay
+  #     - name: Build snap
+  #       run: npx electron-builder --linux snap --armv7l
+  #       working-directory: simpliplay
         
-      - uses: actions/upload-artifact@v6
-        with:
-          name: linux-armv7l-v2-snap
-          path: simpliplay/dist/*.snap
+  #     - uses: actions/upload-artifact@v6
+  #       with:
+  #         name: linux-armv7l-v2-snap
+  #         path: simpliplay/dist/*.snap
 
-      - uses: actions/upload-artifact@v6
-        with:
-           name: linux-armv7-appimage
-           path: simpliplay/dist/*.AppImage
+  #     - uses: actions/upload-artifact@v6
+  #       with:
+  #          name: linux-armv7-appimage
+  #          path: simpliplay/dist/*.AppImage
 
       # - uses: actions/upload-artifact@v6
       #   with:
