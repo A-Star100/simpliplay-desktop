@@ -45,7 +45,6 @@ jobs:
       - name: Publish to Snap Store
         shell: bash
         env:
-          SNAPCRAFT_STORE_AUTH: candid
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
           channel: ${{ github.event.inputs.channel }}
           arch: ${{ github.event.inputs.arches }}
