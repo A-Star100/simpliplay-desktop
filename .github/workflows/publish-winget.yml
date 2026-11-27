@@ -44,7 +44,7 @@ jobs:
       - run: "echo 'If the next step fails with a permission error for UpdateRef, resync the fork of winget-pkgs manually to fix it'"
 
       - name: Publish to Winget
-        uses: vedantmgoyal9/winget-releaser@7bd472be23763def6e16bd06cc8b1cdfab0e2fd5 #v2
+        uses: vedantmgoyal9/winget-releaser@b7370d4d152efdce803a26cc6ca9eee58cb2ad54
         with:
           identifier: AnirudhSevugan.SimpliPlay
           token: ${{ secrets.WINGET_PAT }}
